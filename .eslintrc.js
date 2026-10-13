@@ -22,4 +22,15 @@ module.exports = {
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
   },
+  overrides: [
+    {
+      files: ['apps/weather-worker/src/data-providers/open-meteo.provider.ts'],
+      rules: {
+        '@typescript-eslint/no-namespace': [
+          'error',
+          { allowDeclarations: true },
+        ],
+      },
+    },
+  ],
 };

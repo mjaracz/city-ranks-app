@@ -26,6 +26,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./apps/api-gateway/test/jest-e2e.json",
+    "test:unit:weather": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --config ./apps/weather-worker/test/jest-unit.json --runInBand",
     "test:integration": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --config ./jest.integration.json --runInBand",
     "test:integration:gateway": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --config ./jest.integration.json --runInBand --runTestsByPath apps/api-gateway/test/api-gateway.integration-spec.ts",
     "test:integration:weather": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --config ./jest.integration.json --runInBand --runTestsByPath apps/weather-worker/test/weather-worker.integration-spec.ts",

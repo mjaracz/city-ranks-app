@@ -1,0 +1,24 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": "../../..",
+  "testEnvironment": "node",
+  "testRegex": "\\.spec\\.ts$",
+  "extensionsToTreatAsEsm": [".ts"],
+  "transform": {
+    "^.+\\.(t|j)s$": [
+      "ts-jest",
+      {
+        "useESM": true,
+        "tsconfig": {
+          "module": "ESNext",
+          "types": ["jest", "node"],
+          "allowSyntheticDefaultImports": true,
+          "esModuleInterop": true,
+          "ignoreDeprecations": "6.0"
+        }
+      }
+    ]
+  },
+  "cacheDirectory": "<rootDir>/.codex/jest-cache",
+  "roots": ["<rootDir>/apps/weather-worker/src/"]
+}
