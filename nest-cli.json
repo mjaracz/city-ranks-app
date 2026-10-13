@@ -1,24 +1,15 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "apps/city-ranks-app/src",
+  "sourceRoot": "apps/api-gateway/src",
   "compilerOptions": {
     "deleteOutDir": true,
-    "webpack": true,
-    "tsConfigPath": "apps/city-ranks-app/tsconfig.app.json"
+    "builder": "rspack",
+    "tsConfigPath": "apps/api-gateway/tsconfig.app.json"
   },
   "monorepo": true,
-  "root": "apps/city-ranks-app",
+  "root": "apps/api-gateway",
   "projects": {
-    "city-ranks-app": {
-      "type": "application",
-      "root": "apps/city-ranks-app",
-      "entryFile": "main",
-      "sourceRoot": "apps/city-ranks-app/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/city-ranks-app/tsconfig.app.json"
-      }
-    },
     "api-gateway": {
       "type": "application",
       "root": "apps/api-gateway",
@@ -26,6 +17,24 @@
       "sourceRoot": "apps/api-gateway/src",
       "compilerOptions": {
         "tsConfigPath": "apps/api-gateway/tsconfig.app.json"
+      }
+    },
+    "weather-worker": {
+      "type": "application",
+      "root": "apps/weather-worker",
+      "entryFile": "main",
+      "sourceRoot": "apps/weather-worker/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/weather-worker/tsconfig.app.json"
+      }
+    },
+    "activity-ranking-worker": {
+      "type": "application",
+      "root": "apps/activity-ranking-worker",
+      "entryFile": "main",
+      "sourceRoot": "apps/activity-ranking-worker/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/activity-ranking-worker/tsconfig.app.json"
       }
     }
   }
