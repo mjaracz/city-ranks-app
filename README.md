@@ -1,73 +1,72 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# City Ranks backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This repository is the backend foundation for ranking the next seven days in a city for skiing, surfing, outdoor sightseeing, and indoor sightseeing. It contains a GraphQL API Gateway and two domain workers. Forecast retrieval, persistence, read models, and activity scoring remain the next business slice.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Architecture
 
-## Description
+- `api-gateway` is the only public HTTP application. GraphQL is served at `/graphql`. It uses Core NATS request/reply for worker health and JetStream for durable domain commands.
+- `weather-worker` owns weather data and its PostgreSQL database. `activity-ranking-worker` owns ranking data and a separate PostgreSQL database. Each is a message-only worker with no HTTP listener.
+- Domain commands are stored in the file-backed `DOMAIN_COMMANDS` work queue. Durable consumers named per domain are shared by replicas. A worker acknowledges a command only after appending its event.
+- Each domain owns a separate persistent JetStream event stream (`WEATHER_EVENTS` or `ACTIVITY_RANKING_EVENTS`). Those streams use limits retention without configured age, message-count, or byte limits; the command queue and event history have separate retention semantics.
+- Event IDs are derived from command IDs so JetStream can deduplicate retried appends within its duplicate window. Consumers use explicit acknowledgements and bounded redelivery. A durable database inbox/outbox and projection transaction will be needed for end-to-end idempotency across longer replay windows.
+- Each domain service owns one database shared by its replicas. The Compose stack has a separate PostgreSQL instance for weather and ranking. The NATS queue groups for health handlers and shared durable consumers allow horizontal replicas without adding public worker endpoints.
+- The initial command handlers only append `forecast-refresh-requested` and `activity-ranking-refresh-requested` events containing the requested city. They do not yet fetch Open-Meteo forecasts, persist forecast records, build ranking projections, or calculate activity scores. These are intentionally the next vertical slice.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+For the take-home on its own, a modular monolith would be smaller and easier to operate. The current service boundaries follow the requested architecture and keep data ownership explicit without creating a separate service for every activity.
 
-## Installation
+## Run locally
 
-```bash
-$ pnpm install
+Use Node.js 20.19 or later in the 20.x line, or 22.12 or later. Nest 12 and Apollo Server 5 require a supported Node.js runtime.
+
+1. Install dependencies with `pnpm install`.
+2. Copy `.env.example` to `.env`. Its database credentials are for local development only.
+3. Start NATS JetStream and both PostgreSQL instances with `docker compose up -d`.
+4. Start `pnpm start:dev:weather-worker`, `pnpm start:dev:activity-ranking-worker`, and `pnpm start:dev:api-gateway` in separate terminals.
+5. Open `http://localhost:3000/graphql` and query worker readiness:
+
+```graphql
+query {
+  workersHealth {
+    service
+    ready
+    database
+    eventStore
+    commandConsumer
+  }
+}
 ```
 
-## Running the app
+The gateway accepts durable command requests:
 
-```bash
-# development
-$ pnpm run start
+```graphql
+mutation {
+  requestWeatherRefresh(city: "Reykjavik") {
+    commandId
+    domain
+    accepted
+  }
+}
 
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+mutation {
+  requestActivityRanking(city: "Reykjavik") {
+    commandId
+    domain
+    accepted
+  }
+}
 ```
 
-## Test
+Build all deployable applications with `pnpm build`.
 
-```bash
-# unit tests
-$ pnpm run test
+## Integration tests
 
-# e2e tests
-$ pnpm run test:e2e
+Start the Docker dependencies first. The integration setup reads `.env` when present and otherwise uses the local Compose connection defaults.
 
-# test coverage
-$ pnpm run test:cov
-```
+- `pnpm test:integration:weather` verifies weather worker health, durable command consumption, and persisted event contents.
+- `pnpm test:integration:activity-ranking` verifies ranking worker health, durable command consumption, and persisted event contents.
+- `pnpm test:integration:gateway` starts both workers and the API Gateway, calls GraphQL health and command mutations, then reads the events back from JetStream.
+- `pnpm test:integration` runs all three suites.
 
-## Support
+## Next vertical slice
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
+Persist forecast location and freshness metadata in the weather database, fetch and store Open-Meteo forecasts, then publish complete versioned weather events. The activity-ranking worker should consume those events into its own projection and compute the four activity scores without reading the weather database. Event payloads should contain enough information to rebuild projections without rereading Open-Meteo. Add a database-backed inbox/outbox, idempotent command handling, and stale-update coordination before running concurrent refresh workers in production.
