@@ -4,8 +4,8 @@ import { CityQueryError } from '../../../../libs/contracts/src/city-query';
 import {
   CachedWeatherApiResponse,
   WeatherApiQueryCacheRepository,
-} from '../weather-api-query-cache.repository';
-import { OpenMeteoJsonClient } from './open-meteo-json.client';
+} from '../../src/weather-api-query-cache.repository';
+import { OpenMeteoJsonClient } from '../../src/data-providers/open-meteo-json.client';
 
 describe('OpenMeteoJsonClient', () => {
   let moduleRef: TestingModule;

@@ -1,6 +1,6 @@
-import { measureOperations, percentile } from './load-metrics';
-import { parseLoadOptions, loadEnvironment } from './load-options';
-import { createLoadFixtures } from './load-fixtures';
+import { measureOperations, percentile } from '../load-metrics';
+import { parseLoadOptions, loadEnvironment } from '../load-options';
+import { createLoadFixtures } from '../load-fixtures';
 
 describe('Load harness', () => {
   it('measures completions and errors with bounded concurrency', async () => {

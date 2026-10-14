@@ -5,12 +5,12 @@ import {
   parseCity,
   parseMarine,
   parseWeather,
-} from './city-forecast.service';
-import { OpenMeteoJsonClient } from './data-providers/open-meteo-json.client';
+} from '../src/city-forecast.service';
+import { OpenMeteoJsonClient } from '../src/data-providers/open-meteo-json.client';
 import {
   WeatherApiQueryCacheRepository,
   CachedWeatherApiResponse,
-} from './weather-api-query-cache.repository';
+} from '../src/weather-api-query-cache.repository';
 import { JetStreamEventStore } from '../../../libs/messaging/src/jetstream-event-store';
 import {
   forecastFixture,

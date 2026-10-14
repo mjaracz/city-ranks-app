@@ -3,8 +3,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CityQueryError } from '../../../libs/contracts/src/city-query';
 import { WEATHER_CITY_FORECAST_QUERY } from '../../../libs/contracts/src/message-patterns';
 import { forecastFixture } from '../../city-ranking-test.fixtures';
-import { CityForecastQueryHandler } from './city-forecast-query.handler';
-import { CityForecastService } from './city-forecast.service';
+import { CityForecastQueryHandler } from '../src/city-forecast-query.handler';
+import { CityForecastService } from '../src/city-forecast.service';
 
 describe('CityForecastQueryHandler', () => {
   let moduleRef: TestingModule;

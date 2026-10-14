@@ -2,8 +2,8 @@ import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { forecastFixture } from '../../city-ranking-test.fixtures';
 import { calculateCityRanking } from '../../activity-ranking-worker/src/domain/ranking-policy';
-import { CityRankingGatewayService } from './city-ranking.service';
-import { CityRankingResolver } from './city-ranking.resolver';
+import { CityRankingGatewayService } from '../src/city-ranking.service';
+import { CityRankingResolver } from '../src/city-ranking.resolver';
 
 describe('CityRankingResolver', () => {
   let moduleRef: TestingModule;

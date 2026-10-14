@@ -1,6 +1,6 @@
 import { forecastFixture } from '../../../city-ranking-test.fixtures';
-import { calculateCityRanking } from './ranking-policy';
-import { validateCityRanking } from './ranking-validation';
+import { calculateCityRanking } from '../../src/domain/ranking-policy';
+import { validateCityRanking } from '../../src/domain/ranking-validation';
 
 describe('validateCityRanking', () => {
   it('accepts a complete deterministic seven-day ranking', () => {

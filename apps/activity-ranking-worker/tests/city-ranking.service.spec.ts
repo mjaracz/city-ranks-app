@@ -8,9 +8,9 @@ import {
 import { JetStreamEventStore } from '../../../libs/messaging/src/jetstream-event-store';
 import { CityForecast, CityRanking } from '../../../libs/models/src';
 import { forecastFixture } from '../../city-ranking-test.fixtures';
-import { CityRankingRepository } from './city-ranking.repository';
-import { CityRankingService } from './city-ranking.service';
-import { calculateCityRanking } from './domain/ranking-policy';
+import { CityRankingRepository } from '../src/city-ranking.repository';
+import { CityRankingService } from '../src/city-ranking.service';
+import { calculateCityRanking } from '../src/domain/ranking-policy';
 import { Observable, of, throwError } from 'rxjs';
 
 describe('CityRankingService', () => {

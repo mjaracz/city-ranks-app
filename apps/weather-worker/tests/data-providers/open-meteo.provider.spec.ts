@@ -1,8 +1,8 @@
-import { OpenMeteoProvider } from './open-meteo.provider';
+import { OpenMeteoProvider } from '../../src/data-providers/open-meteo.provider';
 import { jest } from '@jest/globals';
-import { WeatherApiQueryCacheRepository } from '../weather-api-query-cache.repository';
+import { WeatherApiQueryCacheRepository } from '../../src/weather-api-query-cache.repository';
 import { createLoadFixtures } from '../../../../scripts/load/load-fixtures';
-import { createOpenMeteoCurrentRequest } from './open-meteo-request';
+import { createOpenMeteoCurrentRequest } from '../../src/data-providers/open-meteo-request';
 
 describe('Open-Meteo cache flow', () => {
   const fixture = createLoadFixtures(1, 64, 'provider-test')[0];

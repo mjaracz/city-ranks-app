@@ -1,6 +1,6 @@
 import { CityQueryError } from '../../../../libs/contracts/src/city-query';
 import { forecastFixture } from '../../../city-ranking-test.fixtures';
-import { validateCityForecast } from './forecast-validation';
+import { validateCityForecast } from '../../src/domain/forecast-validation';
 
 describe('validateCityForecast', () => {
   it('accepts a complete seven-day forecast with valid city-local dates', () => {

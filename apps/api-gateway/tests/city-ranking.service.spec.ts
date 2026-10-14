@@ -9,7 +9,7 @@ import {
 import { CityQueryError } from '../../../libs/contracts/src/city-query';
 import type { CityRanking } from '../../../libs/models/src';
 import { forecastFixture } from '../../city-ranking-test.fixtures';
-import { CityRankingGatewayService } from './city-ranking.service';
+import { CityRankingGatewayService } from '../src/city-ranking.service';
 import { calculateCityRanking } from '../../activity-ranking-worker/src/domain/ranking-policy';
 
 describe('CityRankingGatewayService', () => {

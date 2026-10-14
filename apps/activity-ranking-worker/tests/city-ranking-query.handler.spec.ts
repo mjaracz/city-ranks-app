@@ -3,9 +3,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CityQueryError } from '../../../libs/contracts/src/city-query';
 import { CITY_RANKING_QUERY } from '../../../libs/contracts/src/message-patterns';
 import { forecastFixture } from '../../city-ranking-test.fixtures';
-import { CityRankingQueryHandler } from './city-ranking-query.handler';
-import { CityRankingService } from './city-ranking.service';
-import { calculateCityRanking } from './domain/ranking-policy';
+import { CityRankingQueryHandler } from '../src/city-ranking-query.handler';
+import { CityRankingService } from '../src/city-ranking.service';
+import { calculateCityRanking } from '../src/domain/ranking-policy';
 
 describe('CityRankingQueryHandler', () => {
   let moduleRef: TestingModule;
