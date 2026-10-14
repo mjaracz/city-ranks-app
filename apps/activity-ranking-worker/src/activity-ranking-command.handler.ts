@@ -1,3 +1,4 @@
+import { CityRankingService } from './city-ranking.service';
 import {
   Injectable,
   OnApplicationBootstrap,
@@ -22,7 +23,10 @@ export class ActivityRankingCommandHandler
     subject: ACTIVITY_RANKING_REFRESH_COMMAND,
   });
 
-  constructor(private readonly eventStore: JetStreamEventStore) {}
+  constructor(
+    private readonly eventStore: JetStreamEventStore,
+    private readonly rankings: CityRankingService,
+  ) {}
 
   get isReady(): boolean {
     return this.consumer.isReady;
@@ -41,6 +45,8 @@ export class ActivityRankingCommandHandler
           causationId: command.commandId,
           payload: command.payload,
         });
+        // BQ-09: Does a ranking refresh also need to bypass the weather cache TTL?
+        await this.rankings.getRanking(command.payload.city, true);
       },
     );
   }

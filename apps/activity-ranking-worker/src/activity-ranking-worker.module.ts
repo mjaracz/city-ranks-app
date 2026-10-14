@@ -1,3 +1,8 @@
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { getNatsUrl } from '../../../libs/config/src/environment';
+import { WEATHER_WORKER_CLIENT } from '../../../libs/contracts/src/message-patterns';
+import { CityRankingQueryHandler } from './city-ranking-query.handler';
+import { CityRankingService } from './city-ranking.service';
 import { Module } from '@nestjs/common';
 import { JetStreamEventStore } from '../../../libs/messaging/src/jetstream-event-store';
 import { ActivityRankingCommandHandler } from './activity-ranking-command.handler';
@@ -7,10 +12,24 @@ import { ActivityRankingPersistenceModule } from './persistence/activity-ranking
 import { ActivityRankingQueryHandler } from './activity-ranking-query.handler';
 
 @Module({
-  imports: [ActivityRankingPersistenceModule],
-  controllers: [ActivityRankingHealthHandler, ActivityRankingQueryHandler],
+  imports: [
+    ActivityRankingPersistenceModule,
+    ClientsModule.register([
+      {
+        name: WEATHER_WORKER_CLIENT,
+        transport: Transport.NATS,
+        options: { servers: [getNatsUrl()] },
+      },
+    ]),
+  ],
+  controllers: [
+    ActivityRankingHealthHandler,
+    ActivityRankingQueryHandler,
+    CityRankingQueryHandler,
+  ],
   providers: [
     ActivityRankingCommandHandler,
+    CityRankingService,
     ActivityRankingDatabaseHealth,
     {
       provide: JetStreamEventStore,

@@ -6,6 +6,7 @@ export interface WeatherApiQuery {
 export interface CachedWeatherApiResponse {
   response: Record<string, unknown>;
   cachedAt: Date;
+  expiresAt?: Date;
 }
 
 export abstract class WeatherApiQueryCacheRepository {
@@ -18,5 +19,6 @@ export abstract class WeatherApiQueryCacheRepository {
     query: WeatherApiQuery,
     response: Record<string, unknown>,
     expiresAt: Date,
+    cachedAt?: Date,
   ): Promise<void>;
 }

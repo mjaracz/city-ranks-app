@@ -1,3 +1,5 @@
+import { CityRankingGatewayService } from './city-ranking.service';
+import { CityRankingResolver } from './city-ranking.resolver';
 import { Module } from '@nestjs/common';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { GraphQLModule } from '@nestjs/graphql';
@@ -39,6 +41,8 @@ import {
   controllers: [ApiGatewayController],
   providers: [
     ApiGatewayService,
+    CityRankingGatewayService,
+    CityRankingResolver,
     WorkerHealthService,
     WorkerHealthResolver,
     JetStreamCommandBus,

@@ -34,7 +34,11 @@ export class MongoWeatherApiQueryCacheRepository extends WeatherApiQueryCacheRep
       expiresAt: { $gt: new Date() },
     });
     return document
-      ? { response: document.response, cachedAt: document.cachedAt }
+      ? {
+          response: document.response,
+          cachedAt: document.cachedAt,
+          expiresAt: document.expiresAt,
+        }
       : null;
   }
 
@@ -43,6 +47,7 @@ export class MongoWeatherApiQueryCacheRepository extends WeatherApiQueryCacheRep
     query: WeatherApiQuery,
     response: Record<string, unknown>,
     expiresAt: Date,
+    cachedAt = new Date(),
   ): Promise<void> {
     validateSignature(querySignature);
     if (
@@ -64,6 +69,9 @@ export class MongoWeatherApiQueryCacheRepository extends WeatherApiQueryCacheRep
       );
     }
     if (
+      !(cachedAt instanceof Date) ||
+      !Number.isFinite(cachedAt.getTime()) ||
+      cachedAt.getTime() > Date.now() + 1000 ||
       !(expiresAt instanceof Date) ||
       !Number.isFinite(expiresAt.getTime()) ||
       expiresAt.getTime() <= Date.now()
@@ -76,7 +84,7 @@ export class MongoWeatherApiQueryCacheRepository extends WeatherApiQueryCacheRep
         endpoint: query.endpoint,
         queryParameters: query.parameters,
         response,
-        cachedAt: new Date(),
+        cachedAt,
         expiresAt,
       },
       { upsert: true },
