@@ -1,23 +1,17 @@
-import { Injectable, OnModuleDestroy } from '@nestjs/common';
-import { Pool } from 'pg';
-import { getRequiredDatabaseUrl } from '../../../libs/config/src/environment';
+import { Inject, Injectable } from '@nestjs/common';
+import type { Knex } from 'knex';
+import { ACTIVITY_RANKING_KNEX } from './persistence/activity-ranking-knex';
 
 @Injectable()
-export class ActivityRankingDatabaseHealth implements OnModuleDestroy {
-  private readonly pool = new Pool({
-    connectionString: getRequiredDatabaseUrl('ACTIVITY_RANKING_DATABASE_URL'),
-  });
+export class ActivityRankingDatabaseHealth {
+  constructor(@Inject(ACTIVITY_RANKING_KNEX) private readonly database: Knex) {}
 
   async isAvailable(): Promise<boolean> {
     try {
-      await this.pool.query('SELECT 1');
+      await this.database('activity_rankings').select('city').limit(0);
       return true;
     } catch {
       return false;
     }
-  }
-
-  async onModuleDestroy(): Promise<void> {
-    await this.pool.end();
   }
 }

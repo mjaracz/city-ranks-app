@@ -1,23 +1,28 @@
 services:
   nats:
     image: nats:2.10-alpine
-    command: ["-js", "-m", "8222", "-sd", "/data"]
+    command: ['-js', '-m', '8222', '-sd', '/data']
     ports:
-      - "4222:4222"
-      - "8222:8222"
+      - '4222:4222'
+      - '8222:8222'
     volumes:
       - nats-data:/data
 
   weather-db:
-    image: postgres:16-alpine
+    image: mongo:8.0
     environment:
-      POSTGRES_DB: weather
-      POSTGRES_USER: ${WEATHER_DB_USER:-weather}
-      POSTGRES_PASSWORD: ${WEATHER_DB_PASSWORD:-weather-local-only}
+      MONGO_INITDB_ROOT_USERNAME: ${WEATHER_DB_USER:-weather}
+      MONGO_INITDB_ROOT_PASSWORD: ${WEATHER_DB_PASSWORD:-weather-local-only}
     ports:
-      - "5433:5432"
+      - '27017:27017'
     volumes:
-      - weather-db-data:/var/lib/postgresql/data
+      - weather-mongo-data:/data/db
+    healthcheck:
+      test:
+        ['CMD', 'mongosh', '--quiet', '--eval', "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
   activity-ranking-db:
     image: postgres:16-alpine
@@ -26,11 +31,16 @@ services:
       POSTGRES_USER: ${ACTIVITY_RANKING_DB_USER:-activity_ranking}
       POSTGRES_PASSWORD: ${ACTIVITY_RANKING_DB_PASSWORD:-ranking-local-only}
     ports:
-      - "5434:5432"
+      - '5434:5432'
     volumes:
       - activity-ranking-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
 volumes:
   nats-data:
-  weather-db-data:
+  weather-mongo-data:
   activity-ranking-db-data:

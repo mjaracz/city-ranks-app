@@ -1,4 +1,4 @@
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Float, Mutation, Resolver } from '@nestjs/graphql';
 import { CommandReceiptType } from './command-receipt.type';
 import { DomainCommandService } from './domain-command.service';
 
@@ -9,8 +9,10 @@ export class DomainCommandResolver {
   @Mutation(() => CommandReceiptType)
   requestWeatherRefresh(
     @Args('city', { type: () => String }) city: string,
+    @Args('latitude', { type: () => Float, nullable: true }) latitude?: number,
+    @Args('longitude', { type: () => Float, nullable: true }) longitude?: number,
   ): Promise<CommandReceiptType> {
-    return this.commandService.requestWeatherRefresh(city);
+    return this.commandService.requestWeatherRefresh(city, latitude, longitude);
   }
 
   @Mutation(() => CommandReceiptType)

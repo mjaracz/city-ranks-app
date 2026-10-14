@@ -2,6 +2,17 @@ import { connect } from '@nats-io/transport-node';
 import { jetstreamManager } from '@nats-io/jetstream';
 import { getNatsUrl } from '../libs/config/src/environment';
 import type { DomainEvent } from '../libs/contracts/src/domain-event';
+import { createActivityRankingKnex } from './activity-ranking-worker/src/persistence/activity-ranking-knex';
+import { migrateActivityRanking } from './activity-ranking-worker/src/persistence/activity-ranking-migrations';
+
+export async function ensureRankingSchema(): Promise<void> {
+  const database = createActivityRankingKnex();
+  try {
+    await migrateActivityRanking(database);
+  } finally {
+    await database.destroy();
+  }
+}
 
 export async function waitForEvent<TPayload>(
   streamName: string,

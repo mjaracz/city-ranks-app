@@ -8,9 +8,12 @@ import type { DomainCommand } from '../../../libs/contracts/src/domain-command';
 import { WEATHER_FORECAST_REFRESH_COMMAND } from '../../../libs/contracts/src/message-patterns';
 import { JetStreamCommandConsumer } from '../../../libs/messaging/src/jetstream-command-consumer';
 import { JetStreamEventStore } from '../../../libs/messaging/src/jetstream-event-store';
+import { OpenMeteoProvider } from './data-providers/open-meteo.provider';
+import type { WeatherCoordinates } from './data-providers/open-meteo.types';
 
 interface ForecastRefreshPayload {
   city: string;
+  coordinates?: WeatherCoordinates;
 }
 
 @Injectable()
@@ -22,7 +25,10 @@ export class WeatherCommandHandler
     subject: WEATHER_FORECAST_REFRESH_COMMAND,
   });
 
-  constructor(private readonly eventStore: JetStreamEventStore) {}
+  constructor(
+    private readonly eventStore: JetStreamEventStore,
+    private readonly openMeteoProvider: OpenMeteoProvider,
+  ) {}
 
   get isReady(): boolean {
     return this.consumer.isReady;
@@ -30,15 +36,25 @@ export class WeatherCommandHandler
 
   async onApplicationBootstrap(): Promise<void> {
     await this.consumer.start<ForecastRefreshPayload>(async (command) => {
-      const eventId = `${command.commandId}:forecast-refresh-requested`;
+      const currentWeather = command.payload.coordinates
+        ? await this.openMeteoProvider.getCurrentWeather(
+            command.payload.coordinates,
+          )
+        : undefined;
+      const eventType = currentWeather
+        ? 'current-weather-fetched'
+        : 'forecast-refresh-requested';
+      const eventId = `${command.commandId}:${eventType}`;
       await this.eventStore.append({
         eventId,
-        eventType: 'forecast-refresh-requested',
+        eventType,
         schemaVersion: 1,
         occurredAt: new Date().toISOString(),
         correlationId: command.correlationId,
         causationId: command.commandId,
-        payload: command.payload,
+        payload: currentWeather
+          ? { ...command.payload, currentWeather }
+          : command.payload,
       });
     });
   }
@@ -50,6 +66,7 @@ export class WeatherCommandHandler
 
 export function createWeatherRefreshCommand(
   city: string,
+  coordinates?: WeatherCoordinates,
 ): DomainCommand<ForecastRefreshPayload> {
   const commandId = randomUUID();
   return {
@@ -57,6 +74,6 @@ export function createWeatherRefreshCommand(
     commandType: 'weather.forecast.refresh.requested.v1',
     occurredAt: new Date().toISOString(),
     correlationId: commandId,
-    payload: { city },
+    payload: coordinates ? { city, coordinates } : { city },
   };
 }

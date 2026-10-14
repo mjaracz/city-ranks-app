@@ -1,0 +1,26 @@
+{
+  "rootDir": ".",
+  "testEnvironment": "node",
+  "roots": ["<rootDir>/apps", "<rootDir>/scripts"],
+  "cacheDirectory": "<rootDir>/.codex/jest-repositories-cache",
+  "extensionsToTreatAsEsm": [".ts"],
+  "testMatch": [
+    "**/*.repository.spec.ts",
+    "**/open-meteo.provider.spec.ts",
+    "**/load-metrics.spec.ts"
+  ],
+  "transform": {
+    "^.+\\.ts$": [
+      "ts-jest",
+      {
+        "useESM": true,
+        "tsconfig": {
+          "module": "ESNext",
+          "esModuleInterop": true,
+          "ignoreDeprecations": "6.0",
+          "types": ["jest", "node"]
+        }
+      }
+    ]
+  }
+}

@@ -8,16 +8,48 @@ import {
 import { JetStreamCommandBus } from '../../../libs/messaging/src/jetstream-command-bus';
 import { CommandReceiptType } from './command-receipt.type';
 
+interface WeatherCoordinates {
+  latitude: number;
+  longitude: number;
+}
+
 @Injectable()
 export class DomainCommandService {
   constructor(private readonly commandBus: JetStreamCommandBus) {}
 
-  requestWeatherRefresh(city: string): Promise<CommandReceiptType> {
+  requestWeatherRefresh(
+    city: string,
+    latitude?: number,
+    longitude?: number,
+  ): Promise<CommandReceiptType> {
+    if ((latitude === undefined) !== (longitude === undefined)) {
+      throw new BadRequestException(
+        'Latitude and longitude must be provided together',
+      );
+    }
+
+    const coordinates =
+      latitude === undefined || longitude === undefined
+        ? undefined
+        : { latitude, longitude };
+    if (
+      coordinates &&
+      (!Number.isFinite(coordinates.latitude) ||
+        coordinates.latitude < -90 ||
+        coordinates.latitude > 90 ||
+        !Number.isFinite(coordinates.longitude) ||
+        coordinates.longitude < -180 ||
+        coordinates.longitude > 180)
+    ) {
+      throw new BadRequestException('Coordinates are outside valid ranges');
+    }
+
     return this.publish(
       'weather',
       WEATHER_FORECAST_REFRESH_COMMAND,
       'weather.forecast.refresh.requested.v1',
       city,
+      coordinates,
     );
   }
 
@@ -37,6 +69,7 @@ export class DomainCommandService {
       | typeof ACTIVITY_RANKING_REFRESH_COMMAND,
     commandType: string,
     city: string,
+    coordinates?: WeatherCoordinates,
   ): Promise<CommandReceiptType> {
     const normalizedCity = city.trim();
     if (!normalizedCity || normalizedCity.length > 120) {
@@ -44,12 +77,18 @@ export class DomainCommandService {
     }
 
     const commandId = randomUUID();
-    const command: DomainCommand<{ city: string }> = {
+    const payload: { city: string; coordinates?: WeatherCoordinates } = {
+      city: normalizedCity,
+    };
+    if (coordinates) {
+      payload.coordinates = coordinates;
+    }
+    const command: DomainCommand<typeof payload> = {
       commandId,
       commandType,
       occurredAt: new Date().toISOString(),
       correlationId: commandId,
-      payload: { city: normalizedCity },
+      payload,
     };
 
     await this.commandBus.publish(subject, command);

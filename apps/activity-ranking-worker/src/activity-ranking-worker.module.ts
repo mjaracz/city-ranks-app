@@ -3,9 +3,12 @@ import { JetStreamEventStore } from '../../../libs/messaging/src/jetstream-event
 import { ActivityRankingCommandHandler } from './activity-ranking-command.handler';
 import { ActivityRankingDatabaseHealth } from './activity-ranking-database-health.service';
 import { ActivityRankingHealthHandler } from './activity-ranking-health.handler';
+import { ActivityRankingPersistenceModule } from './persistence/activity-ranking-persistence.module';
+import { ActivityRankingQueryHandler } from './activity-ranking-query.handler';
 
 @Module({
-  controllers: [ActivityRankingHealthHandler],
+  imports: [ActivityRankingPersistenceModule],
+  controllers: [ActivityRankingHealthHandler, ActivityRankingQueryHandler],
   providers: [
     ActivityRankingCommandHandler,
     ActivityRankingDatabaseHealth,

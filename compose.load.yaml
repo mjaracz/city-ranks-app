@@ -1,0 +1,43 @@
+services:
+  nats:
+    image: nats:2.10-alpine
+    command: ['-js', '-sd', '/data']
+    ports: ['127.0.0.1:4223:4222']
+    volumes: ['load-nats-data:/data']
+    cpus: 1.0
+    mem_limit: 512m
+  weather-db:
+    image: mongo:8.0
+    command: ['--wiredTigerCacheSizeGB', '0.25']
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: weather_load
+      MONGO_INITDB_ROOT_PASSWORD: weather-load-local-only
+    ports: ['127.0.0.1:27018:27017']
+    volumes: ['load-weather-data:/data/db']
+    cpus: 1.0
+    mem_limit: 512m
+    healthcheck:
+      test:
+        ['CMD', 'mongosh', '--quiet', '--eval', "db.adminCommand('ping').ok"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+  activity-ranking-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: activity_ranking_load
+      POSTGRES_USER: ranking_load
+      POSTGRES_PASSWORD: ranking-load-local-only
+    ports: ['127.0.0.1:5435:5432']
+    volumes: ['load-ranking-data:/var/lib/postgresql/data']
+    cpus: 1.0
+    mem_limit: 512m
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
+      interval: 2s
+      timeout: 5s
+      retries: 30
+volumes:
+  load-nats-data:
+  load-weather-data:
+  load-ranking-data:
