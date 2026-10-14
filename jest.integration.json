@@ -2,6 +2,7 @@
   "moduleFileExtensions": ["js", "json", "ts"],
   "rootDir": ".",
   "testEnvironment": "node",
+  "cacheDirectory": "<rootDir>/.codex/jest-integration-cache",
   "testRegex": "\\.integration-spec\\.ts$",
   "extensionsToTreatAsEsm": [".ts"],
   "transform": {

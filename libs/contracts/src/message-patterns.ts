@@ -13,3 +13,5 @@ export const ACTIVITY_RANKING_REFRESH_COMMAND =
 
 export const WEATHER_WORKER_QUEUE = 'weather-worker';
 export const ACTIVITY_RANKING_WORKER_QUEUE = 'activity-ranking-worker';
+export const WEATHER_CURRENT_QUERY = 'weather.current-weather.query.v1';
+export const ACTIVITY_RANKINGS_QUERY = 'activity-ranking.rankings.query.v1';

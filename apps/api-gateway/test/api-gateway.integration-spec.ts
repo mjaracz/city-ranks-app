@@ -10,7 +10,10 @@ import {
   WEATHER_WORKER_QUEUE,
 } from '../../../libs/contracts/src/message-patterns';
 import { getNatsUrl } from '../../../libs/config/src/environment';
-import { waitForEvent } from '../../worker-integration.helpers';
+import {
+  waitForEvent,
+  ensureRankingSchema,
+} from '../../worker-integration.helpers';
 
 describe('ApiGateway integration', () => {
   let api: INestApplication;
@@ -18,6 +21,7 @@ describe('ApiGateway integration', () => {
   let activityRankingWorker: INestMicroservice;
 
   beforeAll(async () => {
+    await ensureRankingSchema();
     weatherWorker = await NestFactory.createMicroservice<MicroserviceOptions>(
       WeatherWorkerModule,
       {
