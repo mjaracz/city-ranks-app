@@ -9,7 +9,7 @@ import { JetStreamEventStore } from '../../../libs/messaging/src/jetstream-event
 import { CityForecast, CityRanking } from '../../../libs/models/src';
 import { forecastFixture } from '../../city-ranking-test.fixtures';
 import { CityRankingRepository } from '../src/city-ranking.repository';
-import { CityRankingService } from '../src/city-ranking.service';
+import { CityRankingService } from '../src/services/city-ranking.service';
 import { calculateCityRanking } from '../src/domain/ranking-policy';
 import { Observable, of, throwError } from 'rxjs';
 

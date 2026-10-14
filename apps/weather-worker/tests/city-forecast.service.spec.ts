@@ -5,7 +5,7 @@ import {
   parseCity,
   parseMarine,
   parseWeather,
-} from '../src/city-forecast.service';
+} from '../src/services/city-forecast.service';
 import { OpenMeteoJsonClient } from '../src/data-providers/open-meteo-json.client';
 import {
   WeatherApiQueryCacheRepository,

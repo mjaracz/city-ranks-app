@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import { CityRankingService } from '../src/city-ranking.service';
+import { CityRankingService } from '../src/services/city-ranking.service';
 import { calculateCityRanking } from '../src/domain/ranking-policy';
 import { forecastFixture } from '../../city-ranking-test.fixtures';
 import type { INestMicroservice } from '@nestjs/common';
@@ -12,7 +12,7 @@ import type { Knex } from 'knex';
 import { ActivityRankingRepository } from '../src/activity-ranking.repository';
 import { ACTIVITY_RANKING_KNEX } from '../src/persistence/activity-ranking-knex';
 import { ActivityRankingWorkerModule } from '../src/activity-ranking-worker.module';
-import { createActivityRankingRefreshCommand } from '../src/activity-ranking-command.handler';
+import { createActivityRankingRefreshCommand } from '../src/handlers/activity-ranking-command.handler';
 import {
   ACTIVITY_RANKING_REFRESH_COMMAND,
   ACTIVITY_RANKING_WORKER_HEALTH,

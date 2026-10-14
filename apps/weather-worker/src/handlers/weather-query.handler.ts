@@ -1,11 +1,11 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, RpcException } from '@nestjs/microservices';
-import { WEATHER_CURRENT_QUERY } from '../../../libs/contracts/src/message-patterns';
-import { OpenMeteoProvider } from './data-providers/open-meteo.provider';
+import { WEATHER_CURRENT_QUERY } from '../../../../libs/contracts/src/message-patterns';
+import { OpenMeteoProvider } from '../data-providers/open-meteo.provider';
 import type {
   CurrentWeather,
   WeatherCoordinates,
-} from './data-providers/open-meteo.types';
+} from '../data-providers/open-meteo.types';
 
 @Controller()
 export class WeatherQueryHandler {

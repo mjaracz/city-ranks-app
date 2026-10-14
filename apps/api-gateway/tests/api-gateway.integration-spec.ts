@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import { CityForecastService } from '../../weather-worker/src/city-forecast.service';
+import { CityForecastService } from '../../weather-worker/src/services/city-forecast.service';
 import { forecastFixture } from '../../city-ranking-test.fixtures';
 import type { INestApplication, INestMicroservice } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';

@@ -1,12 +1,12 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import type { DomainCommand } from '../../../libs/contracts/src/domain-command';
+import type { DomainCommand } from '../../../../libs/contracts/src/domain-command';
 import {
   ACTIVITY_RANKING_REFRESH_COMMAND,
   WEATHER_FORECAST_REFRESH_COMMAND,
-} from '../../../libs/contracts/src/message-patterns';
-import { JetStreamCommandBus } from '../../../libs/messaging/src/jetstream-command-bus';
-import { CommandReceiptType } from './command-receipt.type';
+} from '../../../../libs/contracts/src/message-patterns';
+import { JetStreamCommandBus } from '../../../../libs/messaging/src/jetstream-command-bus';
+import { CommandReceiptType } from '../command-receipt.type';
 
 interface WeatherCoordinates {
   latitude: number;

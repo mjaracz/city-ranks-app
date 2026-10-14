@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { Knex } from 'knex';
-import { ACTIVITY_RANKING_KNEX } from './persistence/activity-ranking-knex';
+import { ACTIVITY_RANKING_KNEX } from '../persistence/activity-ranking-knex';
 
 @Injectable()
 export class ActivityRankingDatabaseHealth {

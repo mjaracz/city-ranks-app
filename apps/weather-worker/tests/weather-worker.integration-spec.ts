@@ -13,7 +13,7 @@ import {
 import { createOpenMeteoCurrentRequest } from '../src/data-providers/open-meteo-request';
 import { createLoadFixtures } from '../../../scripts/load/load-fixtures';
 import { WeatherWorkerModule } from '../src/weather-worker.module';
-import { createWeatherRefreshCommand } from '../src/weather-command.handler';
+import { createWeatherRefreshCommand } from '../src/handlers/weather-command.handler';
 import {
   WEATHER_FORECAST_REFRESH_COMMAND,
   WEATHER_WORKER_HEALTH,
