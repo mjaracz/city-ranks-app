@@ -15,3 +15,6 @@ export const WEATHER_WORKER_QUEUE = 'weather-worker';
 export const ACTIVITY_RANKING_WORKER_QUEUE = 'activity-ranking-worker';
 export const WEATHER_CURRENT_QUERY = 'weather.current-weather.query.v1';
 export const ACTIVITY_RANKINGS_QUERY = 'activity-ranking.rankings.query.v1';
+
+export const WEATHER_CITY_FORECAST_QUERY = 'weather.city-forecast.query.v1';
+export const CITY_RANKING_QUERY = 'ranking.city.get.v1';

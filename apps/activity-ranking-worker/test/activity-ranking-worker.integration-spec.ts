@@ -1,3 +1,7 @@
+import { jest } from '@jest/globals';
+import { CityRankingService } from '../src/city-ranking.service';
+import { calculateCityRanking } from '../src/domain/ranking-policy';
+import { forecastFixture } from '../../city-ranking-test.fixtures';
 import type { INestMicroservice } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ClientProxyFactory, Transport } from '@nestjs/microservices';
@@ -39,6 +43,9 @@ describe('ActivityRankingWorker integration', () => {
         },
       },
     );
+    jest
+      .spyOn(worker.get(CityRankingService), 'getRanking')
+      .mockResolvedValue(calculateCityRanking(forecastFixture()));
     await worker.listen();
     client = ClientProxyFactory.create({
       transport: Transport.NATS,
