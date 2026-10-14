@@ -5,19 +5,23 @@ import {
   CityQueryError,
   CityQueryResult,
   normalizeCity,
-} from '../../../libs/contracts/src/city-query';
+} from '../../../../libs/contracts/src/city-query';
 import {
   WEATHER_CITY_FORECAST_QUERY,
   WEATHER_WORKER_CLIENT,
-} from '../../../libs/contracts/src/message-patterns';
-import { JetStreamEventStore } from '../../../libs/messaging/src/jetstream-event-store';
-import { CityForecast, CityRanking, localDate } from '../../../libs/models/src';
-import { CityRankingRepository } from './city-ranking.repository';
+} from '../../../../libs/contracts/src/message-patterns';
+import { JetStreamEventStore } from '../../../../libs/messaging/src/jetstream-event-store';
+import {
+  CityForecast,
+  CityRanking,
+  localDate,
+} from '../../../../libs/models/src';
+import { CityRankingRepository } from '../city-ranking.repository';
 import {
   calculateCityRanking,
   RANKING_POLICY_VERSION,
-} from './domain/ranking-policy';
-import { validateCityForecast } from './domain/forecast-validation';
+} from '../domain/ranking-policy';
+import { validateCityForecast } from '../domain/forecast-validation';
 
 @Injectable()
 export class CityRankingService {

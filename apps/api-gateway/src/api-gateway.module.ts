@@ -1,16 +1,16 @@
-import { CityRankingGatewayService } from './city-ranking.service';
-import { CityRankingResolver } from './city-ranking.resolver';
+import { CityRankingGatewayService } from './services/city-ranking.service';
+import { CityRankingResolver } from './resolvers/city-ranking.resolver';
 import { Module } from '@nestjs/common';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { JetStreamCommandBus } from '../../../libs/messaging/src/jetstream-command-bus';
 import { ApiGatewayController } from './api-gateway.controller';
-import { ApiGatewayService } from './api-gateway.service';
-import { DomainCommandResolver } from './domain-command.resolver';
-import { DomainCommandService } from './domain-command.service';
-import { WorkerHealthResolver } from './worker-health.resolver';
-import { WorkerHealthService } from './worker-health.service';
+import { ApiGatewayService } from './services/api-gateway.service';
+import { DomainCommandResolver } from './resolvers/domain-command.resolver';
+import { DomainCommandService } from './services/domain-command.service';
+import { WorkerHealthResolver } from './resolvers/worker-health.resolver';
+import { WorkerHealthService } from './services/worker-health.service';
 import { getNatsUrl, isProduction } from '../../../libs/config/src/environment';
 import {
   ACTIVITY_RANKING_WORKER_CLIENT,

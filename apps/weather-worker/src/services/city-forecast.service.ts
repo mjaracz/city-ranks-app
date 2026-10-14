@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import {
   CityQueryError,
   normalizeCity,
-} from '../../../libs/contracts/src/city-query';
+} from '../../../../libs/contracts/src/city-query';
 import {
   addCalendarDays,
   CityForecast,
@@ -12,14 +12,14 @@ import {
   isCalendarDate,
   localDate,
   WMO_WEATHER_CODES,
-} from '../../../libs/models/src';
-import { JetStreamEventStore } from '../../../libs/messaging/src/jetstream-event-store';
+} from '../../../../libs/models/src';
+import { JetStreamEventStore } from '../../../../libs/messaging/src/jetstream-event-store';
 import {
   numberOrNull,
   OpenMeteoJsonClient,
   PersistedResponse,
   record,
-} from './data-providers/open-meteo-json.client';
+} from '../data-providers/open-meteo-json.client';
 
 const fields = {
   temperatureMinCelsius: ['temperature_2m_min', -100, 70],

@@ -1,10 +1,10 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, RpcException } from '@nestjs/microservices';
-import { ACTIVITY_RANKINGS_QUERY } from '../../../libs/contracts/src/message-patterns';
+import { ACTIVITY_RANKINGS_QUERY } from '../../../../libs/contracts/src/message-patterns';
 import {
   ActivityRankingRepository,
   ActivityRanking,
-} from './activity-ranking.repository';
+} from '../activity-ranking.repository';
 
 @Controller()
 export class ActivityRankingQueryHandler {
