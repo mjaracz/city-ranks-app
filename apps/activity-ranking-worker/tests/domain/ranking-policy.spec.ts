@@ -1,5 +1,5 @@
-import { validateCityRanking } from './ranking-validation';
-import { validateCityForecast } from './forecast-validation';
+import { validateCityRanking } from '../../src/domain/ranking-validation';
+import { validateCityForecast } from '../../src/domain/forecast-validation';
 import {
   Activity,
   ActivityEvaluation,
@@ -13,7 +13,7 @@ import {
   calculateCityRanking,
   evaluateActivities,
   rankDay,
-} from './ranking-policy';
+} from '../../src/domain/ranking-policy';
 
 const evaluations = (scores: number[]): ActivityEvaluation[] =>
   Object.values(Activity).map((activity, i) => ({

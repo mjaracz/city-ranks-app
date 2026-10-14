@@ -3,9 +3,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import type { Knex } from 'knex';
 import { CityRanking } from '../../../libs/models/src';
 import { forecastFixture } from '../../city-ranking-test.fixtures';
-import { calculateCityRanking } from './domain/ranking-policy';
-import { ACTIVITY_RANKING_KNEX } from './persistence/activity-ranking-knex';
-import { PostgresCityRankingRepository } from './postgres-city-ranking.repository';
+import { calculateCityRanking } from '../src/domain/ranking-policy';
+import { ACTIVITY_RANKING_KNEX } from '../src/persistence/activity-ranking-knex';
+import { PostgresCityRankingRepository } from '../src/postgres-city-ranking.repository';
 
 type QueryChain = Record<string, jest.Mock<(...args: any[]) => any>>;
 
