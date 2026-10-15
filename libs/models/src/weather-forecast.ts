@@ -13,13 +13,15 @@ export interface DailyWeatherForecast {
   wavePeriodMaxSeconds: number | null;
 }
 
+export type MarineStatus = 'AVAILABLE' | 'INSUFFICIENT_DATA' | 'NOT_APPLICABLE';
+
 export interface CityForecast {
   snapshotId: string;
   city: CityLocation;
   weatherFetchedAt: string;
   marineFetchedAt: string | null;
   freshUntil: string;
-  marineStatus: 'AVAILABLE' | 'INSUFFICIENT_DATA' | 'NOT_APPLICABLE';
+  marineStatus: MarineStatus;
   days: DailyWeatherForecast[];
 }
 

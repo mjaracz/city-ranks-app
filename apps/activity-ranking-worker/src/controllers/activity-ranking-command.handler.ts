@@ -1,5 +1,7 @@
+import { ACTIVITY_RANKING_COMMAND_CONSUMER } from '../infrastructure/activity-ranking-command-consumer';
 import { CityRankingService } from '../services/city-ranking.service';
 import {
+  Inject,
   Injectable,
   OnApplicationBootstrap,
   OnModuleDestroy,
@@ -7,7 +9,7 @@ import {
 import { randomUUID } from 'node:crypto';
 import type { DomainCommand } from '@libs/contracts/domain-command';
 import { ACTIVITY_RANKING_REFRESH_COMMAND } from '@libs/contracts/message-patterns';
-import { JetStreamCommandConsumer } from '@libs/messaging/jetstream-command-consumer';
+import type { DomainCommandConsumer } from '@libs/messaging/jetstream-command-consumer';
 import { JetStreamEventStore } from '@libs/messaging/jetstream-event-store';
 
 interface ActivityRankingRefreshPayload {
@@ -18,12 +20,9 @@ interface ActivityRankingRefreshPayload {
 export class ActivityRankingCommandHandler
   implements OnApplicationBootstrap, OnModuleDestroy
 {
-  private readonly consumer = new JetStreamCommandConsumer({
-    durableName: 'activity-ranking-worker-v1',
-    subject: ACTIVITY_RANKING_REFRESH_COMMAND,
-  });
-
   constructor(
+    @Inject(ACTIVITY_RANKING_COMMAND_CONSUMER)
+    private readonly consumer: DomainCommandConsumer,
     private readonly eventStore: JetStreamEventStore,
     private readonly rankings: CityRankingService,
   ) {}

@@ -1,3 +1,7 @@
+import { ACTIVITY_RANKING_COMMAND_CONSUMER } from './infrastructure/activity-ranking-command-consumer';
+import { JetStreamCommandConsumer } from '@libs/messaging/jetstream-command-consumer';
+import { ACTIVITY_RANKING_REFRESH_COMMAND } from '@libs/contracts/message-patterns';
+import { RankingPolicyModule } from './domain/ranking-policy.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { getNatsUrl } from '@libs/config/environment';
 import { WEATHER_WORKER_CLIENT } from '@libs/contracts/message-patterns';
@@ -14,6 +18,7 @@ import { ActivityRankingQueryHandler } from './controllers/activity-ranking-quer
 @Module({
   imports: [
     ActivityRankingPersistenceModule,
+    RankingPolicyModule,
     ClientsModule.register([
       {
         name: WEATHER_WORKER_CLIENT,
@@ -28,6 +33,14 @@ import { ActivityRankingQueryHandler } from './controllers/activity-ranking-quer
     CityRankingQueryHandler,
   ],
   providers: [
+    {
+      provide: ACTIVITY_RANKING_COMMAND_CONSUMER,
+      useFactory: () =>
+        new JetStreamCommandConsumer({
+          durableName: 'activity-ranking-worker-v1',
+          subject: ACTIVITY_RANKING_REFRESH_COMMAND,
+        }),
+    },
     ActivityRankingCommandHandler,
     CityRankingService,
     ActivityRankingDatabaseHealth,

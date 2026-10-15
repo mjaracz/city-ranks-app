@@ -1,56 +1,39 @@
 import { Injectable } from '@nestjs/common';
 import { createHash } from 'node:crypto';
 import { isObject } from 'class-validator';
-import { getPositiveInteger } from '@libs/config/environment';
 import { CityQueryError } from '@libs/contracts/city-query';
 import { WeatherApiQueryCacheRepository } from '../weather-api-query-cache.repository';
 
-export type OpenMeteoEndpoint = 'geocoding' | 'forecast' | 'marine';
-export interface PersistedResponse<T> {
-  value: T;
-  fetchedAt: Date;
-  freshUntil: Date;
-}
+import { ForecastSource } from '../domain/forecast-source';
+import {
+  OpenMeteoConfiguration,
+  OpenMeteoEndpoint,
+} from './open-meteo.configuration';
 
 @Injectable()
 export class OpenMeteoJsonClient {
-  // BQ-08: Forecasts are fresh for one hour, location resolution for seven days.
-  readonly forecastTtl = getPositiveInteger(
-    'CITY_FORECAST_CACHE_TTL_MS',
-    3_600_000,
-  );
-  readonly geocodingTtl = getPositiveInteger(
-    'GEOCODING_CACHE_TTL_MS',
-    604_800_000,
-  );
+  readonly forecastTtl: number;
+  readonly geocodingTtl: number;
   private readonly endpoints: Record<OpenMeteoEndpoint, URL>;
   private readonly inFlight = new Map<
     string,
-    Promise<PersistedResponse<unknown>>
+    Promise<ForecastSource<unknown>>
   >();
 
-  constructor(private readonly cache: WeatherApiQueryCacheRepository) {
-    this.endpoints = {
-      geocoding: this.endpoint(
-        'OPEN_METEO_GEOCODING_API_URL',
-        'https://geocoding-api.open-meteo.com/v1/search',
-      ),
-      forecast: this.endpoint(
-        'OPEN_METEO_FORECAST_API_URL',
-        'https://api.open-meteo.com/v1/forecast',
-      ),
-      marine: this.endpoint(
-        'OPEN_METEO_MARINE_API_URL',
-        'https://marine-api.open-meteo.com/v1/marine',
-      ),
-    };
+  constructor(
+    private readonly cache: WeatherApiQueryCacheRepository,
+    configuration: OpenMeteoConfiguration,
+  ) {
+    this.endpoints = configuration.endpoints();
+    this.forecastTtl = configuration.ttl('forecast');
+    this.geocodingTtl = configuration.ttl('geocoding');
   }
 
   async get<T>(
     kind: OpenMeteoEndpoint,
     parameters: Record<string, string>,
     parse: (payload: unknown) => T,
-  ): Promise<PersistedResponse<T>> {
+  ): Promise<ForecastSource<T>> {
     const url = new URL(this.endpoints[kind]);
     for (const [key, value] of Object.entries(parameters))
       url.searchParams.set(key, value);
@@ -82,7 +65,7 @@ export class OpenMeteoJsonClient {
         'Required forecast is not present in the weather cache',
       );
     const pending = this.inFlight.get(signature);
-    if (pending) return pending as Promise<PersistedResponse<T>>;
+    if (pending) return pending as Promise<ForecastSource<T>>;
     if (url.hostname.startsWith('customer-') && process.env.OPEN_METEO_API_KEY)
       url.searchParams.set('apikey', process.env.OPEN_METEO_API_KEY.trim());
     const request = this.fetchAndCache(url, signature, query, ttl, parse);
@@ -100,7 +83,7 @@ export class OpenMeteoJsonClient {
     query: { endpoint: string; parameters: Record<string, string> },
     ttl: number,
     parse: (payload: unknown) => T,
-  ): Promise<PersistedResponse<T>> {
+  ): Promise<ForecastSource<T>> {
     let payload: unknown;
     try {
       const response = await fetch(url, {
@@ -125,26 +108,6 @@ export class OpenMeteoJsonClient {
       fetchedAt,
     );
     return { value, fetchedAt, freshUntil };
-  }
-
-  private endpoint(key: string, fallback: string): URL {
-    const url = new URL(process.env[key]?.trim() || fallback);
-    const isInvalidEndpointUrl =
-      url.protocol !== 'https:' ||
-      url.username ||
-      url.password ||
-      url.search ||
-      url.hash;
-    if (isInvalidEndpointUrl)
-      throw new Error(
-        `${key} must be an HTTPS endpoint without credentials or query parameters`,
-      );
-    const isCustomerEndpointMissingApiKey =
-      url.hostname.startsWith('customer-') &&
-      !process.env.OPEN_METEO_API_KEY?.trim();
-    if (isCustomerEndpointMissingApiKey)
-      throw new Error(`OPEN_METEO_API_KEY is required for ${key}`);
-    return url;
   }
 }
 

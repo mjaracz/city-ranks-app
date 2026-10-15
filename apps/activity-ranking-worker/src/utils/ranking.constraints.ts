@@ -11,7 +11,7 @@ import {
   DailyCityRanking,
   EvaluationState,
 } from '@libs/models';
-import { rankDay } from '../domain/ranking-policy';
+import { rankDay } from '../domain/daily-ranking';
 
 @ValidatorConstraint({ name: 'dailyRankingConsistency', async: false })
 export class DailyRankingConsistency implements ValidatorConstraintInterface {

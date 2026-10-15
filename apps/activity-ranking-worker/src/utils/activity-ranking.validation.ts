@@ -51,3 +51,9 @@ function validationMessages(errors: ValidationError[]): string[] {
     ...validationMessages(error.children ?? []),
   ]);
 }
+
+export function validateRankingQuery(
+  query: unknown,
+): asserts query is { city: string; from: string; until: string } {
+  validateDto(ActivityRankingPeriodDto, query as object);
+}

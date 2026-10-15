@@ -1,3 +1,4 @@
+import { validateRankingQuery } from '../utils/activity-ranking.validation';
 import { Controller } from '@nestjs/common';
 import { MessagePattern, RpcException } from '@nestjs/microservices';
 import { ACTIVITY_RANKINGS_QUERY } from '@libs/contracts/message-patterns';
@@ -17,8 +18,7 @@ export class ActivityRankingQueryHandler {
     until: string;
   }): Promise<ActivityRanking[]> {
     try {
-      if (!query || typeof query !== 'object')
-        throw new RangeError('Invalid ranking query');
+      validateRankingQuery(query);
       return await this.repository.findByCityAndPeriod(
         query.city,
         query.from,
