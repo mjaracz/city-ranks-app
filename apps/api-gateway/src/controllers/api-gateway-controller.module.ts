@@ -4,9 +4,9 @@ import { Module } from '@nestjs/common';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { JetStreamCommandBus } from '../../../../libs/messaging/src/jetstream-command-bus';
-import { ApiGatewayController } from './api-gateway.controller';
+import { JetStreamCommandBus } from '@libs/messaging/jetstream-command-bus';
 import { ApiGatewayService } from '../services/api-gateway.service';
+import { ApiGatewayController } from './api-gateway.controller';
 import { DomainCommandResolver } from './resolvers/domain-command.resolver';
 import { DomainCommandService } from '../services/domain-command.service';
 import { WorkerHealthResolver } from './resolvers/worker-health.resolver';
@@ -14,11 +14,11 @@ import { WorkerHealthService } from '../services/worker-health.service';
 import {
   getNatsUrl,
   isProduction,
-} from '../../../../libs/config/src/environment';
+} from '@libs/config/environment';
 import {
   ACTIVITY_RANKING_WORKER_CLIENT,
   WEATHER_WORKER_CLIENT,
-} from '../../../../libs/contracts/src/message-patterns';
+} from '@libs/contracts/message-patterns';
 
 @Module({
   imports: [
@@ -41,8 +41,7 @@ import {
       },
     ]),
   ],
-  controllers: [ApiGatewayController],
-  providers: [
+  controllers: [ApiGatewayController],`r`n  providers: [
     ApiGatewayService,
     CityRankingGatewayService,
     CityRankingResolver,
