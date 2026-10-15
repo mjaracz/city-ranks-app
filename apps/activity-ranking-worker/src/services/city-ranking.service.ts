@@ -41,11 +41,10 @@ export class CityRankingService {
         queryKey,
         RANKING_POLICY_VERSION,
       );
-      if (
-        stored &&
-        stored.windowStartDate === localDate(new Date(), stored.city.timezone)
-      )
-        return stored;
+      const isStoredRankingCurrent =
+        stored !== undefined &&
+        stored.windowStartDate === localDate(new Date(), stored.city.timezone);
+      if (isStoredRankingCurrent) return stored;
     }
     const pending = this.inFlight.get(queryKey);
     if (pending) return pending;

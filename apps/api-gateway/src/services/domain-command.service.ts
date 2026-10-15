@@ -32,15 +32,15 @@ export class DomainCommandService {
       latitude === undefined || longitude === undefined
         ? undefined
         : { latitude, longitude };
-    if (
-      coordinates &&
+    const hasInvalidCoordinates =
+      coordinates !== undefined &&
       (!Number.isFinite(coordinates.latitude) ||
         coordinates.latitude < -90 ||
         coordinates.latitude > 90 ||
         !Number.isFinite(coordinates.longitude) ||
         coordinates.longitude < -180 ||
-        coordinates.longitude > 180)
-    ) {
+        coordinates.longitude > 180);
+    if (hasInvalidCoordinates) {
       throw new BadRequestException('Coordinates are outside valid ranges');
     }
 

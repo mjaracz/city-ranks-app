@@ -50,7 +50,7 @@ export class MongoWeatherApiQueryCacheRepository extends WeatherApiQueryCacheRep
     cachedAt = new Date(),
   ): Promise<void> {
     validateSignature(querySignature);
-    if (
+    const hasInvalidCacheQueryOrResponse =
       !query ||
       typeof query.endpoint !== 'string' ||
       !query.parameters ||
@@ -62,20 +62,20 @@ export class MongoWeatherApiQueryCacheRepository extends WeatherApiQueryCacheRep
       ) ||
       !response ||
       typeof response !== 'object' ||
-      Array.isArray(response)
-    ) {
+      Array.isArray(response);
+    if (hasInvalidCacheQueryOrResponse) {
       throw new RangeError(
         'Cache query and response must be valid objects without API credentials',
       );
     }
-    if (
+    const hasInvalidCacheTimestamps =
       !(cachedAt instanceof Date) ||
       !Number.isFinite(cachedAt.getTime()) ||
       cachedAt.getTime() > Date.now() + 1000 ||
       !(expiresAt instanceof Date) ||
       !Number.isFinite(expiresAt.getTime()) ||
-      expiresAt.getTime() <= Date.now()
-    ) {
+      expiresAt.getTime() <= Date.now();
+    if (hasInvalidCacheTimestamps) {
       throw new RangeError('Cache expiration must be a valid future date');
     }
     await this.collection.replaceOne(

@@ -66,11 +66,11 @@ function assertCommandStream(
   retention: string | undefined,
   storage: string | undefined,
 ): void {
-  if (
+  const hasInvalidCommandStreamConfiguration =
     retention !== RetentionPolicy.Workqueue ||
     storage !== StorageType.File ||
-    !commandSubjects.every((subject) => subjects?.includes(subject))
-  ) {
+    !commandSubjects.every((subject) => subjects?.includes(subject));
+  if (hasInvalidCommandStreamConfiguration) {
     throw new Error(
       `${DOMAIN_COMMANDS_STREAM} must be a persistent work queue for both domain command subjects`,
     );

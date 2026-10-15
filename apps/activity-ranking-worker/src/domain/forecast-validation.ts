@@ -18,7 +18,7 @@ export function validateCityForecast(
   };
   if (!value || typeof value !== 'object') fail();
   const forecast = value as CityForecast;
-  if (
+  const hasInvalidForecastMetadata =
     !forecast.city ||
     typeof forecast.city.timezone !== 'string' ||
     !forecast.city.timezone ||
@@ -34,9 +34,8 @@ export function validateCityForecast(
     !forecast.snapshotId ||
     !['AVAILABLE', 'INSUFFICIENT_DATA', 'NOT_APPLICABLE'].includes(
       forecast.marineStatus,
-    )
-  )
-    fail();
+    );
+  if (hasInvalidForecastMetadata) fail();
   let start: string;
   try {
     start = localDate(new Date(), forecast.city.timezone);
@@ -47,17 +46,15 @@ export function validateCityForecast(
     if (typeof instant !== 'string' || !Number.isFinite(Date.parse(instant)))
       fail();
   }
-  if (
+  const hasInvalidMarineTimestamp =
     forecast.marineFetchedAt !== null &&
     (typeof forecast.marineFetchedAt !== 'string' ||
-      !Number.isFinite(Date.parse(forecast.marineFetchedAt)))
-  )
-    fail();
-  if (
+      !Number.isFinite(Date.parse(forecast.marineFetchedAt)));
+  if (hasInvalidMarineTimestamp) fail();
+  const hasExpiredForecastOrFutureWeatherSnapshot =
     Date.parse(forecast.freshUntil) <= Date.now() ||
-    Date.parse(forecast.weatherFetchedAt) > Date.now() + 1000
-  )
-    fail();
+    Date.parse(forecast.weatherFetchedAt) > Date.now() + 1000;
+  if (hasExpiredForecastOrFutureWeatherSnapshot) fail();
   if (!Array.isArray(forecast.days) || forecast.days.length !== 7) fail();
   const ranges = {
     temperatureMinCelsius: [-100, 70],
@@ -71,30 +68,27 @@ export function validateCityForecast(
     wavePeriodMaxSeconds: [0, 100],
   };
   forecast.days.forEach((day, index) => {
-    if (
+    const hasInvalidForecastDay =
       !day ||
       !isCalendarDate(day.date) ||
-      day.date !== addCalendarDays(start, index)
-    )
-      fail();
+      day.date !== addCalendarDays(start, index);
+    if (hasInvalidForecastDay) fail();
     for (const [key, [min, max]] of Object.entries(ranges)) {
       const measurement = day[key];
-      if (
+      const hasInvalidMeasurement =
         measurement !== null &&
         (typeof measurement !== 'number' ||
           !Number.isFinite(measurement) ||
           measurement < min ||
-          measurement > max)
-      )
-        fail();
+          measurement > max);
+      if (hasInvalidMeasurement) fail();
     }
     if (day.weatherCode !== null && !WMO_WEATHER_CODES.has(day.weatherCode))
       fail();
-    if (
+    const hasInvalidTemperatureRange =
       day.temperatureMinCelsius !== null &&
       day.temperatureMaxCelsius !== null &&
-      day.temperatureMinCelsius > day.temperatureMaxCelsius
-    )
-      fail();
+      day.temperatureMinCelsius > day.temperatureMaxCelsius;
+    if (hasInvalidTemperatureRange) fail();
   });
 }

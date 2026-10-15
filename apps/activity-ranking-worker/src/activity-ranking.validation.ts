@@ -8,22 +8,20 @@ const activities = new Set([
 ]);
 
 export function validateCity(city: string): void {
-  if (
-    typeof city !== 'string' ||
-    city.trim().length === 0 ||
-    city.length > 120
-  ) {
+  const isInvalidCity =
+    typeof city !== 'string' || city.trim().length === 0 || city.length > 120;
+  if (isInvalidCity) {
     throw new RangeError('City must contain 1 to 120 characters');
   }
 }
 
 function validateDate(date: string): void {
-  if (
+  const isInvalidDate =
     typeof date !== 'string' ||
     !/^\d{4}-\d{2}-\d{2}$/.test(date) ||
     !Number.isFinite(Date.parse(date)) ||
-    new Date(date).toISOString().slice(0, 10) !== date
-  ) {
+    new Date(date).toISOString().slice(0, 10) !== date;
+  if (isInvalidDate) {
     throw new RangeError('Ranking dates must use valid YYYY-MM-DD values');
   }
 }
@@ -53,38 +51,37 @@ export function validateRankings(rankings: readonly ActivityRanking[]): void {
       throw new RangeError('Invalid ranking record');
     validateCity(ranking.city);
     validateDate(ranking.forecastDate);
-    if (
+    const isInvalidActivityOrScore =
       !activities.has(ranking.activity) ||
       !Number.isFinite(ranking.score) ||
       ranking.score < 0 ||
-      ranking.score > 100
-    ) {
+      ranking.score > 100;
+    if (isInvalidActivityOrScore) {
       throw new RangeError('Ranking activity or score is invalid');
     }
-    if (
+    const hasInvalidFactors =
       !ranking.factors ||
       typeof ranking.factors !== 'object' ||
-      Array.isArray(ranking.factors)
-    ) {
+      Array.isArray(ranking.factors);
+    if (hasInvalidFactors) {
       throw new RangeError('Ranking factors must be an object');
     }
-    if (
-      Object.values(ranking.factors).some(
-        (value) =>
-          (value !== null &&
-            !['string', 'number', 'boolean'].includes(typeof value)) ||
-          (typeof value === 'number' && !Number.isFinite(value)),
-      )
-    ) {
+    const hasInvalidFactorValues = Object.values(ranking.factors).some(
+      (value) =>
+        (value !== null &&
+          !['string', 'number', 'boolean'].includes(typeof value)) ||
+        (typeof value === 'number' && !Number.isFinite(value)),
+    );
+    if (hasInvalidFactorValues) {
       throw new RangeError('Ranking factors must contain finite scalar values');
     }
-    if (
+    const hasInvalidTimestamps =
       !(ranking.calculatedAt instanceof Date) ||
       !Number.isFinite(ranking.calculatedAt.getTime()) ||
       (ranking.weatherUpdatedAt !== null &&
         (!(ranking.weatherUpdatedAt instanceof Date) ||
-          !Number.isFinite(ranking.weatherUpdatedAt.getTime())))
-    ) {
+          !Number.isFinite(ranking.weatherUpdatedAt.getTime())));
+    if (hasInvalidTimestamps) {
       throw new RangeError('Ranking timestamps must be valid dates');
     }
   }
