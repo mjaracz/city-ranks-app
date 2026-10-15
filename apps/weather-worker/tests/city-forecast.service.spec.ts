@@ -1,11 +1,8 @@
 import { jest } from '@jest/globals';
+import { CityQueryError } from '../../../libs/contracts/src/city-query';
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  CityForecastService,
-  parseCity,
-  parseMarine,
-  parseWeather,
-} from '../src/services/city-forecast.service';
+import { CityForecastService } from '../src/services/city-forecast.service';
+import { OpenMeteoResponseParser } from '../src/services/open-meteo-response-parser.service';
 import { OpenMeteoJsonClient } from '../src/data-providers/open-meteo-json.client';
 import {
   WeatherApiQueryCacheRepository,
@@ -21,6 +18,7 @@ import {
 describe('City forecast acquisition', () => {
   let moduleRef: TestingModule;
   let forecasts: CityForecastService;
+  let parser: OpenMeteoResponseParser;
   let fetchSpy: jest.Spied<typeof fetch>;
   let originalEnvironment: NodeJS.ProcessEnv;
   let cache: WeatherApiQueryCacheRepository;
@@ -63,11 +61,13 @@ describe('City forecast acquisition', () => {
       providers: [
         CityForecastService,
         OpenMeteoJsonClient,
+        OpenMeteoResponseParser,
         { provide: WeatherApiQueryCacheRepository, useValue: cache },
         { provide: JetStreamEventStore, useValue: events },
       ],
     }).compile();
     forecasts = moduleRef.get(CityForecastService);
+    parser = moduleRef.get(OpenMeteoResponseParser);
   });
   afterEach(async () => {
     fetchSpy.mockRestore();
@@ -128,12 +128,14 @@ describe('City forecast acquisition', () => {
     );
   });
   it('returns typed not-found and rejects invalid geocoding and malformed weather', () => {
-    expect(() => parseCity({ results: [] })).toThrow('No matching city');
-    expect(() => parseCity({ results: [{ ...testCity, id: 1 }] })).toThrow();
+    expect(() => parser.parseCity({ results: [] })).toThrow('No matching city');
+    expect(() =>
+      parser.parseCity({ results: [{ ...testCity, id: 1 }] }),
+    ).toThrow();
     const dates = forecastFixture().days.map((day) => day.date);
     const data = upstreamFixture('forecast');
     (data.daily as Record<string, unknown>).precipitation_sum = [NaN];
-    expect(() => parseWeather(data, dates, testCity.timezone)).toThrow();
+    expect(() => parser.parseWeather(data, dates, testCity.timezone)).toThrow();
   });
   it('keeps absent dates and incomplete snow coverage as missing data', () => {
     const dates = forecastFixture().days.map((day) => day.date);
@@ -143,7 +145,7 @@ describe('City forecast acquisition', () => {
     const hourly = data.hourly as Record<string, unknown[]>;
     hourly.time = hourly.time.slice(1);
     hourly.snow_depth = hourly.snow_depth.slice(1);
-    const parsed = parseWeather(data, dates, testCity.timezone);
+    const parsed = parser.parseWeather(data, dates, testCity.timezone);
     expect(parsed[0]).toMatchObject({
       temperatureMinCelsius: null,
       snowDepthMaxMeters: null,
@@ -153,9 +155,9 @@ describe('City forecast acquisition', () => {
       () => null,
     );
     expect(
-      parseMarine(marine, dates, testCity.timezone).days.every(
-        (day) => day.height === null,
-      ),
+      parser
+        .parseMarine(marine, dates, testCity.timezone)
+        .days.every((day) => day.height === null),
     ).toBe(true);
   });
   it('respects cache-only mode without calling any upstream API', async () => {
@@ -164,5 +166,83 @@ describe('City forecast acquisition', () => {
       'weather cache',
     );
     expect(fetchSpy).not.toHaveBeenCalled();
+  });
+  it('rejects malformed live weather before caching it or publishing an accepted snapshot', async () => {
+    const saveSpy = jest.spyOn(cache, 'save');
+    fetchSpy.mockImplementation(async (url) => {
+      const kind = new URL(String(url)).pathname.slice(1) as
+        'geocoding' | 'forecast' | 'marine';
+      const data = upstreamFixture(kind);
+      if (kind === 'forecast')
+        (data.daily as Record<string, unknown[]>).temperature_2m_min[0] = '15';
+      return Response.json(data);
+    });
+
+    await expect(forecasts.getForecast('Test Bay')).rejects.toMatchObject({
+      code: 'UPSTREAM_UNAVAILABLE',
+    });
+    expect(saveSpy).toHaveBeenCalledTimes(1);
+    expect(saveSpy.mock.calls[0][1].endpoint).toContain('/geocoding');
+    expect(events.append).not.toHaveBeenCalled();
+  });
+
+  it('validates cached OpenMeteo responses before returning any forecast', async () => {
+    const data = upstreamFixture('geocoding');
+    (data.results as Record<string, unknown>[])[0].latitude = '54.5';
+    jest.spyOn(cache, 'findFresh').mockResolvedValue({
+      response: data,
+      cachedAt: new Date(),
+      expiresAt: new Date(Date.now() + 60_000),
+    });
+
+    await expect(forecasts.getForecast('Test Bay')).rejects.toMatchObject({
+      code: 'UPSTREAM_UNAVAILABLE',
+    });
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(events.append).not.toHaveBeenCalled();
+  });
+
+  it('treats malformed marine data as insufficient data without caching it', async () => {
+    const saveSpy = jest.spyOn(cache, 'save');
+    fetchSpy.mockImplementation(async (url) => {
+      const kind = new URL(String(url)).pathname.slice(1) as
+        'geocoding' | 'forecast' | 'marine';
+      const data = upstreamFixture(kind);
+      if (kind === 'marine')
+        (data.daily as Record<string, unknown[]>).wave_height_max[0] = '1.5';
+      return Response.json(data);
+    });
+
+    const forecast = await forecasts.getForecast('Test Bay');
+    expect(forecast.marineStatus).toBe('INSUFFICIENT_DATA');
+    expect(forecast.marineFetchedAt).toBeNull();
+    expect(saveSpy).toHaveBeenCalledTimes(2);
+    expect(forecast.days.every((day) => day.waveHeightMaxMeters === null)).toBe(
+      true,
+    );
+  });
+
+  it('rejects an expired completed forecast before publishing its snapshot', async () => {
+    const forecast = forecastFixture();
+    jest
+      .spyOn(moduleRef.get(OpenMeteoJsonClient), 'get')
+      .mockResolvedValueOnce({
+        value: testCity,
+        fetchedAt: new Date(),
+        freshUntil: new Date(Date.now() + 60_000),
+      })
+      .mockResolvedValueOnce({
+        value: forecast.days,
+        fetchedAt: new Date(forecast.weatherFetchedAt),
+        freshUntil: new Date('2000-01-01T00:00:00Z'),
+      })
+      .mockRejectedValueOnce(
+        new CityQueryError('UPSTREAM_UNAVAILABLE', 'No marine data'),
+      );
+
+    await expect(forecasts.getForecast('Test Bay')).rejects.toMatchObject({
+      code: 'UPSTREAM_UNAVAILABLE',
+    });
+    expect(events.append).not.toHaveBeenCalled();
   });
 });

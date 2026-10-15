@@ -35,4 +35,12 @@ describe('validateCityRanking', () => {
       'Invalid complete city ranking',
     );
   });
+  it.each([null, undefined, [], 1, true, 'ranking', {}])(
+    'reports a malformed root payload %p as a ranking validation error',
+    (payload) => {
+      expect(() => validateCityRanking(payload)).toThrow(
+        new RangeError('Invalid complete city ranking'),
+      );
+    },
+  );
 });
