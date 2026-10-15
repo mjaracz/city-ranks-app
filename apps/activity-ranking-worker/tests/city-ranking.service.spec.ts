@@ -1,12 +1,12 @@
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
-import { CityQueryError } from '../../../libs/contracts/src/city-query';
+import { CityQueryError } from '@libs/contracts/city-query';
 import {
   WEATHER_CITY_FORECAST_QUERY,
   WEATHER_WORKER_CLIENT,
-} from '../../../libs/contracts/src/message-patterns';
-import { JetStreamEventStore } from '../../../libs/messaging/src/jetstream-event-store';
-import { CityForecast, CityRanking } from '../../../libs/models/src';
+} from '@libs/contracts/message-patterns';
+import { JetStreamEventStore } from '@libs/messaging/jetstream-event-store';
+import { CityForecast } from '@libs/models';
 import { forecastFixture } from '../../city-ranking-test.fixtures';
 import { CityRankingRepository } from '../src/city-ranking.repository';
 import { CityRankingService } from '../src/services/city-ranking.service';

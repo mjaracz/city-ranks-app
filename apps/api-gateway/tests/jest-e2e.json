@@ -5,5 +5,16 @@
   "testRegex": ".e2e-spec.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
-  }
+  },
+  "moduleNameMapper": {
+    "^@libs/config$": "<rootDir>/../../../libs/config/src/index.ts",
+    "^@libs/config/(.*)$": "<rootDir>/../../../libs/config/src/$1",
+    "^@libs/contracts$": "<rootDir>/../../../libs/contracts/src/index.ts",
+    "^@libs/contracts/(.*)$": "<rootDir>/../../../libs/contracts/src/$1",
+    "^@libs/messaging$": "<rootDir>/../../../libs/messaging/src/index.ts",
+    "^@libs/messaging/(.*)$": "<rootDir>/../../../libs/messaging/src/$1",
+    "^@libs/models$": "<rootDir>/../../../libs/models/src/index.ts",
+    "^@libs/models/(.*)$": "<rootDir>/../../../libs/models/src/$1"
+  },
+  "cacheDirectory": "<rootDir>/../../../.codex/jest-e2e-cache"
 }

@@ -3,15 +3,15 @@ import { NestFactory } from '@nestjs/core';
 import type { Knex } from 'knex';
 import type { Collection } from 'mongodb';
 import { randomUUID, createHash } from 'node:crypto';
-import { ActivityRankingPersistenceModule } from '../activity-ranking-worker/src/persistence/activity-ranking-persistence.module';
-import { ACTIVITY_RANKING_KNEX } from '../activity-ranking-worker/src/persistence/activity-ranking-knex';
+import { ActivityRankingPersistenceModule } from '../activity-ranking-worker/src/infrastructure/activity-ranking-persistence.module';
+import { ACTIVITY_RANKING_KNEX } from '../activity-ranking-worker/src/infrastructure/activity-ranking-knex';
 import { ActivityRankingRepository } from '../activity-ranking-worker/src/activity-ranking.repository';
-import { WeatherPersistenceModule } from '../weather-worker/src/persistence/weather-persistence.module';
+import { WeatherPersistenceModule } from '../weather-worker/src/infrastructure/weather-persistence.module';
 import { WeatherApiQueryCacheRepository } from '../weather-worker/src/weather-api-query-cache.repository';
 import {
   WEATHER_API_CACHE_COLLECTION,
   WeatherApiCacheDocument,
-} from '../weather-worker/src/persistence/weather-mongo.providers';
+} from '../weather-worker/src/infrastructure/weather-mongo.providers';
 import { ensureRankingSchema } from '../worker-integration.helpers';
 
 describe('Real persistence adapters', () => {

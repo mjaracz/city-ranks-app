@@ -2,7 +2,7 @@ import {
   addCalendarDays,
   isCalendarDate,
   localDate,
-} from '../../../../libs/models/src/calendar';
+} from '@libs/models/calendar';
 
 describe('calendar helpers', () => {
   it('uses the requested city timezone when selecting a local calendar date', () => {

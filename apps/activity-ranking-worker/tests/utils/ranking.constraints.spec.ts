@@ -1,8 +1,4 @@
-import {
-  Activity,
-  Completeness,
-  EvaluationState,
-} from '../../../../libs/models/src';
+import { Activity, Completeness, EvaluationState } from '@libs/models';
 import { forecastFixture } from '../../../city-ranking-test.fixtures';
 import { calculateCityRanking, rankDay } from '../../src/domain/ranking-policy';
 import { validateCityRanking } from '../../src/domain/ranking-validation';

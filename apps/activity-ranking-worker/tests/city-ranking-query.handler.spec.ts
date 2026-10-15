@@ -1,9 +1,9 @@
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
-import { CityQueryError } from '../../../libs/contracts/src/city-query';
-import { CITY_RANKING_QUERY } from '../../../libs/contracts/src/message-patterns';
+import { CityQueryError } from '@libs/contracts/city-query';
+import { CITY_RANKING_QUERY } from '@libs/contracts/message-patterns';
 import { forecastFixture } from '../../city-ranking-test.fixtures';
-import { CityRankingQueryHandler } from '../src/handlers/city-ranking-query.handler';
+import { CityRankingQueryHandler } from '../src/controllers/city-ranking-query.handler';
 import { CityRankingService } from '../src/services/city-ranking.service';
 import { calculateCityRanking } from '../src/domain/ranking-policy';
 

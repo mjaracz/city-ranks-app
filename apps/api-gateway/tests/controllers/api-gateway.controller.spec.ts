@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ApiGatewayController } from '../src/api-gateway.controller';
-import { ApiGatewayService } from '../src/services/api-gateway.service';
+import { ApiGatewayController } from '../../src/controllers/api-gateway.controller';
+import { ApiGatewayService } from '../../src/services/api-gateway.service';
 
 describe('ApiGatewayController', () => {
   let apiGatewayController: ApiGatewayController;

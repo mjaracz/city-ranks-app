@@ -6,7 +6,7 @@ import {
   EvaluationState,
   addCalendarDays,
   localDate,
-} from '../../../../libs/models/src';
+} from '@libs/models';
 import { forecastFixture } from '../../../city-ranking-test.fixtures';
 import {
   calculateCityRanking,

@@ -2,7 +2,7 @@ import {
   CityQueryError,
   cityQueryFailure,
   normalizeCity,
-} from '../../../../libs/contracts/src/city-query';
+} from '@libs/contracts/city-query';
 
 describe('city query contract', () => {
   it('normalizes whitespace and canonical Unicode before resolving a city', () => {

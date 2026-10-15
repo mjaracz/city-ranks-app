@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import { CityQueryError } from '../../../libs/contracts/src/city-query';
+import { CityQueryError } from '@libs/contracts/city-query';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CityForecastService } from '../src/services/city-forecast.service';
 import { OpenMeteoResponseParser } from '../src/services/open-meteo-response-parser.service';
@@ -8,7 +8,7 @@ import {
   WeatherApiQueryCacheRepository,
   CachedWeatherApiResponse,
 } from '../src/weather-api-query-cache.repository';
-import { JetStreamEventStore } from '../../../libs/messaging/src/jetstream-event-store';
+import { JetStreamEventStore } from '@libs/messaging/jetstream-event-store';
 import {
   forecastFixture,
   testCity,

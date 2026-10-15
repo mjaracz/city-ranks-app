@@ -1,10 +1,10 @@
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import type { Knex } from 'knex';
-import { CityRanking } from '../../../libs/models/src';
+import { CityRanking } from '@libs/models';
 import { forecastFixture } from '../../city-ranking-test.fixtures';
 import { calculateCityRanking } from '../src/domain/ranking-policy';
-import { ACTIVITY_RANKING_KNEX } from '../src/persistence/activity-ranking-knex';
+import { ACTIVITY_RANKING_KNEX } from '../src/infrastructure/activity-ranking-knex';
 import { PostgresCityRankingRepository } from '../src/postgres-city-ranking.repository';
 
 type QueryChain = Record<string, jest.Mock<(...args: any[]) => any>>;

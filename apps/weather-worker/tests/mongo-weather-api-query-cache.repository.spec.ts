@@ -3,13 +3,13 @@ import { jest } from '@jest/globals';
 import type { Collection } from 'mongodb';
 import { MongoWeatherApiQueryCacheRepository } from '../src/mongo-weather-api-query-cache.repository';
 import { WeatherApiQueryCacheRepository } from '../src/weather-api-query-cache.repository';
-import { WeatherPersistenceModule } from '../src/persistence/weather-persistence.module';
+import { WeatherPersistenceModule } from '../src/infrastructure/weather-persistence.module';
 import {
   WEATHER_API_CACHE_COLLECTION,
   WEATHER_MONGO_CLIENT,
   WEATHER_MONGO_DATABASE,
   WeatherApiCacheDocument,
-} from '../src/persistence/weather-mongo.providers';
+} from '../src/infrastructure/weather-mongo.providers';
 
 type FindCacheDocument = (
   filter: unknown,
