@@ -8,14 +8,21 @@ The [decision trail](docs/decision-trail.md) connects architecture and scope cho
 
 ## Run locally
 
-Use Node.js 20.19+ in the 20.x line or 22.12+.
+Prerequisites: Node.js 20.19+ in the 20.x line or 22.12+, pnpm, and Docker Compose v2 with the Docker daemon running.
 
-1. Install dependencies with `pnpm install`.
-2. Copy `.env.example` to `.env`; its credentials are for local development.
-3. Start NATS JetStream, MongoDB and PostgreSQL with `docker compose up -d --wait`.
-4. Run `pnpm db:migrate:activity-ranking`, including after updating an existing installation.
-5. Start `pnpm start:dev:weather-worker`, `pnpm start:dev:activity-ranking-worker` and `pnpm start:dev:api-gateway` in separate terminals.
-6. Open `http://localhost:3000/graphql`.
+Run the script for your operating system from the repository root. It creates `.env` from `.env.example` only when `.env` does not exist, installs locked dependencies, starts NATS JetStream, MongoDB and PostgreSQL with Docker Compose and waits on the configured database health checks, applies PostgreSQL migrations, then starts each NestJS service in its own detached process.
+
+| Operating system | Command |
+| --- | --- |
+| Linux | `sh ./scripts/start-linux.sh` |
+| macOS | `sh ./scripts/start-macos.sh` |
+| Windows PowerShell | `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-windows.ps1` |
+
+The first run may take a few minutes while dependencies and Docker images are downloaded. Setup output and service logs are saved under `.codex/logs/`; process IDs are saved under `.codex/run/`. Once the gateway and workers report successful startup in their logs, open `http://localhost:3000/graphql`.
+
+To stop all three application processes and the Compose services, run `node scripts/local-environment.mjs stop` from the repository root. Compose volumes are preserved, so database contents remain available on the next start. To apply migrations again after changing the schema, run `pnpm run db:migrate:activity-ranking` with the Compose databases running.
+
+The default Compose project name is `city-ranks-local`. Set `CITY_RANKS_COMPOSE_PROJECT_NAME` to a unique lowercase name before starting if you need to run multiple local copies side by side.
 
 ```graphql
 query CityRanking($city: String!) {
