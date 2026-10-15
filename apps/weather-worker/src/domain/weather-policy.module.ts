@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
+
 import { WeatherInputValidator } from '../utils/weather-input.validator';
+
 import { CitySelectionPolicy } from './city-selection.policy';
 import { DailySnowDepthPolicy } from './daily-snow-depth.policy';
 import { ForecastSnapshotFactory } from './forecast-snapshot.factory';

@@ -1,11 +1,13 @@
-import { validateRankingQuery } from '../utils/activity-ranking.validation';
 import { Controller } from '@nestjs/common';
 import { MessagePattern, RpcException } from '@nestjs/microservices';
+
 import { ACTIVITY_RANKINGS_QUERY } from '@libs/contracts/message-patterns';
+
 import {
-  ActivityRankingRepository,
   ActivityRanking,
+  ActivityRankingRepository,
 } from '../activity-ranking.repository';
+import { validateRankingQuery } from '../utils/activity-ranking.validation';
 
 @Controller()
 export class ActivityRankingQueryHandler {

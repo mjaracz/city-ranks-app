@@ -1,3 +1,5 @@
+import type { Collection, Db } from 'mongodb';
+
 import {
   Inject,
   Injectable,
@@ -5,14 +7,15 @@ import {
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
-import type { Collection, Db } from 'mongodb';
 import { MongoClient } from 'mongodb';
+
 import { getWeatherMongoConfiguration } from '@libs/config/environment';
+
 import {
   createWeatherMongoClient,
+  WEATHER_API_CACHE_COLLECTION,
   WEATHER_MONGO_CLIENT,
   WEATHER_MONGO_DATABASE,
-  WEATHER_API_CACHE_COLLECTION,
   WeatherApiCacheDocument,
 } from './weather-mongo.providers';
 

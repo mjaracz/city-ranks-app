@@ -1,6 +1,8 @@
 import { plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
+
 import { WeatherCoordinatesInputDto } from '../../src/dto/weather-coordinates.dto';
+
 describe('WeatherCoordinatesDto', () => {
   it.each([
     { latitude: 0, longitude: 0 },

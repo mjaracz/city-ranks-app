@@ -1,36 +1,42 @@
-import { config } from 'dotenv';
-import { NestFactory } from '@nestjs/core';
-import type { INestApplicationContext } from '@nestjs/common';
-import { ClientProxyFactory, Transport } from '@nestjs/microservices';
-import type { ClientProxy } from '@nestjs/microservices';
-import type { Collection } from 'mongodb';
-import type { Knex } from 'knex';
 import type { ChildProcess } from 'node:child_process';
-import { mkdir, writeFile } from 'node:fs/promises';
+
+import type { INestApplicationContext } from '@nestjs/common';
+import type { ClientProxy } from '@nestjs/microservices';
+import type { Knex } from 'knex';
+import type { Collection } from 'mongodb';
+
 import { randomUUID } from 'node:crypto';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { cpus, platform, totalmem } from 'node:os';
 import { join, resolve } from 'node:path';
-import { cpus, totalmem, platform } from 'node:os';
+
+import { NestFactory } from '@nestjs/core';
+import { ClientProxyFactory, Transport } from '@nestjs/microservices';
+import { config } from 'dotenv';
 import { firstValueFrom, timeout } from 'rxjs';
-import { ActivityRankingPersistenceModule } from '../../apps/activity-ranking-worker/src/infrastructure/activity-ranking-persistence.module';
+
+import {
+  ACTIVITY_RANKINGS_QUERY,
+  WEATHER_CURRENT_QUERY,
+} from '@libs/contracts/message-patterns';
+
 import { ActivityRankingRepository } from '../../apps/activity-ranking-worker/src/activity-ranking.repository';
 import {
   ACTIVITY_RANKING_KNEX,
   createActivityRankingKnex,
 } from '../../apps/activity-ranking-worker/src/infrastructure/activity-ranking-knex';
 import { migrateActivityRanking } from '../../apps/activity-ranking-worker/src/infrastructure/activity-ranking-migrations';
-import { WeatherPersistenceModule } from '../../apps/weather-worker/src/infrastructure/weather-persistence.module';
-import { WeatherApiQueryCacheRepository } from '../../apps/weather-worker/src/weather-api-query-cache.repository';
+import { ActivityRankingPersistenceModule } from '../../apps/activity-ranking-worker/src/infrastructure/activity-ranking-persistence.module';
 import {
   WEATHER_API_CACHE_COLLECTION,
   WeatherApiCacheDocument,
 } from '../../apps/weather-worker/src/infrastructure/weather-mongo.providers';
-import {
-  WEATHER_CURRENT_QUERY,
-  ACTIVITY_RANKINGS_QUERY,
-} from '@libs/contracts/message-patterns';
-import { parseLoadOptions, loadEnvironment } from './load-options';
-import { measureOperations } from './load-metrics';
+import { WeatherPersistenceModule } from '../../apps/weather-worker/src/infrastructure/weather-persistence.module';
+import { WeatherApiQueryCacheRepository } from '../../apps/weather-worker/src/weather-api-query-cache.repository';
+
 import { createLoadFixtures } from './load-fixtures';
+import { measureOperations } from './load-metrics';
+import { loadEnvironment, parseLoadOptions } from './load-options';
 import { startWorker, stopWorker, workerStats } from './worker-child';
 
 async function main(): Promise<void> {

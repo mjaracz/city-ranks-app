@@ -1,18 +1,20 @@
+import type { Collection } from 'mongodb';
+
+import { Inject, Injectable } from '@nestjs/common';
+
+import {
+  WEATHER_API_CACHE_COLLECTION,
+  WeatherApiCacheDocument,
+} from './infrastructure/weather-mongo.providers';
 import {
   validateCacheSignature,
   validateCacheWrite,
 } from './utils/weather-cache.validation';
-import { Inject, Injectable } from '@nestjs/common';
-import type { Collection } from 'mongodb';
 import {
   CachedWeatherApiResponse,
   WeatherApiQuery,
   WeatherApiQueryCacheRepository,
 } from './weather-api-query-cache.repository';
-import {
-  WEATHER_API_CACHE_COLLECTION,
-  WeatherApiCacheDocument,
-} from './infrastructure/weather-mongo.providers';
 
 @Injectable()
 export class MongoWeatherApiQueryCacheRepository extends WeatherApiQueryCacheRepository {

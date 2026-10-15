@@ -1,4 +1,5 @@
 import type { Knex } from 'knex';
+
 import * as initial from './migrations/001-create-activity-rankings';
 import * as cityRankings from './migrations/002-create-city-rankings';
 

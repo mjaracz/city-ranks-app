@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { DailySnowDepthPolicy } from '../../src/domain/daily-snow-depth.policy';
 import { WeatherPolicyModule } from '../../src/domain/weather-policy.module';
+
 describe('DailySnowDepthPolicy', () => {
   let module: TestingModule;
   let policy: DailySnowDepthPolicy;

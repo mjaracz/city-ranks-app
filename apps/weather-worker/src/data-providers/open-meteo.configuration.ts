@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+
 import { getPositiveInteger } from '@libs/config';
 
 export type OpenMeteoEndpoint = 'geocoding' | 'forecast' | 'marine';

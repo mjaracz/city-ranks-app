@@ -1,9 +1,11 @@
 import { plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
+
 import {
-  WeatherCacheWriteDto,
   WeatherCacheSignatureDto,
+  WeatherCacheWriteDto,
 } from '../../src/dto/weather-cache.dto';
+
 describe('Weather cache DTOs', () => {
   const input = () => ({
     query: {

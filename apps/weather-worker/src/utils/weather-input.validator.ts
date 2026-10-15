@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ClassConstructor, plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
+
 import { CityQueryError } from '@libs/contracts';
 
 @Injectable()

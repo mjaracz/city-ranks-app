@@ -1,13 +1,16 @@
-import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import type { JetStreamClient, JetStreamManager } from '@nats-io/jetstream';
+
+import type { DomainEvent } from '@libs/contracts/domain-event';
+
 import {
   jetstream,
   jetstreamManager,
   RetentionPolicy,
   StorageType,
 } from '@nats-io/jetstream';
-import type { JetStreamClient, JetStreamManager } from '@nats-io/jetstream';
 import { connect } from '@nats-io/transport-node';
-import type { DomainEvent } from '@libs/contracts/domain-event';
+import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+
 import { getNatsUrl } from '@libs/config/environment';
 
 export interface JetStreamEventStoreOptions {

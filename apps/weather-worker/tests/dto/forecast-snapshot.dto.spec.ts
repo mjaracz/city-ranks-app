@@ -1,9 +1,11 @@
-import { ForecastSnapshotDto } from '../../src/dto/forecast-snapshot.dto';
-import { WeatherPolicyModule } from '../../src/domain/weather-policy.module';
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { CityQueryError } from '@libs/contracts/city-query';
+
 import { forecastFixture } from '../../../city-ranking-test.fixtures';
+import { WeatherPolicyModule } from '../../src/domain/weather-policy.module';
+import { ForecastSnapshotDto } from '../../src/dto/forecast-snapshot.dto';
 import { WeatherInputValidator } from '../../src/utils/weather-input.validator';
 
 describe('Accepted forecast snapshot', () => {

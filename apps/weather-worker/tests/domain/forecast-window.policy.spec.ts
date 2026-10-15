@@ -1,5 +1,7 @@
 import { Test } from '@nestjs/testing';
+
 import { ForecastWindowPolicy } from '../../src/domain/forecast-window.policy';
+
 describe('ForecastWindowPolicy', () => {
   it('starts seven chronological dates at today in the city timezone, across a year boundary', async () => {
     const module = await Test.createTestingModule({

@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common';
+
 import { CityQueryError, normalizeCity } from '@libs/contracts';
-import { CityForecast } from '@libs/models';
 import { JetStreamEventStore } from '@libs/messaging';
-import { OpenMeteoJsonClient } from '../data-providers/open-meteo-json.client';
+import { CityForecast } from '@libs/models';
+
 import { OpenMeteoForecastRequestFactory } from '../data-providers/open-meteo-forecast-request.factory';
-import { ForecastSource, MarineForecast } from '../domain/forecast-source';
+import { OpenMeteoJsonClient } from '../data-providers/open-meteo-json.client';
 import { ForecastSnapshotFactory } from '../domain/forecast-snapshot.factory';
+import { ForecastSource, MarineForecast } from '../domain/forecast-source';
 import { ForecastWindowPolicy } from '../domain/forecast-window.policy';
+
 import { OpenMeteoResponseParser } from './open-meteo-response-parser.service';
 
 @Injectable()

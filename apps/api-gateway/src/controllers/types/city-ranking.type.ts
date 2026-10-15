@@ -6,6 +6,7 @@ import {
   ObjectType,
   registerEnumType,
 } from '@nestjs/graphql';
+
 import {
   Activity,
   ActivityEvaluation,

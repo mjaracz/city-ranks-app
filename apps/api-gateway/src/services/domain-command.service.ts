@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
+
 import { CommandReceipt } from '@libs/contracts';
 import { JetStreamCommandBus } from '@libs/messaging';
+
 import {
   DomainCommandFactory,
   PreparedDomainCommand,

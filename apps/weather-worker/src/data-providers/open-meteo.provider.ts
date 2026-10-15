@@ -1,11 +1,14 @@
-import { OpenMeteoConfiguration } from './open-meteo.configuration';
-import { validateWeatherCoordinates } from '../utils/weather-coordinates.validation';
-import { Injectable } from '@nestjs/common';
-import { OpenMeteoResponseParser } from '../services/open-meteo-response-parser.service';
-import { OpenMeteoCurrentResponseDto } from '../dto/open-meteo-response.dto';
-import { WeatherApiQueryCacheRepository } from '../weather-api-query-cache.repository';
-import { createOpenMeteoCurrentRequest } from './open-meteo-request';
 import type { CurrentWeather, WeatherCoordinates } from './open-meteo.types';
+
+import { Injectable } from '@nestjs/common';
+
+import { OpenMeteoCurrentResponseDto } from '../dto/open-meteo-response.dto';
+import { OpenMeteoResponseParser } from '../services/open-meteo-response-parser.service';
+import { validateWeatherCoordinates } from '../utils/weather-coordinates.validation';
+import { WeatherApiQueryCacheRepository } from '../weather-api-query-cache.repository';
+
+import { createOpenMeteoCurrentRequest } from './open-meteo-request';
+import { OpenMeteoConfiguration } from './open-meteo.configuration';
 
 @Injectable()
 export class OpenMeteoProvider {

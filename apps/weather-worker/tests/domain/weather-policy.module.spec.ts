@@ -1,7 +1,9 @@
 import { Test } from '@nestjs/testing';
-import { WeatherPolicyModule } from '../../src/domain/weather-policy.module';
-import { ForecastSnapshotFactory } from '../../src/domain/forecast-snapshot.factory';
+
 import { forecastFixture } from '../../../city-ranking-test.fixtures';
+import { ForecastSnapshotFactory } from '../../src/domain/forecast-snapshot.factory';
+import { WeatherPolicyModule } from '../../src/domain/weather-policy.module';
+
 describe('WeatherPolicyModule', () => {
   it('composes a complete domain policy graph independently of HTTP and database adapters', async () => {
     const module = await Test.createTestingModule({

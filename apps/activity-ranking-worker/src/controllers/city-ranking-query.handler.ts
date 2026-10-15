@@ -1,12 +1,12 @@
+import type { CityQuery, CityQueryResult } from '@libs/contracts/city-query';
+import type { CityRanking } from '@libs/models';
+
 import { Controller } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
-import type {
-  CityQuery,
-  CityQueryResult,
-} from '@libs/contracts/city-query';
+
 import { cityQueryFailure } from '@libs/contracts/city-query';
 import { CITY_RANKING_QUERY } from '@libs/contracts/message-patterns';
-import type { CityRanking } from '@libs/models';
+
 import { CityRankingService } from '../services/city-ranking.service';
 
 @Controller()

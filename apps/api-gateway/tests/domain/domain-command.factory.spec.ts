@@ -1,9 +1,12 @@
 import { Test } from '@nestjs/testing';
-import { DomainCommandFactory } from '../../src/domain/domain-command.factory';
+
 import {
-  WEATHER_FORECAST_REFRESH_COMMAND,
   ACTIVITY_RANKING_REFRESH_COMMAND,
+  WEATHER_FORECAST_REFRESH_COMMAND,
 } from '@libs/contracts';
+
+import { DomainCommandFactory } from '../../src/domain/domain-command.factory';
+
 describe('DomainCommandFactory', () => {
   it('creates independent correlated weather and ranking commands with normalized payloads', async () => {
     const module = await Test.createTestingModule({

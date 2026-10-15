@@ -1,13 +1,14 @@
-import knex from 'knex';
 import { Test, TestingModule } from '@nestjs/testing';
-import { PostgresActivityRankingRepository } from '../src/postgres-activity-ranking.repository';
+import knex from 'knex';
+
 import {
-  ActivityRankingRepository,
   ActivityRanking,
+  ActivityRankingRepository,
 } from '../src/activity-ranking.repository';
-import { ActivityRankingPersistenceModule } from '../src/infrastructure/activity-ranking-persistence.module';
 import { ACTIVITY_RANKING_KNEX } from '../src/infrastructure/activity-ranking-knex';
+import { ActivityRankingPersistenceModule } from '../src/infrastructure/activity-ranking-persistence.module';
 import { up } from '../src/infrastructure/migrations/001-create-activity-rankings';
+import { PostgresActivityRankingRepository } from '../src/postgres-activity-ranking.repository';
 
 describe('Knex ActivityRanking repository', () => {
   const database = knex({ client: 'pg', compileSqlOnError: false });

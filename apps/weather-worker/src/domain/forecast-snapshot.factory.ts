@@ -1,8 +1,12 @@
-import { Injectable } from '@nestjs/common';
 import { createHash } from 'node:crypto';
+
+import { Injectable } from '@nestjs/common';
+
 import { CityForecast, CityLocation, DailyWeatherForecast } from '@libs/models';
+
 import { ForecastSnapshotDto } from '../dto/forecast-snapshot.dto';
 import { WeatherInputValidator } from '../utils/weather-input.validator';
+
 import { ForecastSource, MarineForecast } from './forecast-source';
 import { MarineCoveragePolicy } from './marine-coverage.policy';
 

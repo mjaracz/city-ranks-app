@@ -1,9 +1,10 @@
-import { RankingFreshnessPolicy } from './ranking-freshness.policy';
 import { Module } from '@nestjs/common';
+
 import {
   ACTIVITY_RANKING_RULES,
   ActivityRankingRule,
 } from './activity-ranking-rule';
+import { RankingFreshnessPolicy } from './ranking-freshness.policy';
 import { RankingPolicy } from './ranking-policy';
 import { IndoorSightseeingRule } from './rules/indoor-sightseeing.rule';
 import { OutdoorSightseeingRule } from './rules/outdoor-sightseeing.rule';

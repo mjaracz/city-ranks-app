@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+
 import { Expose, Type } from 'class-transformer';
 import {
   ArrayMaxSize,
@@ -19,6 +20,7 @@ import {
   ValidateIf,
   ValidateNested,
 } from 'class-validator';
+
 import {
   Activity,
   ActivityEvaluation,
@@ -28,6 +30,7 @@ import {
   DailyCityRanking,
   EvaluationState,
 } from '@libs/models';
+
 import {
   DailyRankingConsistency,
   RankingCompleteness,

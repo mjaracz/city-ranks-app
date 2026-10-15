@@ -1,4 +1,5 @@
 import type { ActivityRanking } from '../../src/activity-ranking.repository';
+
 import {
   validateCity,
   validateRankingPeriod,

@@ -1,17 +1,20 @@
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { DomainCommand } from '@libs/contracts';
 import { JetStreamEventStore } from '@libs/messaging';
+
 import {
-  WeatherCommandHandler,
   createWeatherRefreshCommand,
+  WeatherCommandHandler,
 } from '../../src/controllers/weather-command.handler';
-import { WEATHER_COMMAND_CONSUMER } from '../../src/infrastructure/weather-command-consumer';
 import { OpenMeteoProvider } from '../../src/data-providers/open-meteo.provider';
 import {
   CurrentWeather,
   WeatherCoordinates,
 } from '../../src/data-providers/open-meteo.types';
+import { WEATHER_COMMAND_CONSUMER } from '../../src/infrastructure/weather-command-consumer';
+
 describe('WeatherCommandHandler', () => {
   let module: TestingModule;
   let handler: WeatherCommandHandler;

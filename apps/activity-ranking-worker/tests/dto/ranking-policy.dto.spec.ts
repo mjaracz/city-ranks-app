@@ -1,11 +1,13 @@
 import { plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
+
 import { Activity, ActivityEvaluation, EvaluationState } from '@libs/models';
+
+import { forecastFixture } from '../../../city-ranking-test.fixtures';
 import {
   DailyRankingInputDto,
   ForecastRankingInputDto,
 } from '../../src/dto/ranking-policy.dto';
-import { forecastFixture } from '../../../city-ranking-test.fixtures';
 
 const evaluations = (): ActivityEvaluation[] =>
   Object.values(Activity).map((activity) => ({

@@ -1,4 +1,4 @@
-import { spawn, ChildProcess } from 'node:child_process';
+import { ChildProcess, spawn } from 'node:child_process';
 import { createWriteStream } from 'node:fs';
 import { join } from 'node:path';
 

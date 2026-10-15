@@ -1,6 +1,8 @@
-import { createOpenMeteoCurrentRequest } from '../../apps/weather-worker/src/data-providers/open-meteo-request';
 import type { ActivityRanking } from '../../apps/activity-ranking-worker/src/activity-ranking.repository';
+
 import { createHash } from 'node:crypto';
+
+import { createOpenMeteoCurrentRequest } from '../../apps/weather-worker/src/data-providers/open-meteo-request';
 
 export function createLoadFixtures(
   count: number,

@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+
 import { CityRanking, localDate } from '@libs/models';
 
 @Injectable()

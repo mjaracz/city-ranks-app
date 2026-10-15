@@ -1,7 +1,9 @@
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ActivityRankingQueryHandler } from '../../src/controllers/activity-ranking-query.handler';
+
 import { ActivityRankingRepository } from '../../src/activity-ranking.repository';
+import { ActivityRankingQueryHandler } from '../../src/controllers/activity-ranking-query.handler';
+
 describe('ActivityRankingQueryHandler', () => {
   let module: TestingModule;
   let handler: ActivityRankingQueryHandler;

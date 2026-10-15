@@ -1,31 +1,35 @@
-import type { Collection } from 'mongodb';
-import {
-  WEATHER_API_CACHE_COLLECTION,
-  WeatherApiCacheDocument,
-} from '../../weather-worker/src/infrastructure/weather-mongo.providers';
-import { jest } from '@jest/globals';
 import type { INestApplication, INestMicroservice } from '@nestjs/common';
+import type { Knex } from 'knex';
+import type { Collection } from 'mongodb';
+
+import { createHash, randomUUID } from 'node:crypto';
+
+import { jest } from '@jest/globals';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import request from 'supertest';
-import { randomUUID, createHash } from 'node:crypto';
-import type { Knex } from 'knex';
-import { ApiGatewayModule } from '../src/api-gateway.module';
-import { WeatherWorkerModule } from '../../weather-worker/src/weather-worker.module';
-import { ActivityRankingWorkerModule } from '../../activity-ranking-worker/src/activity-ranking-worker.module';
-import { ACTIVITY_RANKING_KNEX } from '../../activity-ranking-worker/src/infrastructure/activity-ranking-knex';
-import { CityRankingRepository } from '../../activity-ranking-worker/src/city-ranking.repository';
+
 import { getNatsUrl } from '@libs/config/environment';
 import {
   ACTIVITY_RANKING_WORKER_QUEUE,
   WEATHER_WORKER_QUEUE,
 } from '@libs/contracts/message-patterns';
 import { CityRanking } from '@libs/models';
+
+import { ActivityRankingWorkerModule } from '../../activity-ranking-worker/src/activity-ranking-worker.module';
+import { CityRankingRepository } from '../../activity-ranking-worker/src/city-ranking.repository';
+import { ACTIVITY_RANKING_KNEX } from '../../activity-ranking-worker/src/infrastructure/activity-ranking-knex';
 import { upstreamFixture } from '../../city-ranking-test.fixtures';
+import {
+  WEATHER_API_CACHE_COLLECTION,
+  WeatherApiCacheDocument,
+} from '../../weather-worker/src/infrastructure/weather-mongo.providers';
+import { WeatherWorkerModule } from '../../weather-worker/src/weather-worker.module';
 import {
   ensureRankingSchema,
   waitForEvent,
 } from '../../worker-integration.helpers';
+import { ApiGatewayModule } from '../src/api-gateway.module';
 
 const query = `query($city: String!) { cityRanking(city: $city) {
   id city { id name country countryCode region latitude longitude timezone }

@@ -1,21 +1,23 @@
-import { DomainCommandFactory } from '../domain/domain-command.factory';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { getNatsUrl, isProduction } from '@libs/config';
-import { JetStreamCommandBus } from '@libs/messaging';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+
+import { getNatsUrl, isProduction } from '@libs/config';
 import {
   ACTIVITY_RANKING_WORKER_CLIENT,
   WEATHER_WORKER_CLIENT,
 } from '@libs/contracts';
+import { JetStreamCommandBus } from '@libs/messaging';
 
+import { DomainCommandFactory } from '../domain/domain-command.factory';
 import { CityRankingGatewayService } from '../services/city-ranking.service';
-import { CityRankingResolver } from './resolvers/city-ranking.resolver';
-import { WorkerHealthResolver } from './resolvers/worker-health.resolver';
-import { WorkerHealthService } from '../services/worker-health.service';
 import { DomainCommandService } from '../services/domain-command.service';
+import { WorkerHealthService } from '../services/worker-health.service';
+
+import { CityRankingResolver } from './resolvers/city-ranking.resolver';
 import { DomainCommandResolver } from './resolvers/domain-command.resolver';
+import { WorkerHealthResolver } from './resolvers/worker-health.resolver';
 
 @Module({
   imports: [

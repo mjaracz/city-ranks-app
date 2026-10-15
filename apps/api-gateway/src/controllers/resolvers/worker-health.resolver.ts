@@ -1,6 +1,7 @@
 import { Query, Resolver } from '@nestjs/graphql';
-import { WorkerHealthType } from '../types/worker-health.type';
+
 import { WorkerHealthService } from '../../services/worker-health.service';
+import { WorkerHealthType } from '../types/worker-health.type';
 
 @Resolver(() => WorkerHealthType)
 export class WorkerHealthResolver {

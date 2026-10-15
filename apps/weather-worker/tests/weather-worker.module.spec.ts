@@ -1,17 +1,19 @@
 import { jest } from '@jest/globals';
 import { Test } from '@nestjs/testing';
-import { WeatherWorkerModule } from '../src/weather-worker.module';
-import { CityForecastService } from '../src/services/city-forecast.service';
+
+import { JetStreamEventStore } from '@libs/messaging';
+
+import { forecastFixture } from '../../city-ranking-test.fixtures';
 import { OpenMeteoJsonClient } from '../src/data-providers/open-meteo-json.client';
-import { WeatherApiQueryCacheRepository } from '../src/weather-api-query-cache.repository';
+import { WEATHER_COMMAND_CONSUMER } from '../src/infrastructure/weather-command-consumer';
 import {
+  WEATHER_API_CACHE_COLLECTION,
   WEATHER_MONGO_CLIENT,
   WEATHER_MONGO_DATABASE,
-  WEATHER_API_CACHE_COLLECTION,
 } from '../src/infrastructure/weather-mongo.providers';
-import { WEATHER_COMMAND_CONSUMER } from '../src/infrastructure/weather-command-consumer';
-import { JetStreamEventStore } from '@libs/messaging';
-import { forecastFixture } from '../../city-ranking-test.fixtures';
+import { CityForecastService } from '../src/services/city-forecast.service';
+import { WeatherApiQueryCacheRepository } from '../src/weather-api-query-cache.repository';
+import { WeatherWorkerModule } from '../src/weather-worker.module';
 
 describe('WeatherWorkerModule composition', () => {
   it('builds a forecast with production domain policies and replaced infrastructure ports', async () => {

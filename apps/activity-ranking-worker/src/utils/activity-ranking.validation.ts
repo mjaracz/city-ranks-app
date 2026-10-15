@@ -1,6 +1,8 @@
+import type { ActivityRanking } from '../activity-ranking.repository';
+
 import { ClassConstructor, plainToInstance } from 'class-transformer';
 import { validateSync, ValidationError } from 'class-validator';
-import type { ActivityRanking } from '../activity-ranking.repository';
+
 import {
   ActivityRankingBatchDto,
   ActivityRankingCityDto,

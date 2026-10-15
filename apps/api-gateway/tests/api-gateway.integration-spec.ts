@@ -1,22 +1,25 @@
-import { jest } from '@jest/globals';
-import { CityForecastService } from '../../weather-worker/src/services/city-forecast.service';
-import { forecastFixture } from '../../city-ranking-test.fixtures';
 import type { INestApplication, INestMicroservice } from '@nestjs/common';
+
+import { jest } from '@jest/globals';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import request from 'supertest';
-import { ApiGatewayModule } from '../src/api-gateway.module';
-import { WeatherWorkerModule } from '../../weather-worker/src/weather-worker.module';
-import { ActivityRankingWorkerModule } from '../../activity-ranking-worker/src/activity-ranking-worker.module';
+
+import { getNatsUrl } from '@libs/config/environment';
 import {
   ACTIVITY_RANKING_WORKER_QUEUE,
   WEATHER_WORKER_QUEUE,
 } from '@libs/contracts/message-patterns';
-import { getNatsUrl } from '@libs/config/environment';
+
+import { ActivityRankingWorkerModule } from '../../activity-ranking-worker/src/activity-ranking-worker.module';
+import { forecastFixture } from '../../city-ranking-test.fixtures';
+import { CityForecastService } from '../../weather-worker/src/services/city-forecast.service';
+import { WeatherWorkerModule } from '../../weather-worker/src/weather-worker.module';
 import {
-  waitForEvent,
   ensureRankingSchema,
+  waitForEvent,
 } from '../../worker-integration.helpers';
+import { ApiGatewayModule } from '../src/api-gateway.module';
 
 describe('ApiGateway integration', () => {
   let api: INestApplication;

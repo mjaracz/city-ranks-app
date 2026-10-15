@@ -1,5 +1,7 @@
-import { Inject, Injectable } from '@nestjs/common';
 import { createHash } from 'node:crypto';
+
+import { Inject, Injectable } from '@nestjs/common';
+
 import {
   ActivityEvaluation,
   CityForecast,
@@ -8,7 +10,9 @@ import {
   EvaluationState,
   MarineStatus,
 } from '@libs/models';
+
 import { validateRankingForecast } from '../utils/ranking-policy.validation';
+
 import {
   ACTIVITY_RANKING_RULES,
   ActivityRankingRule,

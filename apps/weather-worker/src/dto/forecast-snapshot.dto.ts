@@ -1,3 +1,5 @@
+import type { CityLocation, DailyWeatherForecast } from '@libs/models';
+
 import { Expose } from 'class-transformer';
 import {
   Allow,
@@ -8,7 +10,7 @@ import {
   Validate,
   ValidateIf,
 } from 'class-validator';
-import type { CityLocation, DailyWeatherForecast } from '@libs/models';
+
 import {
   CurrentForecastWindow,
   NonFutureTimestamp,

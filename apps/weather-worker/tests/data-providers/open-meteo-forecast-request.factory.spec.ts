@@ -1,6 +1,8 @@
 import { Test } from '@nestjs/testing';
-import { OpenMeteoForecastRequestFactory } from '../../src/data-providers/open-meteo-forecast-request.factory';
+
 import { forecastFixture, testCity } from '../../../city-ranking-test.fixtures';
+import { OpenMeteoForecastRequestFactory } from '../../src/data-providers/open-meteo-forecast-request.factory';
+
 describe('OpenMeteoForecastRequestFactory', () => {
   it('requests the resolved city window with explicit units and the required weather and marine fields', async () => {
     const module = await Test.createTestingModule({

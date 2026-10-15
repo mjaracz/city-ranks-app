@@ -2,11 +2,13 @@ import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { GraphQLError } from 'graphql';
 import { of, throwError } from 'rxjs';
+
+import { CityQueryError } from '@libs/contracts/city-query';
 import {
   ACTIVITY_RANKING_WORKER_CLIENT,
   CITY_RANKING_QUERY,
 } from '@libs/contracts/message-patterns';
-import { CityQueryError } from '@libs/contracts/city-query';
+
 import {
   forecastFixture,
   rankingFixture,

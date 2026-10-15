@@ -1,6 +1,8 @@
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { Activity, EvaluationState } from '@libs/models';
+
 import { forecastFixture } from '../../../../city-ranking-test.fixtures';
 import {
   missingEvaluation,

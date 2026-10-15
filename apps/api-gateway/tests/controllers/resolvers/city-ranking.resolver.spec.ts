@@ -1,11 +1,12 @@
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
+
 import {
   forecastFixture,
   rankingFixture,
 } from '../../../../city-ranking-test.fixtures';
-import { CityRankingGatewayService } from '../../../src/services/city-ranking.service';
 import { CityRankingResolver } from '../../../src/controllers/resolvers/city-ranking.resolver';
+import { CityRankingGatewayService } from '../../../src/services/city-ranking.service';
 
 describe('CityRankingResolver', () => {
   let moduleRef: TestingModule;

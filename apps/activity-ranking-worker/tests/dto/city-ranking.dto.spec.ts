@@ -1,8 +1,8 @@
-import { validateCityRanking } from '../../src/domain/ranking-validation';
 import {
   forecastFixture,
   rankingFixture,
 } from '../../../city-ranking-test.fixtures';
+import { validateCityRanking } from '../../src/domain/ranking-validation';
 
 describe('City ranking field contract', () => {
   it('accepts a plain JSON result without mutating the persisted payload', () => {

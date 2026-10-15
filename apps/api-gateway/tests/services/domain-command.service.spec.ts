@@ -1,12 +1,15 @@
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
+
+import { WEATHER_FORECAST_REFRESH_COMMAND } from '@libs/contracts';
 import { JetStreamCommandBus } from '@libs/messaging';
-import { DomainCommandService } from '../../src/services/domain-command.service';
+
 import {
   DomainCommandFactory,
   PreparedDomainCommand,
 } from '../../src/domain/domain-command.factory';
-import { WEATHER_FORECAST_REFRESH_COMMAND } from '@libs/contracts';
+import { DomainCommandService } from '../../src/services/domain-command.service';
+
 describe('DomainCommandService', () => {
   let module: TestingModule;
   let service: DomainCommandService;

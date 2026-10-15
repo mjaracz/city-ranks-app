@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
+
 import { CityLocation, MarineStatus } from '@libs/models';
+
 import { MarineForecast } from './forecast-source';
 
 @Injectable()

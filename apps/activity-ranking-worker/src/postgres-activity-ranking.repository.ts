@@ -1,12 +1,14 @@
-import { Inject, Injectable } from '@nestjs/common';
 import type { Knex } from 'knex';
-import { ACTIVITY_RANKING_KNEX } from './infrastructure/activity-ranking-knex';
+
+import { Inject, Injectable } from '@nestjs/common';
+
 import {
   ActivityFactor,
   ActivityRanking,
   ActivityRankingRepository,
   ActivityType,
 } from './activity-ranking.repository';
+import { ACTIVITY_RANKING_KNEX } from './infrastructure/activity-ranking-knex';
 import {
   validateRankingPeriod,
   validateRankings,

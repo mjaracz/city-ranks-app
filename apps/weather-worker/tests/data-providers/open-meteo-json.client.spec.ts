@@ -1,13 +1,15 @@
-import { OpenMeteoConfiguration } from '../../src/data-providers/open-meteo.configuration';
-import { WeatherPolicyModule } from '../../src/domain/weather-policy.module';
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { CityQueryError } from '@libs/contracts/city-query';
+
+import { OpenMeteoJsonClient } from '../../src/data-providers/open-meteo-json.client';
+import { OpenMeteoConfiguration } from '../../src/data-providers/open-meteo.configuration';
+import { WeatherPolicyModule } from '../../src/domain/weather-policy.module';
 import {
   CachedWeatherApiResponse,
   WeatherApiQueryCacheRepository,
 } from '../../src/weather-api-query-cache.repository';
-import { OpenMeteoJsonClient } from '../../src/data-providers/open-meteo-json.client';
 
 describe('OpenMeteoJsonClient', () => {
   let moduleRef: TestingModule;

@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
+
 import { CityQueryError } from '@libs/contracts';
+
 @Injectable()
 export class CitySelectionPolicy {
   select<T>(cities: readonly T[] | undefined): T {

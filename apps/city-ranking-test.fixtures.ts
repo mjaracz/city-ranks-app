@@ -1,8 +1,3 @@
-import { RankingPolicy } from './activity-ranking-worker/src/domain/ranking-policy';
-import { IndoorSightseeingRule } from './activity-ranking-worker/src/domain/rules/indoor-sightseeing.rule';
-import { OutdoorSightseeingRule } from './activity-ranking-worker/src/domain/rules/outdoor-sightseeing.rule';
-import { SkiingRule } from './activity-ranking-worker/src/domain/rules/skiing.rule';
-import { SurfingRule } from './activity-ranking-worker/src/domain/rules/surfing.rule';
 import {
   addCalendarDays,
   CityForecast,
@@ -10,6 +5,12 @@ import {
   DailyWeatherForecast,
   localDate,
 } from '@libs/models';
+
+import { RankingPolicy } from './activity-ranking-worker/src/domain/ranking-policy';
+import { IndoorSightseeingRule } from './activity-ranking-worker/src/domain/rules/indoor-sightseeing.rule';
+import { OutdoorSightseeingRule } from './activity-ranking-worker/src/domain/rules/outdoor-sightseeing.rule';
+import { SkiingRule } from './activity-ranking-worker/src/domain/rules/skiing.rule';
+import { SurfingRule } from './activity-ranking-worker/src/domain/rules/surfing.rule';
 
 export const testCity: CityLocation = {
   id: 'open-meteo:999999',

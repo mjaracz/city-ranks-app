@@ -1,4 +1,5 @@
 import { validateWeatherCoordinates } from '../../src/utils/weather-coordinates.validation';
+
 describe('validateWeatherCoordinates', () => {
   it('preserves coordinate-specific input errors', () => {
     expect(() => validateWeatherCoordinates(null)).toThrow(

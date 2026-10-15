@@ -1,10 +1,11 @@
-import { WeatherPolicyModule } from '../../src/domain/weather-policy.module';
 import { Test, TestingModule } from '@nestjs/testing';
+
 import {
   forecastFixture,
   testCity,
   upstreamFixture,
 } from '../../../city-ranking-test.fixtures';
+import { WeatherPolicyModule } from '../../src/domain/weather-policy.module';
 import { OpenMeteoResponseParser } from '../../src/services/open-meteo-response-parser.service';
 
 describe('OpenMeteoResponseParser', () => {

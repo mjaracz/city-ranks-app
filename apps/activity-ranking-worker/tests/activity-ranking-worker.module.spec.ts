@@ -1,14 +1,16 @@
 import { jest } from '@jest/globals';
 import { Test } from '@nestjs/testing';
 import { of } from 'rxjs';
+
+import { WEATHER_WORKER_CLIENT } from '@libs/contracts';
+import { JetStreamEventStore } from '@libs/messaging';
+
+import { forecastFixture } from '../../city-ranking-test.fixtures';
 import { ActivityRankingWorkerModule } from '../src/activity-ranking-worker.module';
 import { CityRankingRepository } from '../src/city-ranking.repository';
-import { CityRankingService } from '../src/services/city-ranking.service';
-import { ACTIVITY_RANKING_KNEX } from '../src/infrastructure/activity-ranking-knex';
 import { ACTIVITY_RANKING_COMMAND_CONSUMER } from '../src/infrastructure/activity-ranking-command-consumer';
-import { JetStreamEventStore } from '@libs/messaging';
-import { WEATHER_WORKER_CLIENT } from '@libs/contracts';
-import { forecastFixture } from '../../city-ranking-test.fixtures';
+import { ACTIVITY_RANKING_KNEX } from '../src/infrastructure/activity-ranking-knex';
+import { CityRankingService } from '../src/services/city-ranking.service';
 
 describe('ActivityRankingWorkerModule composition', () => {
   it('computes and persists a city ranking using the production injected policy graph', async () => {

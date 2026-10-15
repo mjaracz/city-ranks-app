@@ -1,8 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { Activity, Completeness } from '@libs/models';
+
 import { forecastFixture } from '../../../city-ranking-test.fixtures';
-import { RankingPolicyModule } from '../../src/domain/ranking-policy.module';
 import { RankingPolicy } from '../../src/domain/ranking-policy';
+import { RankingPolicyModule } from '../../src/domain/ranking-policy.module';
 
 describe('RankingPolicyModule', () => {
   let moduleRef: TestingModule;

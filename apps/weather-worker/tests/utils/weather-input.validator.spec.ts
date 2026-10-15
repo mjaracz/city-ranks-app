@@ -1,7 +1,9 @@
 import { Test } from '@nestjs/testing';
-import { WeatherInputValidator } from '../../src/utils/weather-input.validator';
-import { OpenMeteoCurrentResponseDto } from '../../src/dto/open-meteo-response.dto';
+
 import { DailySnowCoverageDto } from '../../src/dto/daily-snow-coverage.dto';
+import { OpenMeteoCurrentResponseDto } from '../../src/dto/open-meteo-response.dto';
+import { WeatherInputValidator } from '../../src/utils/weather-input.validator';
+
 describe('WeatherInputValidator', () => {
   it('rejects malformed payloads without leaking values and never converts numeric strings', async () => {
     const module = await Test.createTestingModule({

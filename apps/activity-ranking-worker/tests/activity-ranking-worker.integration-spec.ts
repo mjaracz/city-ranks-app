@@ -1,32 +1,36 @@
-import { jest } from '@jest/globals';
-import { CityRankingService } from '../src/services/city-ranking.service';
-import {
-  forecastFixture,
-  rankingFixture,
-} from '../../city-ranking-test.fixtures';
 import type { INestMicroservice } from '@nestjs/common';
+import type { ClientProxy, MicroserviceOptions } from '@nestjs/microservices';
+import type { Knex } from 'knex';
+
+import { randomUUID } from 'node:crypto';
+
+import { jest } from '@jest/globals';
 import { NestFactory } from '@nestjs/core';
 import { ClientProxyFactory, Transport } from '@nestjs/microservices';
-import type { ClientProxy, MicroserviceOptions } from '@nestjs/microservices';
 import { firstValueFrom, timeout } from 'rxjs';
-import { randomUUID } from 'node:crypto';
-import type { Knex } from 'knex';
-import { ActivityRankingRepository } from '../src/activity-ranking.repository';
-import { ACTIVITY_RANKING_KNEX } from '../src/infrastructure/activity-ranking-knex';
-import { ActivityRankingWorkerModule } from '../src/activity-ranking-worker.module';
-import { createActivityRankingRefreshCommand } from '../src/controllers/activity-ranking-command.handler';
+
+import { getNatsUrl } from '@libs/config/environment';
 import {
   ACTIVITY_RANKING_REFRESH_COMMAND,
   ACTIVITY_RANKING_WORKER_HEALTH,
   ACTIVITY_RANKING_WORKER_QUEUE,
   ACTIVITY_RANKINGS_QUERY,
 } from '@libs/contracts/message-patterns';
-import { getNatsUrl } from '@libs/config/environment';
 import { JetStreamCommandBus } from '@libs/messaging/jetstream-command-bus';
+
 import {
-  waitForEvent,
+  forecastFixture,
+  rankingFixture,
+} from '../../city-ranking-test.fixtures';
+import {
   ensureRankingSchema,
+  waitForEvent,
 } from '../../worker-integration.helpers';
+import { ActivityRankingWorkerModule } from '../src/activity-ranking-worker.module';
+import { ActivityRankingRepository } from '../src/activity-ranking.repository';
+import { createActivityRankingRefreshCommand } from '../src/controllers/activity-ranking-command.handler';
+import { ACTIVITY_RANKING_KNEX } from '../src/infrastructure/activity-ranking-knex';
+import { CityRankingService } from '../src/services/city-ranking.service';
 
 describe('ActivityRankingWorker integration', () => {
   let worker: INestMicroservice;

@@ -1,22 +1,24 @@
-import { OpenMeteoForecastRequestFactory } from '../src/data-providers/open-meteo-forecast-request.factory';
-import { OpenMeteoConfiguration } from '../src/data-providers/open-meteo.configuration';
-import { WeatherPolicyModule } from '../src/domain/weather-policy.module';
 import { jest } from '@jest/globals';
-import { CityQueryError } from '@libs/contracts/city-query';
 import { Test, TestingModule } from '@nestjs/testing';
-import { CityForecastService } from '../src/services/city-forecast.service';
-import { OpenMeteoResponseParser } from '../src/services/open-meteo-response-parser.service';
-import { OpenMeteoJsonClient } from '../src/data-providers/open-meteo-json.client';
-import {
-  WeatherApiQueryCacheRepository,
-  CachedWeatherApiResponse,
-} from '../src/weather-api-query-cache.repository';
+
+import { CityQueryError } from '@libs/contracts/city-query';
 import { JetStreamEventStore } from '@libs/messaging/jetstream-event-store';
+
 import {
   forecastFixture,
   testCity,
   upstreamFixture,
 } from '../../city-ranking-test.fixtures';
+import { OpenMeteoForecastRequestFactory } from '../src/data-providers/open-meteo-forecast-request.factory';
+import { OpenMeteoJsonClient } from '../src/data-providers/open-meteo-json.client';
+import { OpenMeteoConfiguration } from '../src/data-providers/open-meteo.configuration';
+import { WeatherPolicyModule } from '../src/domain/weather-policy.module';
+import { CityForecastService } from '../src/services/city-forecast.service';
+import { OpenMeteoResponseParser } from '../src/services/open-meteo-response-parser.service';
+import {
+  CachedWeatherApiResponse,
+  WeatherApiQueryCacheRepository,
+} from '../src/weather-api-query-cache.repository';
 
 describe('City forecast acquisition', () => {
   let moduleRef: TestingModule;

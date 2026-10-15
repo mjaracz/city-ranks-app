@@ -1,8 +1,10 @@
-import { WeatherPolicyModule } from '../../src/domain/weather-policy.module';
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { CityQueryError } from '@libs/contracts/city-query';
-import { upstreamFixture, testCity } from '../../../city-ranking-test.fixtures';
+
 import { createLoadFixtures } from '../../../../scripts/load/load-fixtures';
+import { testCity, upstreamFixture } from '../../../city-ranking-test.fixtures';
+import { WeatherPolicyModule } from '../../src/domain/weather-policy.module';
 import { OpenMeteoResponseParser } from '../../src/services/open-meteo-response-parser.service';
 
 describe('OpenMeteo response field contracts', () => {

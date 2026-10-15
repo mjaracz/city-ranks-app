@@ -1,5 +1,6 @@
-import { Field, ObjectType } from '@nestjs/graphql';
 import type { CommandReceipt } from '@libs/contracts/domain-command';
+
+import { Field, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
 export class CommandReceiptType implements CommandReceipt {

@@ -1,6 +1,8 @@
 import { ClassConstructor, plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
+
 import { ActivityEvaluation, CityForecast } from '@libs/models';
+
 import {
   DailyRankingInputDto,
   ForecastRankingInputDto,

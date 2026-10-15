@@ -1,3 +1,5 @@
+import type { Knex } from 'knex';
+
 import {
   Inject,
   Injectable,
@@ -5,7 +7,7 @@ import {
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
-import type { Knex } from 'knex';
+
 import {
   ACTIVITY_RANKING_KNEX,
   createActivityRankingKnex,
