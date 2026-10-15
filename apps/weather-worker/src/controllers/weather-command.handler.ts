@@ -1,4 +1,6 @@
+import { WEATHER_COMMAND_CONSUMER } from '../infrastructure/weather-command-consumer';
 import {
+  Inject,
   Injectable,
   OnApplicationBootstrap,
   OnModuleDestroy,
@@ -6,7 +8,7 @@ import {
 import { randomUUID } from 'node:crypto';
 import type { DomainCommand } from '@libs/contracts/domain-command';
 import { WEATHER_FORECAST_REFRESH_COMMAND } from '@libs/contracts/message-patterns';
-import { JetStreamCommandConsumer } from '@libs/messaging/jetstream-command-consumer';
+import type { DomainCommandConsumer } from '@libs/messaging/jetstream-command-consumer';
 import { JetStreamEventStore } from '@libs/messaging/jetstream-event-store';
 import { OpenMeteoProvider } from '../data-providers/open-meteo.provider';
 import type { WeatherCoordinates } from '../data-providers/open-meteo.types';
@@ -20,12 +22,9 @@ interface ForecastRefreshPayload {
 export class WeatherCommandHandler
   implements OnApplicationBootstrap, OnModuleDestroy
 {
-  private readonly consumer = new JetStreamCommandConsumer({
-    durableName: 'weather-worker-v1',
-    subject: WEATHER_FORECAST_REFRESH_COMMAND,
-  });
-
   constructor(
+    @Inject(WEATHER_COMMAND_CONSUMER)
+    private readonly consumer: DomainCommandConsumer,
     private readonly eventStore: JetStreamEventStore,
     private readonly openMeteoProvider: OpenMeteoProvider,
   ) {}

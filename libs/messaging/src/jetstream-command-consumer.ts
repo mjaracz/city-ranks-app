@@ -14,7 +14,15 @@ export interface JetStreamCommandConsumerOptions {
   subject: DomainCommandSubject;
 }
 
-export class JetStreamCommandConsumer {
+export interface DomainCommandConsumer {
+  readonly isReady: boolean;
+  start<TPayload>(
+    handler: (command: DomainCommand<TPayload>) => Promise<void>,
+  ): Promise<void>;
+  stop(): Promise<void>;
+}
+
+export class JetStreamCommandConsumer implements DomainCommandConsumer {
   private connection?: Awaited<ReturnType<typeof connect>>;
   private messages?: ConsumerMessages;
   private ready = false;

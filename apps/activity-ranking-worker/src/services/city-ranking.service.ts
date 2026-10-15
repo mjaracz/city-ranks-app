@@ -1,3 +1,4 @@
+import { RankingFreshnessPolicy } from '../domain/ranking-freshness.policy';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom, timeout } from 'rxjs';
@@ -11,12 +12,9 @@ import {
   WEATHER_WORKER_CLIENT,
 } from '@libs/contracts/message-patterns';
 import { JetStreamEventStore } from '@libs/messaging/jetstream-event-store';
-import { CityForecast, CityRanking, localDate } from '@libs/models';
+import { CityForecast, CityRanking } from '@libs/models';
 import { CityRankingRepository } from '../city-ranking.repository';
-import {
-  calculateCityRanking,
-  RANKING_POLICY_VERSION,
-} from '../domain/ranking-policy';
+import { RankingPolicy } from '../domain/ranking-policy';
 
 @Injectable()
 export class CityRankingService {
@@ -26,6 +24,8 @@ export class CityRankingService {
     private readonly repository: CityRankingRepository,
     @Inject(WEATHER_WORKER_CLIENT) private readonly weather: ClientProxy,
     private readonly eventStore: JetStreamEventStore,
+    private readonly rankingPolicy: RankingPolicy,
+    private readonly freshness: RankingFreshnessPolicy,
   ) {}
 
   async getRanking(input: string, refresh = false): Promise<CityRanking> {
@@ -34,12 +34,9 @@ export class CityRankingService {
     if (!refresh) {
       const stored = await this.repository.findFresh(
         queryKey,
-        RANKING_POLICY_VERSION,
+        this.rankingPolicy.version,
       );
-      const isStoredRankingCurrent =
-        stored &&
-        stored.windowStartDate === localDate(new Date(), stored.city.timezone);
-      if (isStoredRankingCurrent) return stored;
+      if (this.freshness.isCurrentWindow(stored)) return stored!;
     }
     const pending = this.inFlight.get(queryKey);
     if (pending) return pending;
@@ -75,7 +72,7 @@ export class CityRankingService {
         'UPSTREAM_UNAVAILABLE',
         'Invalid weather worker response',
       );
-    const ranking = calculateCityRanking(response.result);
+    const ranking = this.rankingPolicy.calculate(response.result);
     const existing = await this.repository.findById(ranking.id);
     if (existing) {
       await this.repository.save(queryKey, existing);

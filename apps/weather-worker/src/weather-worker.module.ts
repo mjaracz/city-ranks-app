@@ -1,3 +1,9 @@
+import { WEATHER_COMMAND_CONSUMER } from './infrastructure/weather-command-consumer';
+import { JetStreamCommandConsumer } from '@libs/messaging/jetstream-command-consumer';
+import { WEATHER_FORECAST_REFRESH_COMMAND } from '@libs/contracts/message-patterns';
+import { WeatherPolicyModule } from './domain/weather-policy.module';
+import { OpenMeteoConfiguration } from './data-providers/open-meteo.configuration';
+import { OpenMeteoForecastRequestFactory } from './data-providers/open-meteo-forecast-request.factory';
 import { CityForecastQueryHandler } from './controllers/city-forecast-query.handler';
 import { CityForecastService } from './services/city-forecast.service';
 import { OpenMeteoJsonClient } from './data-providers/open-meteo-json.client';
@@ -12,16 +18,26 @@ import { WeatherPersistenceModule } from './infrastructure/weather-persistence.m
 import { WeatherQueryHandler } from './controllers/weather-query.handler';
 
 @Module({
-  imports: [WeatherPersistenceModule],
+  imports: [WeatherPersistenceModule, WeatherPolicyModule],
   controllers: [
     WeatherHealthHandler,
     WeatherQueryHandler,
     CityForecastQueryHandler,
   ],
   providers: [
+    {
+      provide: WEATHER_COMMAND_CONSUMER,
+      useFactory: () =>
+        new JetStreamCommandConsumer({
+          durableName: 'weather-worker-v1',
+          subject: WEATHER_FORECAST_REFRESH_COMMAND,
+        }),
+    },
     WeatherCommandHandler,
     WeatherDatabaseHealth,
     OpenMeteoProvider,
+    OpenMeteoConfiguration,
+    OpenMeteoForecastRequestFactory,
     OpenMeteoJsonClient,
     OpenMeteoResponseParser,
     CityForecastService,

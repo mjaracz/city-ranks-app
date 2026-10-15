@@ -1,3 +1,5 @@
+import { OpenMeteoConfiguration } from './open-meteo.configuration';
+import { validateWeatherCoordinates } from '../utils/weather-coordinates.validation';
 import { Injectable } from '@nestjs/common';
 import { OpenMeteoResponseParser } from '../services/open-meteo-response-parser.service';
 import { OpenMeteoCurrentResponseDto } from '../dto/open-meteo-response.dto';
@@ -15,48 +17,18 @@ export class OpenMeteoProvider {
   constructor(
     private readonly cache: WeatherApiQueryCacheRepository,
     private readonly parser: OpenMeteoResponseParser,
+    configuration: OpenMeteoConfiguration,
   ) {
-    const configuredUrl =
-      process.env.OPEN_METEO_FORECAST_API_URL?.trim() ||
-      'https://api.open-meteo.com/v1/forecast';
-    let parsedUrl: URL;
-
-    try {
-      parsedUrl = new URL(configuredUrl);
-    } catch {
-      throw new Error('OPEN_METEO_FORECAST_API_URL must be a valid URL');
-    }
-
-    const isInvalidForecastApiUrl =
-      parsedUrl.protocol !== 'https:' ||
-      parsedUrl.username ||
-      parsedUrl.password;
-    if (isInvalidForecastApiUrl) {
-      throw new Error(
-        'OPEN_METEO_FORECAST_API_URL must be an HTTPS URL without credentials',
-      );
-    }
-
-    this.apiKey = process.env.OPEN_METEO_API_KEY?.trim() || undefined;
-    if (this.apiKey && parsedUrl.hostname === 'api.open-meteo.com') {
-      throw new Error(
-        'OPEN_METEO_API_KEY requires a customer or self-hosted forecast endpoint',
-      );
-    }
-    if (parsedUrl.hostname === 'customer-api.open-meteo.com' && !this.apiKey) {
-      throw new Error(
-        'OPEN_METEO_API_KEY must be set for the customer endpoint',
-      );
-    }
-
-    this.forecastApiUrl = parsedUrl.toString();
-    this.cacheTtlMilliseconds = this.getCacheTtlMilliseconds();
+    const options = configuration.currentForecast();
+    this.forecastApiUrl = options.url;
+    this.apiKey = options.apiKey;
+    this.cacheTtlMilliseconds = options.ttl;
   }
 
   async getCurrentWeather(
     coordinates: WeatherCoordinates,
   ): Promise<CurrentWeather> {
-    this.validateCoordinates(coordinates);
+    validateWeatherCoordinates(coordinates);
     const { query, signature, requestUrl } = createOpenMeteoCurrentRequest(
       this.forecastApiUrl,
       coordinates,
@@ -136,37 +108,6 @@ export class OpenMeteoProvider {
       new Date(Date.now() + this.cacheTtlMilliseconds),
     );
     return weather;
-  }
-
-  private getCacheTtlMilliseconds(): number {
-    const configuredTtl = process.env.WEATHER_API_CACHE_TTL_MS;
-    const ttl = configuredTtl === undefined ? 900_000 : Number(configuredTtl);
-
-    if (!Number.isSafeInteger(ttl) || ttl <= 0) {
-      throw new Error('WEATHER_API_CACHE_TTL_MS must be a positive integer');
-    }
-
-    return ttl;
-  }
-
-  private validateCoordinates(coordinates: WeatherCoordinates): void {
-    if (typeof coordinates !== 'object' || coordinates === null) {
-      throw new RangeError('coordinates must be an object');
-    }
-    const isLatitudeOutOfRange =
-      !Number.isFinite(coordinates.latitude) ||
-      coordinates.latitude < -90 ||
-      coordinates.latitude > 90;
-    if (isLatitudeOutOfRange) {
-      throw new RangeError('latitude must be a number between -90 and 90');
-    }
-    const isLongitudeOutOfRange =
-      !Number.isFinite(coordinates.longitude) ||
-      coordinates.longitude < -180 ||
-      coordinates.longitude > 180;
-    if (isLongitudeOutOfRange) {
-      throw new RangeError('longitude must be a number between -180 and 180');
-    }
   }
 
   private mapCurrentWeather(

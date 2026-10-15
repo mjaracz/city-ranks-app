@@ -1,9 +1,10 @@
+import { MarineForecast } from '../domain/forecast-source';
+import { CitySelectionPolicy } from '../domain/city-selection.policy';
+import { DailySnowDepthPolicy } from '../domain/daily-snow-depth.policy';
+import { WeatherInputValidator } from '../utils/weather-input.validator';
 import { Injectable } from '@nestjs/common';
-import { ClassConstructor, plainToInstance } from 'class-transformer';
-import { isObject, validateSync } from 'class-validator';
 import { CityQueryError } from '@libs/contracts/city-query';
-import { CityForecast, CityLocation, DailyWeatherForecast } from '@libs/models';
-import { ForecastSnapshotDto } from '../dto/forecast-snapshot.dto';
+import { CityLocation, DailyWeatherForecast } from '@libs/models';
 import {
   OpenMeteoCurrentResponseDto,
   OpenMeteoForecastResponseDto,
@@ -11,23 +12,20 @@ import {
   OpenMeteoMarineResponseDto,
 } from '../dto/open-meteo-response.dto';
 
-export interface MarineForecast {
-  latitude: number;
-  longitude: number;
-  days: { height: number | null; period: number | null }[];
-}
-
 @Injectable()
 export class OpenMeteoResponseParser {
+  constructor(
+    private readonly validation: WeatherInputValidator,
+    private readonly cities: CitySelectionPolicy,
+    private readonly snow: DailySnowDepthPolicy,
+  ) {}
+
   parseCity(payload: unknown): CityLocation {
-    const response = this.transform(OpenMeteoGeocodingResponseDto, payload);
-    if (!response.results?.length)
-      throw new CityQueryError(
-        'CITY_NOT_FOUND',
-        'No matching city was found; try adding a country or region',
-      );
-    // BQ-02: Use the first Open-Meteo match and return its identity for disambiguation.
-    const city = response.results[0];
+    const response = this.validation.transform(
+      OpenMeteoGeocodingResponseDto,
+      payload,
+    );
+    const city = this.cities.select(response.results);
     return {
       id: 'open-meteo:' + city.id,
       name: city.name,
@@ -45,20 +43,19 @@ export class OpenMeteoResponseParser {
     dates: string[],
     timezone: string,
   ): DailyWeatherForecast[] {
-    const response = this.transform(OpenMeteoForecastResponseDto, payload);
+    const response = this.validation.transform(
+      OpenMeteoForecastResponseDto,
+      payload,
+    );
     this.assertTimezone(response.timezone, timezone);
     const { daily, hourly } = response;
     return dates.map((date) => {
       const index = daily.time.indexOf(date);
-      const hourlyValues = hourly.time.flatMap((time, i) =>
-        time.startsWith(date + 'T') ? [hourly.snow_depth[i]] : [],
-      );
-      // BQ-05: A daily snow-depth maximum requires all 24 model hours to be present.
-      const snowDepthMaxMeters =
-        hourlyValues.length === 24 &&
-        hourlyValues.every((value) => value !== null)
-          ? Math.max(...(hourlyValues as number[]))
-          : null;
+      const snowDepthMaxMeters = this.snow.maximum({
+        date,
+        times: hourly.time,
+        observations: hourly.snow_depth,
+      });
       return {
         date,
         temperatureMinCelsius: daily.temperature_2m_min[index] ?? null,
@@ -79,7 +76,10 @@ export class OpenMeteoResponseParser {
     dates: string[],
     timezone: string,
   ): MarineForecast {
-    const response = this.transform(OpenMeteoMarineResponseDto, payload);
+    const response = this.validation.transform(
+      OpenMeteoMarineResponseDto,
+      payload,
+    );
     this.assertTimezone(response.timezone, timezone);
     return {
       latitude: response.latitude,
@@ -95,35 +95,7 @@ export class OpenMeteoResponseParser {
   }
 
   parseCurrent(payload: unknown): OpenMeteoCurrentResponseDto {
-    return this.transform(OpenMeteoCurrentResponseDto, payload);
-  }
-
-  assertSnapshot(forecast: CityForecast): void {
-    this.transform(ForecastSnapshotDto, forecast);
-  }
-
-  private transform<T extends object>(
-    type: ClassConstructor<T>,
-    payload: unknown,
-  ): T {
-    try {
-      if (!isObject(payload)) throw new Error('Invalid response object');
-      const response = plainToInstance(type, payload, {
-        excludeExtraneousValues: true,
-        enableImplicitConversion: false,
-      });
-      const errors = validateSync(response, {
-        forbidUnknownValues: true,
-        validationError: { target: false, value: false },
-      });
-      if (errors.length) throw new Error('Invalid response fields');
-      return response;
-    } catch {
-      throw new CityQueryError(
-        'UPSTREAM_UNAVAILABLE',
-        'Open-Meteo returned an invalid response',
-      );
-    }
+    return this.validation.transform(OpenMeteoCurrentResponseDto, payload);
   }
 
   private assertTimezone(actual: string, expected: string): void {
