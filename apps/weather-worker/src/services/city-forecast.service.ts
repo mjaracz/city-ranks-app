@@ -7,34 +7,33 @@ import {
 import {
   addCalendarDays,
   CityForecast,
-  CityLocation,
-  DailyWeatherForecast,
-  isCalendarDate,
   localDate,
-  WMO_WEATHER_CODES,
 } from '../../../../libs/models/src';
 import { JetStreamEventStore } from '../../../../libs/messaging/src/jetstream-event-store';
 import {
-  numberOrNull,
   OpenMeteoJsonClient,
   PersistedResponse,
-  record,
 } from '../data-providers/open-meteo-json.client';
+import {
+  MarineForecast,
+  OpenMeteoResponseParser,
+} from './open-meteo-response-parser.service';
 
-const fields = {
-  temperatureMinCelsius: ['temperature_2m_min', -100, 70],
-  temperatureMaxCelsius: ['temperature_2m_max', -100, 70],
-  precipitationMillimeters: ['precipitation_sum', 0, 3000],
-  snowfallCentimeters: ['snowfall_sum', 0, 1000],
-  windSpeedMaxKilometersPerHour: ['wind_speed_10m_max', 0, 500],
-  weatherCode: ['weather_code', 0, 99],
-} as const;
+const dailyFields = [
+  'temperature_2m_min',
+  'temperature_2m_max',
+  'precipitation_sum',
+  'snowfall_sum',
+  'wind_speed_10m_max',
+  'weather_code',
+] as const;
 
 @Injectable()
 export class CityForecastService {
   constructor(
     private readonly client: OpenMeteoJsonClient,
     private readonly eventStore: JetStreamEventStore,
+    private readonly parser: OpenMeteoResponseParser,
   ) {}
 
   async getForecast(input: string): Promise<CityForecast> {
@@ -47,7 +46,7 @@ export class CityForecastService {
         language: 'en',
         format: 'json',
       },
-      parseCity,
+      (payload) => this.parser.parseCity(payload),
     );
     const city = geocoding.value;
     // BQ-01: The seven-day window includes today in the resolved city's timezone.
@@ -67,15 +66,13 @@ export class CityForecastService {
       'forecast',
       {
         ...parameters,
-        daily: Object.values(fields)
-          .map(([name]) => name)
-          .join(','),
+        daily: dailyFields.join(','),
         hourly: 'snow_depth',
         temperature_unit: 'celsius',
         wind_speed_unit: 'kmh',
         precipitation_unit: 'mm',
       },
-      (payload) => parseWeather(payload, dates, city.timezone),
+      (payload) => this.parser.parseWeather(payload, dates, city.timezone),
     );
     let marine: PersistedResponse<MarineForecast> | null = null;
     try {
@@ -87,7 +84,7 @@ export class CityForecastService {
           cell_selection: 'sea',
           length_unit: 'metric',
         },
-        (payload) => parseMarine(payload, dates, city.timezone),
+        (payload) => this.parser.parseMarine(payload, dates, city.timezone),
       );
     } catch (error) {
       const isNotAnUpstreamAvailabilityError =
@@ -140,6 +137,7 @@ export class CityForecastService {
       marineStatus,
       days,
     };
+    this.parser.assertSnapshot(forecast);
     await this.eventStore.append({
       eventId: `${snapshotId}:forecast-snapshot-accepted`,
       eventType: 'forecast-snapshot-accepted',
@@ -150,223 +148,6 @@ export class CityForecastService {
     });
     return forecast;
   }
-}
-
-function requiredString(value: unknown): string {
-  if (typeof value !== 'string' || !value.trim())
-    throw new CityQueryError(
-      'UPSTREAM_UNAVAILABLE',
-      'Open-Meteo returned invalid location metadata',
-    );
-  return value;
-}
-
-export function parseCity(payload: unknown): CityLocation {
-  const response = record(payload);
-  const hasNoCityMatches =
-    response.results === undefined ||
-    (Array.isArray(response.results) && response.results.length === 0);
-  if (hasNoCityMatches)
-    throw new CityQueryError(
-      'CITY_NOT_FOUND',
-      'No matching city was found; try adding a country or region',
-    );
-  if (!Array.isArray(response.results))
-    throw new CityQueryError(
-      'UPSTREAM_UNAVAILABLE',
-      'Invalid geocoding response',
-    );
-  // BQ-02: Use the first Open-Meteo match and return its identity for disambiguation.
-  const city = record(response.results[0]);
-  const latitude = numberOrNull(city.latitude, -90, 90);
-  const longitude = numberOrNull(city.longitude, -180, 180);
-  const hasInvalidCityCoordinatesOrIdentity =
-    latitude === null ||
-    longitude === null ||
-    !Number.isSafeInteger(city.id) ||
-    Number(city.id) <= 0;
-  if (hasInvalidCityCoordinatesOrIdentity)
-    throw new CityQueryError(
-      'UPSTREAM_UNAVAILABLE',
-      'Invalid geocoding coordinates or identity',
-    );
-  const timezone = requiredString(city.timezone);
-  try {
-    localDate(new Date(), timezone);
-  } catch {
-    throw new CityQueryError('UPSTREAM_UNAVAILABLE', 'Invalid city timezone');
-  }
-  const countryCode = requiredString(city.country_code);
-  if (!/^[A-Z]{2}$/.test(countryCode))
-    throw new CityQueryError(
-      'UPSTREAM_UNAVAILABLE',
-      'Invalid city country code',
-    );
-  return {
-    id: `open-meteo:${city.id}`,
-    name: requiredString(city.name),
-    countryCode,
-    country: requiredString(city.country),
-    region: typeof city.admin1 === 'string' ? city.admin1 : null,
-    latitude,
-    longitude,
-    timezone,
-  };
-}
-
-function timeSeries(
-  payload: unknown,
-  timezone: string,
-): {
-  response: Record<string, unknown>;
-  daily: Record<string, unknown>;
-  times: string[];
-} {
-  const response = record(payload);
-  if (response.timezone !== timezone)
-    throw new CityQueryError(
-      'UPSTREAM_UNAVAILABLE',
-      'Unexpected forecast timezone',
-    );
-  const daily = record(response.daily);
-  const hasInvalidDailyForecastDates =
-    !Array.isArray(daily.time) ||
-    daily.time.length === 0 ||
-    daily.time.length > 16 ||
-    !daily.time.every(isCalendarDate) ||
-    new Set(daily.time).size !== daily.time.length;
-  if (hasInvalidDailyForecastDates)
-    throw new CityQueryError(
-      'UPSTREAM_UNAVAILABLE',
-      'Invalid daily forecast dates',
-    );
-  return { response, daily, times: daily.time as string[] };
-}
-
-function column(
-  daily: Record<string, unknown>,
-  name: string,
-  count: number,
-  min: number,
-  max = Infinity,
-): (number | null)[] {
-  const values = daily[name];
-  if (!Array.isArray(values) || values.length !== count)
-    throw new CityQueryError(
-      'UPSTREAM_UNAVAILABLE',
-      'Invalid daily forecast measurements',
-    );
-  return values.map((value) => numberOrNull(value, min, max));
-}
-
-export function parseWeather(
-  payload: unknown,
-  dates: string[],
-  timezone: string,
-): DailyWeatherForecast[] {
-  const { response, daily, times } = timeSeries(payload, timezone);
-  const columns = Object.fromEntries(
-    Object.entries(fields).map(([key, [name, min, max]]) => [
-      key,
-      column(daily, name, times.length, min, max),
-    ]),
-  );
-  const hourly = record(response.hourly);
-  const hasInvalidHourlySnowObservations =
-    !Array.isArray(hourly.time) ||
-    !Array.isArray(hourly.snow_depth) ||
-    hourly.time.length !== hourly.snow_depth.length ||
-    hourly.time.length > 400 ||
-    new Set(hourly.time).size !== hourly.time.length ||
-    !hourly.time.every(
-      (value) =>
-        typeof value === 'string' &&
-        /^\d{4}-\d{2}-\d{2}T(?:[01]\d|2[0-3]):00$/.test(value) &&
-        isCalendarDate(value.slice(0, 10)),
-    );
-  if (hasInvalidHourlySnowObservations)
-    throw new CityQueryError(
-      'UPSTREAM_UNAVAILABLE',
-      'Invalid hourly snow observations',
-    );
-  const snow = (hourly.snow_depth as unknown[]).map((value) =>
-    numberOrNull(value, 0, 100),
-  );
-  return dates.map((date) => {
-    const index = times.indexOf(date);
-    const values = Object.fromEntries(
-      Object.keys(fields).map((key) => [
-        key,
-        index < 0 ? null : columns[key][index],
-      ]),
-    );
-    const hasInvalidTemperatureRange =
-      values.temperatureMinCelsius !== null &&
-      values.temperatureMaxCelsius !== null &&
-      values.temperatureMinCelsius > values.temperatureMaxCelsius;
-    if (hasInvalidTemperatureRange)
-      throw new CityQueryError(
-        'UPSTREAM_UNAVAILABLE',
-        'Minimum temperature exceeds maximum',
-      );
-    const hasInvalidWeatherCode =
-      values.weatherCode !== null && !WMO_WEATHER_CODES.has(values.weatherCode);
-    if (hasInvalidWeatherCode)
-      throw new CityQueryError(
-        'UPSTREAM_UNAVAILABLE',
-        'Invalid WMO weather code',
-      );
-    const hourlyValues = (hourly.time as string[]).flatMap((time, i) =>
-      time.startsWith(`${date}T`) ? [snow[i]] : [],
-    );
-    // BQ-05: A daily snow-depth maximum requires all 24 model hours to be present.
-    const snowDepthMaxMeters =
-      hourlyValues.length === 24 &&
-      hourlyValues.every((value) => value !== null)
-        ? Math.max(...(hourlyValues as number[]))
-        : null;
-    return {
-      date,
-      ...values,
-      snowDepthMaxMeters,
-      waveHeightMaxMeters: null,
-      wavePeriodMaxSeconds: null,
-    } as DailyWeatherForecast;
-  });
-}
-
-interface MarineForecast {
-  latitude: number;
-  longitude: number;
-  days: { height: number | null; period: number | null }[];
-}
-
-export function parseMarine(
-  payload: unknown,
-  dates: string[],
-  timezone: string,
-): MarineForecast {
-  const { response, daily, times } = timeSeries(payload, timezone);
-  const latitude = numberOrNull(response.latitude, -90, 90);
-  const longitude = numberOrNull(response.longitude, -180, 180);
-  if (latitude === null || longitude === null)
-    throw new CityQueryError(
-      'UPSTREAM_UNAVAILABLE',
-      'Invalid marine grid coordinates',
-    );
-  const height = column(daily, 'wave_height_max', times.length, 0, 100);
-  const period = column(daily, 'wave_period_max', times.length, 0, 100);
-  return {
-    latitude,
-    longitude,
-    days: dates.map((date) => {
-      const index = times.indexOf(date);
-      return {
-        height: index < 0 ? null : height[index],
-        period: index < 0 ? null : period[index],
-      };
-    }),
-  };
 }
 
 function distanceKilometers(

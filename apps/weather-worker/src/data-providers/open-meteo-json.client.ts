@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { createHash } from 'node:crypto';
+import { isObject } from 'class-validator';
 import { getPositiveInteger } from '../../../../libs/config/src/environment';
 import { CityQueryError } from '../../../../libs/contracts/src/city-query';
 import { WeatherApiQueryCacheRepository } from '../weather-api-query-cache.repository';
@@ -148,29 +149,10 @@ export class OpenMeteoJsonClient {
 }
 
 export function record(value: unknown): Record<string, unknown> {
-  if (value === null || typeof value !== 'object' || Array.isArray(value))
+  if (!isObject(value))
     throw new CityQueryError(
       'UPSTREAM_UNAVAILABLE',
       'Open-Meteo returned an invalid response',
     );
   return value as Record<string, unknown>;
-}
-
-export function numberOrNull(
-  value: unknown,
-  minimum = -Infinity,
-  maximum = Infinity,
-): number | null {
-  if (value === null) return null;
-  const isInvalidMeasurement =
-    typeof value !== 'number' ||
-    !Number.isFinite(value) ||
-    value < minimum ||
-    value > maximum;
-  if (isInvalidMeasurement)
-    throw new CityQueryError(
-      'UPSTREAM_UNAVAILABLE',
-      'Open-Meteo returned an invalid measurement',
-    );
-  return value;
 }

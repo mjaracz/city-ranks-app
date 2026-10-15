@@ -21,7 +21,6 @@ import {
   calculateCityRanking,
   RANKING_POLICY_VERSION,
 } from '../domain/ranking-policy';
-import { validateCityForecast } from '../domain/forecast-validation';
 
 @Injectable()
 export class CityRankingService {
@@ -42,7 +41,7 @@ export class CityRankingService {
         RANKING_POLICY_VERSION,
       );
       const isStoredRankingCurrent =
-        stored !== undefined &&
+        stored &&
         stored.windowStartDate === localDate(new Date(), stored.city.timezone);
       if (isStoredRankingCurrent) return stored;
     }
@@ -80,7 +79,6 @@ export class CityRankingService {
         'UPSTREAM_UNAVAILABLE',
         'Invalid weather worker response',
       );
-    validateCityForecast(response.result);
     const ranking = calculateCityRanking(response.result);
     const existing = await this.repository.findById(ranking.id);
     if (existing) {
