@@ -18,6 +18,11 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    "paths": {}
+    "paths": {
+      "@libs/models": ["libs/models/src"],
+      "@libs/models/*": ["libs/models/src/*"]
+    },
+    "baseUrl": ".",
+    "ignoreDeprecations": "6.0"
   }
 }

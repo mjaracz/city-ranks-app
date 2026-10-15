@@ -1,6 +1,6 @@
 import { Args, Query, Resolver } from '@nestjs/graphql';
 import { CityRankingGatewayService } from '../services/city-ranking.service';
-import { CityRankingType } from '../city-ranking.type';
+import { CityRankingType } from '../types/city-ranking.type';
 
 @Resolver(() => CityRankingType)
 export class CityRankingResolver {

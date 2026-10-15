@@ -19,12 +19,12 @@ import {
   ValidateIf,
   ValidateNested,
 } from 'class-validator';
-import { WMO_WEATHER_CODES } from '../../../../libs/models/src';
+import { WMO_WEATHER_CODES } from '@libs/models';
 import {
   MatchingTimeSeriesLength,
   NullableNumberRange,
   OrderedTemperatureRange,
-} from '../validation/open-meteo.constraints';
+} from '../utils/open-meteo.constraints';
 
 export class OpenMeteoCityDto {
   @Expose()

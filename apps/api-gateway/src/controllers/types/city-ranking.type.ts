@@ -14,7 +14,7 @@ import {
   Completeness,
   DailyCityRanking,
   EvaluationState,
-} from '../../../libs/models/src';
+} from '@libs/models';
 
 registerEnumType(Activity, { name: 'Activity' });
 registerEnumType(EvaluationState, { name: 'EvaluationState' });

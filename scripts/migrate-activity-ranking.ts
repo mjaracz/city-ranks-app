@@ -1,6 +1,6 @@
 import 'dotenv/config';
-import { createActivityRankingKnex } from '../apps/activity-ranking-worker/src/persistence/activity-ranking-knex';
-import { migrateActivityRanking } from '../apps/activity-ranking-worker/src/persistence/activity-ranking-migrations';
+import { createActivityRankingKnex } from '../apps/activity-ranking-worker/src/infrastructure/activity-ranking-knex';
+import { migrateActivityRanking } from '../apps/activity-ranking-worker/src/infrastructure/activity-ranking-migrations';
 
 async function main(): Promise<void> {
   const database = createActivityRankingKnex();

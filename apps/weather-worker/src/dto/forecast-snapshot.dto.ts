@@ -8,15 +8,12 @@ import {
   Validate,
   ValidateIf,
 } from 'class-validator';
-import type {
-  CityLocation,
-  DailyWeatherForecast,
-} from '../../../../libs/models/src';
+import type { CityLocation, DailyWeatherForecast } from '@libs/models';
 import {
   CurrentForecastWindow,
   NonFutureTimestamp,
   UnexpiredTimestamp,
-} from '../validation/open-meteo.constraints';
+} from '../utils/open-meteo.constraints';
 
 export class ForecastSnapshotDto {
   @Expose()

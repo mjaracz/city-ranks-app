@@ -12,7 +12,7 @@ import {
   CityLocation,
   DailyWeatherForecast,
   localDate,
-} from '../../../../libs/models/src';
+} from '@libs/models';
 
 @ValidatorConstraint({ name: 'nullableNumberRange', async: false })
 export class NullableNumberRange implements ValidatorConstraintInterface {

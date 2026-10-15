@@ -8,7 +8,7 @@ import {
   DailyCityRanking,
   DailyWeatherForecast,
   EvaluationState,
-} from '../../../../libs/models/src';
+} from '@libs/models';
 
 // BQ-03/BQ-04: Scores describe provisional weather preference on a shared 0-100 scale.
 export const RANKING_POLICY_VERSION = 'weather-suitability-v1';

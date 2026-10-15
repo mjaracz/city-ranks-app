@@ -27,12 +27,12 @@ import {
   Completeness,
   DailyCityRanking,
   EvaluationState,
-} from '../../../../libs/models/src';
+} from '@libs/models';
 import {
   DailyRankingConsistency,
   RankingCompleteness,
   RankingWindow,
-} from '../validation/ranking.constraints';
+} from '../utils/ranking.constraints';
 
 export class RankingCityLocationDto implements CityLocation {
   @Expose()

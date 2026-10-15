@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { Knex } from 'knex';
-import { ACTIVITY_RANKING_KNEX } from './persistence/activity-ranking-knex';
+import { ACTIVITY_RANKING_KNEX } from './infrastructure/activity-ranking-knex';
 import {
   ActivityFactor,
   ActivityRanking,
@@ -10,7 +10,7 @@ import {
 import {
   validateRankingPeriod,
   validateRankings,
-} from './activity-ranking.validation';
+} from './utils/activity-ranking.validation';
 
 interface ActivityRankingRow {
   city: string;

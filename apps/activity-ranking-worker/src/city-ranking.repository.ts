@@ -1,4 +1,4 @@
-import type { CityRanking } from '../../../libs/models/src';
+import type { CityRanking } from '@libs/models';
 
 export abstract class CityRankingRepository {
   abstract findById(id: string): Promise<CityRanking | null>;
