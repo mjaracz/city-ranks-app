@@ -1,5 +1,7 @@
 import { Test } from '@nestjs/testing';
+
 import { CitySelectionPolicy } from '../../src/domain/city-selection.policy';
+
 describe('CitySelectionPolicy', () => {
   it('selects the first candidate without modifying or combining locations', async () => {
     const module = await Test.createTestingModule({

@@ -1,10 +1,13 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
+
 import { WEATHER_WORKER_HEALTH } from '@libs/contracts/message-patterns';
 import { WorkerHealth } from '@libs/contracts/worker-health';
 import { JetStreamEventStore } from '@libs/messaging/jetstream-event-store';
-import { WeatherCommandHandler } from './weather-command.handler';
+
 import { WeatherDatabaseHealth } from '../services/weather-database-health.service';
+
+import { WeatherCommandHandler } from './weather-command.handler';
 
 @Controller()
 export class WeatherHealthHandler {

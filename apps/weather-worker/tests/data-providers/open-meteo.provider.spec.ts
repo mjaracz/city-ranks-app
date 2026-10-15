@@ -1,12 +1,13 @@
-import { OpenMeteoConfiguration } from '../../src/data-providers/open-meteo.configuration';
-import { WeatherPolicyModule } from '../../src/domain/weather-policy.module';
-import { OpenMeteoProvider } from '../../src/data-providers/open-meteo.provider';
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
-import { OpenMeteoResponseParser } from '../../src/services/open-meteo-response-parser.service';
-import { WeatherApiQueryCacheRepository } from '../../src/weather-api-query-cache.repository';
+
 import { createLoadFixtures } from '../../../../scripts/load/load-fixtures';
 import { createOpenMeteoCurrentRequest } from '../../src/data-providers/open-meteo-request';
+import { OpenMeteoConfiguration } from '../../src/data-providers/open-meteo.configuration';
+import { OpenMeteoProvider } from '../../src/data-providers/open-meteo.provider';
+import { WeatherPolicyModule } from '../../src/domain/weather-policy.module';
+import { OpenMeteoResponseParser } from '../../src/services/open-meteo-response-parser.service';
+import { WeatherApiQueryCacheRepository } from '../../src/weather-api-query-cache.repository';
 
 describe('Open-Meteo cache flow', () => {
   const fixture = createLoadFixtures(1, 64, 'provider-test')[0];

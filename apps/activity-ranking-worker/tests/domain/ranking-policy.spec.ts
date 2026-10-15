@@ -1,17 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { RankingPolicy } from '../../src/domain/ranking-policy';
-import { RankingPolicyModule } from '../../src/domain/ranking-policy.module';
-import { rankDay } from '../../src/domain/daily-ranking';
-import { validateCityRanking } from '../../src/domain/ranking-validation';
+
 import {
   Activity,
   ActivityEvaluation,
+  addCalendarDays,
   Completeness,
   EvaluationState,
-  addCalendarDays,
   localDate,
 } from '@libs/models';
+
 import { forecastFixture } from '../../../city-ranking-test.fixtures';
+import { rankDay } from '../../src/domain/daily-ranking';
+import { RankingPolicy } from '../../src/domain/ranking-policy';
+import { RankingPolicyModule } from '../../src/domain/ranking-policy.module';
+import { validateCityRanking } from '../../src/domain/ranking-validation';
 
 const evaluations = (scores: number[]): ActivityEvaluation[] =>
   Object.values(Activity).map((activity, i) => ({

@@ -1,5 +1,7 @@
-import { Inject, Injectable } from '@nestjs/common';
 import type { Knex } from 'knex';
+
+import { Inject, Injectable } from '@nestjs/common';
+
 import { ACTIVITY_RANKING_KNEX } from '../infrastructure/activity-ranking-knex';
 
 @Injectable()

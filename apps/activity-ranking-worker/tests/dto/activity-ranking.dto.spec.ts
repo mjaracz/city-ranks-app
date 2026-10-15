@@ -1,5 +1,6 @@
 import { plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
+
 import { ActivityRankingBatchDto } from '../../src/dto/activity-ranking.dto';
 
 describe('Activity ranking DTO', () => {

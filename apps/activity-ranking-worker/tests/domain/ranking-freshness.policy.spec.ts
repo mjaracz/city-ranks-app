@@ -1,9 +1,11 @@
 import { Test } from '@nestjs/testing';
-import { RankingFreshnessPolicy } from '../../src/domain/ranking-freshness.policy';
+
 import {
   forecastFixture,
   rankingFixture,
 } from '../../../city-ranking-test.fixtures';
+import { RankingFreshnessPolicy } from '../../src/domain/ranking-freshness.policy';
+
 describe('RankingFreshnessPolicy', () => {
   it('requires the current local city date instead of the UTC date', async () => {
     const module = await Test.createTestingModule({

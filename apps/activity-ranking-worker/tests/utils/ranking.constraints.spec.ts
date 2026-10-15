@@ -1,4 +1,5 @@
 import { Activity, Completeness, EvaluationState } from '@libs/models';
+
 import {
   forecastFixture,
   rankingFixture,

@@ -1,9 +1,11 @@
 import { plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
+
 import {
   CommandCityDto,
   CommandCoordinatesDto,
 } from '../../src/dto/domain-command.dto';
+
 describe('Command DTOs', () => {
   it('trims command city names and preserves the existing 1-120 character contract', () => {
     const dto = plainToInstance(CommandCityDto, { city: ' A ' });

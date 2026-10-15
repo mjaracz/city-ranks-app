@@ -1,6 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
+
 import { ApiGatewayModule } from '../src/api-gateway.module';
 
 describe('ApiGateway GraphQL (e2e)', () => {

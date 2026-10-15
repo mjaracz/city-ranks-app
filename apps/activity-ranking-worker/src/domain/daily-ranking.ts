@@ -3,7 +3,9 @@ import {
   DailyCityRanking,
   EvaluationState,
 } from '@libs/models';
+
 import { validateRankingEvaluations } from '../utils/ranking-policy.validation';
+
 import { rankingCompleteness, roundScore } from './ranking-score';
 
 export function rankDay(

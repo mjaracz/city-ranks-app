@@ -1,13 +1,16 @@
+import { monitorEventLoopDelay, performance } from 'node:perf_hooks';
+
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { monitorEventLoopDelay, performance } from 'node:perf_hooks';
-import { WeatherWorkerModule } from '../../apps/weather-worker/src/weather-worker.module';
-import { ActivityRankingWorkerModule } from '../../apps/activity-ranking-worker/src/activity-ranking-worker.module';
-import {
-  WEATHER_WORKER_QUEUE,
-  ACTIVITY_RANKING_WORKER_QUEUE,
-} from '@libs/contracts/message-patterns';
+
 import { getNatsUrl } from '@libs/config/environment';
+import {
+  ACTIVITY_RANKING_WORKER_QUEUE,
+  WEATHER_WORKER_QUEUE,
+} from '@libs/contracts/message-patterns';
+
+import { ActivityRankingWorkerModule } from '../../apps/activity-ranking-worker/src/activity-ranking-worker.module';
+import { WeatherWorkerModule } from '../../apps/weather-worker/src/weather-worker.module';
 
 async function main(): Promise<void> {
   const weather = process.argv[2] === 'weather';

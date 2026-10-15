@@ -1,19 +1,22 @@
-import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import type { JetStreamClient, JetStreamManager } from '@nats-io/jetstream';
+
+import type { DomainCommand } from '@libs/contracts/domain-command';
+
 import {
   jetstream,
   jetstreamManager,
   RetentionPolicy,
   StorageType,
 } from '@nats-io/jetstream';
-import type { JetStreamClient, JetStreamManager } from '@nats-io/jetstream';
 import { connect } from '@nats-io/transport-node';
-import type { DomainCommand } from '@libs/contracts/domain-command';
+import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+
+import { getNatsUrl } from '@libs/config/environment';
 import {
   ACTIVITY_RANKING_REFRESH_COMMAND,
   DOMAIN_COMMANDS_STREAM,
   WEATHER_FORECAST_REFRESH_COMMAND,
 } from '@libs/contracts/message-patterns';
-import { getNatsUrl } from '@libs/config/environment';
 
 export type DomainCommandSubject =
   | typeof WEATHER_FORECAST_REFRESH_COMMAND

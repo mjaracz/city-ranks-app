@@ -1,7 +1,10 @@
-import { connect } from '@nats-io/transport-node';
-import { jetstreamManager } from '@nats-io/jetstream';
-import { getNatsUrl } from '@libs/config/environment';
 import type { DomainEvent } from '@libs/contracts/domain-event';
+
+import { jetstreamManager } from '@nats-io/jetstream';
+import { connect } from '@nats-io/transport-node';
+
+import { getNatsUrl } from '@libs/config/environment';
+
 import { createActivityRankingKnex } from './activity-ranking-worker/src/infrastructure/activity-ranking-knex';
 import { migrateActivityRanking } from './activity-ranking-worker/src/infrastructure/activity-ranking-migrations';
 

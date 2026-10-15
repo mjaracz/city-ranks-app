@@ -1,5 +1,6 @@
-import { createHash } from 'node:crypto';
 import type { WeatherApiQuery } from '../weather-api-query-cache.repository';
+
+import { createHash } from 'node:crypto';
 
 export function createOpenMeteoCurrentRequest(
   endpoint: string,

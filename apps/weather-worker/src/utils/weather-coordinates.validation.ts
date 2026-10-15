@@ -1,5 +1,6 @@
 import { plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
+
 import { WeatherCoordinatesInputDto } from '../dto/weather-coordinates.dto';
 
 export function validateWeatherCoordinates(coordinates: unknown): void {

@@ -1,7 +1,7 @@
-import { RankingFreshnessPolicy } from '../src/domain/ranking-freshness.policy';
-import { RankingPolicy } from '../src/domain/ranking-policy';
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
+import { Observable, of, throwError } from 'rxjs';
+
 import { CityQueryError } from '@libs/contracts/city-query';
 import {
   WEATHER_CITY_FORECAST_QUERY,
@@ -9,13 +9,15 @@ import {
 } from '@libs/contracts/message-patterns';
 import { JetStreamEventStore } from '@libs/messaging/jetstream-event-store';
 import { CityForecast } from '@libs/models';
+
 import {
   forecastFixture,
   rankingFixture,
 } from '../../city-ranking-test.fixtures';
 import { CityRankingRepository } from '../src/city-ranking.repository';
+import { RankingFreshnessPolicy } from '../src/domain/ranking-freshness.policy';
+import { RankingPolicy } from '../src/domain/ranking-policy';
 import { CityRankingService } from '../src/services/city-ranking.service';
-import { Observable, of, throwError } from 'rxjs';
 
 describe('CityRankingService', () => {
   let moduleRef: TestingModule;

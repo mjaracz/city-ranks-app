@@ -1,28 +1,32 @@
 import type { INestMicroservice } from '@nestjs/common';
+import type { ClientProxy, MicroserviceOptions } from '@nestjs/microservices';
+import type { Collection } from 'mongodb';
+
+import { randomUUID } from 'node:crypto';
+
 import { NestFactory } from '@nestjs/core';
 import { ClientProxyFactory, Transport } from '@nestjs/microservices';
-import type { ClientProxy, MicroserviceOptions } from '@nestjs/microservices';
 import { firstValueFrom, timeout } from 'rxjs';
-import { randomUUID } from 'node:crypto';
-import type { Collection } from 'mongodb';
-import { WeatherApiQueryCacheRepository } from '../src/weather-api-query-cache.repository';
+
+import { getNatsUrl } from '@libs/config/environment';
+import {
+  WEATHER_CURRENT_QUERY,
+  WEATHER_FORECAST_REFRESH_COMMAND,
+  WEATHER_WORKER_HEALTH,
+  WEATHER_WORKER_QUEUE,
+} from '@libs/contracts/message-patterns';
+import { JetStreamCommandBus } from '@libs/messaging/jetstream-command-bus';
+
+import { createLoadFixtures } from '../../../scripts/load/load-fixtures';
+import { waitForEvent } from '../../worker-integration.helpers';
+import { createWeatherRefreshCommand } from '../src/controllers/weather-command.handler';
+import { createOpenMeteoCurrentRequest } from '../src/data-providers/open-meteo-request';
 import {
   WEATHER_API_CACHE_COLLECTION,
   WeatherApiCacheDocument,
 } from '../src/infrastructure/weather-mongo.providers';
-import { createOpenMeteoCurrentRequest } from '../src/data-providers/open-meteo-request';
-import { createLoadFixtures } from '../../../scripts/load/load-fixtures';
+import { WeatherApiQueryCacheRepository } from '../src/weather-api-query-cache.repository';
 import { WeatherWorkerModule } from '../src/weather-worker.module';
-import { createWeatherRefreshCommand } from '../src/controllers/weather-command.handler';
-import {
-  WEATHER_FORECAST_REFRESH_COMMAND,
-  WEATHER_WORKER_HEALTH,
-  WEATHER_WORKER_QUEUE,
-  WEATHER_CURRENT_QUERY,
-} from '@libs/contracts/message-patterns';
-import { getNatsUrl } from '@libs/config/environment';
-import { JetStreamCommandBus } from '@libs/messaging/jetstream-command-bus';
-import { waitForEvent } from '../../worker-integration.helpers';
 
 describe('WeatherWorker integration', () => {
   let worker: INestMicroservice;

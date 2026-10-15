@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+
 import { Expose, Type } from 'class-transformer';
 import {
   ArrayMaxSize,
@@ -12,6 +13,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
+
 import { Activity, DailyWeatherForecast, EvaluationState } from '@libs/models';
 
 class PolicyActivityEvaluationDto {

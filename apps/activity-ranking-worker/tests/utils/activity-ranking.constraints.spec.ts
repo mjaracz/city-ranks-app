@@ -1,4 +1,5 @@
 import type { ValidationArguments } from 'class-validator';
+
 import {
   RankingPeriodLength,
   ScalarActivityFactors,

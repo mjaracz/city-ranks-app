@@ -1,7 +1,9 @@
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { CityQueryError } from '@libs/contracts/city-query';
 import { WEATHER_CITY_FORECAST_QUERY } from '@libs/contracts/message-patterns';
+
 import { forecastFixture } from '../../city-ranking-test.fixtures';
 import { CityForecastQueryHandler } from '../src/controllers/city-forecast-query.handler';
 import { CityForecastService } from '../src/services/city-forecast.service';

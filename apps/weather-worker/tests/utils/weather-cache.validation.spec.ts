@@ -2,6 +2,7 @@ import {
   validateCacheSignature,
   validateCacheWrite,
 } from '../../src/utils/weather-cache.validation';
+
 describe('Weather cache validation', () => {
   const input = () => ({
     query: { endpoint: 'https://example.invalid', parameters: {} },

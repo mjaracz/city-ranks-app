@@ -1,6 +1,7 @@
 import { Args, Float, Mutation, Resolver } from '@nestjs/graphql';
-import { CommandReceiptType } from '../types/command-receipt.type';
+
 import { DomainCommandService } from '../../services/domain-command.service';
+import { CommandReceiptType } from '../types/command-receipt.type';
 
 @Resolver()
 export class DomainCommandResolver {

@@ -1,14 +1,17 @@
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { DomainCommand } from '@libs/contracts';
 import { JetStreamEventStore } from '@libs/messaging';
+
+import { rankingFixture } from '../../../city-ranking-test.fixtures';
 import {
   ActivityRankingCommandHandler,
   createActivityRankingRefreshCommand,
 } from '../../src/controllers/activity-ranking-command.handler';
 import { ACTIVITY_RANKING_COMMAND_CONSUMER } from '../../src/infrastructure/activity-ranking-command-consumer';
 import { CityRankingService } from '../../src/services/city-ranking.service';
-import { rankingFixture } from '../../../city-ranking-test.fixtures';
+
 describe('ActivityRankingCommandHandler', () => {
   let module: TestingModule;
   let handler: ActivityRankingCommandHandler;

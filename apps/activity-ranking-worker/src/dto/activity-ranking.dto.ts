@@ -1,4 +1,11 @@
 import 'reflect-metadata';
+
+import type {
+  ActivityFactor,
+  ActivityRanking,
+  ActivityType,
+} from '../activity-ranking.repository';
+
 import { Expose, Type } from 'class-transformer';
 import {
   ArrayMaxSize,
@@ -17,11 +24,7 @@ import {
   ValidateIf,
   ValidateNested,
 } from 'class-validator';
-import type {
-  ActivityFactor,
-  ActivityRanking,
-  ActivityType,
-} from '../activity-ranking.repository';
+
 import {
   RankingPeriodLength,
   ScalarActivityFactors,

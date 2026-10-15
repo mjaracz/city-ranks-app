@@ -1,4 +1,31 @@
 {
   "singleQuote": true,
-  "trailingComma": "all"
+  "trailingComma": "all",
+  "plugins": ["@ianvs/prettier-plugin-sort-imports"],
+  "importOrderParserPlugins": ["typescript", "jsx", "decorators-legacy"],
+  "importOrder": [
+    "<TYPES>^(node:)",
+    "",
+    "<TYPES>^(?!node:|@libs/|\\.\\./|\\./)",
+    "",
+    "<TYPES>^@libs/",
+    "",
+    "<TYPES>^\\.\\./",
+    "",
+    "<TYPES>^\\./(?!$)",
+    "",
+    "<TYPES>^\\./$",
+    "",
+    "<BUILTIN_MODULES>",
+    "",
+    "<THIRD_PARTY_MODULES>",
+    "",
+    "^@libs/",
+    "",
+    "^\\.\\./",
+    "",
+    "^\\./(?!$)",
+    "",
+    "^\\./$"
+  ]
 }

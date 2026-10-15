@@ -1,16 +1,18 @@
-import { MarineForecast } from '../domain/forecast-source';
-import { CitySelectionPolicy } from '../domain/city-selection.policy';
-import { DailySnowDepthPolicy } from '../domain/daily-snow-depth.policy';
-import { WeatherInputValidator } from '../utils/weather-input.validator';
 import { Injectable } from '@nestjs/common';
+
 import { CityQueryError } from '@libs/contracts/city-query';
 import { CityLocation, DailyWeatherForecast } from '@libs/models';
+
+import { CitySelectionPolicy } from '../domain/city-selection.policy';
+import { DailySnowDepthPolicy } from '../domain/daily-snow-depth.policy';
+import { MarineForecast } from '../domain/forecast-source';
 import {
   OpenMeteoCurrentResponseDto,
   OpenMeteoForecastResponseDto,
   OpenMeteoGeocodingResponseDto,
   OpenMeteoMarineResponseDto,
 } from '../dto/open-meteo-response.dto';
+import { WeatherInputValidator } from '../utils/weather-input.validator';
 
 @Injectable()
 export class OpenMeteoResponseParser {

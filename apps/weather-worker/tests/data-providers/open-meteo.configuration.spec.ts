@@ -1,5 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { OpenMeteoConfiguration } from '../../src/data-providers/open-meteo.configuration';
+
 describe('OpenMeteoConfiguration', () => {
   let module: TestingModule;
   let config: OpenMeteoConfiguration;

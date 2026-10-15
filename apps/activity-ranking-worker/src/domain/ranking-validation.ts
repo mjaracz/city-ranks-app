@@ -1,6 +1,8 @@
+import type { CityRanking } from '@libs/models';
+
 import { plainToInstance } from 'class-transformer';
 import { isObject, validateSync } from 'class-validator';
-import type { CityRanking } from '@libs/models';
+
 import { CityRankingDto } from '../dto/city-ranking.dto';
 
 export function validateCityRanking(

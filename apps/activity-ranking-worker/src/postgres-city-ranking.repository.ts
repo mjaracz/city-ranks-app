@@ -1,9 +1,12 @@
-import { validateCityRanking } from './domain/ranking-validation';
-import { Inject, Injectable } from '@nestjs/common';
 import type { Knex } from 'knex';
+
 import type { CityRanking } from '@libs/models';
-import { ACTIVITY_RANKING_KNEX } from './infrastructure/activity-ranking-knex';
+
+import { Inject, Injectable } from '@nestjs/common';
+
 import { CityRankingRepository } from './city-ranking.repository';
+import { validateCityRanking } from './domain/ranking-validation';
+import { ACTIVITY_RANKING_KNEX } from './infrastructure/activity-ranking-knex';
 
 @Injectable()
 export class PostgresCityRankingRepository extends CityRankingRepository {

@@ -1,9 +1,11 @@
 import { jest } from '@jest/globals';
+
 import {
-  CacheParameters,
   CacheExpiry,
+  CacheParameters,
   CacheWriteTime,
 } from '../../src/utils/weather-cache.constraints';
+
 describe('Weather cache rules', () => {
   afterEach(() => jest.restoreAllMocks());
   it('rejects API keys regardless of capitalization and requires string query values', () => {

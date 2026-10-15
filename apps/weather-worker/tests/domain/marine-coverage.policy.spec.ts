@@ -1,5 +1,7 @@
 import { Test } from '@nestjs/testing';
+
 import { MarineCoveragePolicy } from '../../src/domain/marine-coverage.policy';
+
 describe('MarineCoveragePolicy', () => {
   it('distinguishes absent observations from an observed grid outside the 50 km scope', async () => {
     const module = await Test.createTestingModule({

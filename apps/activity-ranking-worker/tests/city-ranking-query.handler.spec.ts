@@ -1,7 +1,9 @@
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { CityQueryError } from '@libs/contracts/city-query';
 import { CITY_RANKING_QUERY } from '@libs/contracts/message-patterns';
+
 import {
   forecastFixture,
   rankingFixture,

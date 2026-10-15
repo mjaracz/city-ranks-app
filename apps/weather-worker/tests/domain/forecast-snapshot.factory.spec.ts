@@ -1,9 +1,11 @@
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { forecastFixture, testCity } from '../../../city-ranking-test.fixtures';
 import { ForecastSnapshotFactory } from '../../src/domain/forecast-snapshot.factory';
 import { MarineCoveragePolicy } from '../../src/domain/marine-coverage.policy';
 import { WeatherPolicyModule } from '../../src/domain/weather-policy.module';
+
 describe('ForecastSnapshotFactory', () => {
   let module: TestingModule;
   let factory: ForecastSnapshotFactory;

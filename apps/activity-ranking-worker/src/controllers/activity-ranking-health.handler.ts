@@ -1,10 +1,13 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
+
 import { ACTIVITY_RANKING_WORKER_HEALTH } from '@libs/contracts/message-patterns';
 import { WorkerHealth } from '@libs/contracts/worker-health';
 import { JetStreamEventStore } from '@libs/messaging/jetstream-event-store';
-import { ActivityRankingCommandHandler } from './activity-ranking-command.handler';
+
 import { ActivityRankingDatabaseHealth } from '../services/activity-ranking-database-health.service';
+
+import { ActivityRankingCommandHandler } from './activity-ranking-command.handler';
 
 @Controller()
 export class ActivityRankingHealthHandler {

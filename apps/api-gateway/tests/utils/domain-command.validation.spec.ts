@@ -2,6 +2,7 @@ import {
   commandCity,
   commandCoordinates,
 } from '../../src/utils/domain-command.validation';
+
 describe('Command request validation', () => {
   it('returns validated values without numeric coercion', () => {
     expect(commandCity(' Porto ')).toBe('Porto');

@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
+
 import { Activity, ActivityEvaluation } from '@libs/models';
+
 import { OutdoorRankingConditionsDto } from '../../dto/ranking-conditions.dto';
 import { toValidatedRankingInput } from '../../utils/ranking-policy.validation';
 import {

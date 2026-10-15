@@ -1,5 +1,6 @@
 import { ClassConstructor, plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
+
 import { forecastFixture } from '../../../city-ranking-test.fixtures';
 import {
   OutdoorRankingConditionsDto,

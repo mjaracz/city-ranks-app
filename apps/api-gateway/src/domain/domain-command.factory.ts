@@ -1,12 +1,15 @@
-import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
+
+import { Injectable } from '@nestjs/common';
+
 import {
+  ACTIVITY_RANKING_REFRESH_COMMAND,
   CommandReceipt,
   DomainCommand,
-  ACTIVITY_RANKING_REFRESH_COMMAND,
   WEATHER_FORECAST_REFRESH_COMMAND,
 } from '@libs/contracts';
 import { DomainCommandSubject } from '@libs/messaging/jetstream-command-bus';
+
 import {
   commandCity,
   commandCoordinates,

@@ -4,6 +4,7 @@ import {
   Completeness,
   EvaluationState,
 } from '@libs/models';
+
 import { rankDay } from '../../src/domain/daily-ranking';
 
 const evaluations = (

@@ -1,7 +1,7 @@
-import { RankingFreshnessPolicy } from '../domain/ranking-freshness.policy';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom, timeout } from 'rxjs';
+
 import {
   CityQueryError,
   CityQueryResult,
@@ -13,7 +13,9 @@ import {
 } from '@libs/contracts/message-patterns';
 import { JetStreamEventStore } from '@libs/messaging/jetstream-event-store';
 import { CityForecast, CityRanking } from '@libs/models';
+
 import { CityRankingRepository } from '../city-ranking.repository';
+import { RankingFreshnessPolicy } from '../domain/ranking-freshness.policy';
 import { RankingPolicy } from '../domain/ranking-policy';
 
 @Injectable()

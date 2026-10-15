@@ -1,10 +1,14 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { Activity, ActivityEvaluation, EvaluationState } from '@libs/models';
 import type {
   ActivityRankingContext,
   ActivityRankingRule,
 } from '../activity-ranking-rule';
+
+import { Inject, Injectable } from '@nestjs/common';
+
+import { Activity, ActivityEvaluation, EvaluationState } from '@libs/models';
+
 import { missingEvaluation, scoredEvaluation } from '../ranking-score';
+
 import { OutdoorSightseeingRule } from './outdoor-sightseeing.rule';
 
 @Injectable()

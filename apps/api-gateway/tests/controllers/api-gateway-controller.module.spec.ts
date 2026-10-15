@@ -1,21 +1,24 @@
+import type { INestApplication } from '@nestjs/common';
+
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
-import type { INestApplication } from '@nestjs/common';
 import { GraphQLError } from 'graphql';
 import request from 'supertest';
-import { ApiGatewayModule } from '../../src/api-gateway.module';
-import { CityRankingGatewayService } from '../../src/services/city-ranking.service';
-import { DomainCommandService } from '../../src/services/domain-command.service';
-import { WorkerHealthService } from '../../src/services/worker-health.service';
-import {
-  forecastFixture,
-  rankingFixture,
-} from '../../../city-ranking-test.fixtures';
-import { JetStreamCommandBus } from '@libs/messaging/jetstream-command-bus';
+
 import {
   ACTIVITY_RANKING_WORKER_CLIENT,
   WEATHER_WORKER_CLIENT,
 } from '@libs/contracts/message-patterns';
+import { JetStreamCommandBus } from '@libs/messaging/jetstream-command-bus';
+
+import {
+  forecastFixture,
+  rankingFixture,
+} from '../../../city-ranking-test.fixtures';
+import { ApiGatewayModule } from '../../src/api-gateway.module';
+import { CityRankingGatewayService } from '../../src/services/city-ranking.service';
+import { DomainCommandService } from '../../src/services/domain-command.service';
+import { WorkerHealthService } from '../../src/services/worker-health.service';
 
 describe('ApiGateway controller module', () => {
   let moduleRef: TestingModule;

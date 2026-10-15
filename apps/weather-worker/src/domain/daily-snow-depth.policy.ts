@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+
 import { DailySnowCoverageDto } from '../dto/daily-snow-coverage.dto';
 import { WeatherInputValidator } from '../utils/weather-input.validator';
 

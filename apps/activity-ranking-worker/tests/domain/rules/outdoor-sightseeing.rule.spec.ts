@@ -1,5 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { EvaluationState } from '@libs/models';
+
 import { forecastFixture } from '../../../../city-ranking-test.fixtures';
 import { ActivityRankingContext } from '../../../src/domain/activity-ranking-rule';
 import { OutdoorSightseeingRule } from '../../../src/domain/rules/outdoor-sightseeing.rule';

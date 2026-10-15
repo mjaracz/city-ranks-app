@@ -1,6 +1,8 @@
 import { plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
+
 import { DailySnowCoverageDto } from '../../src/dto/daily-snow-coverage.dto';
+
 describe('DailySnowCoverageDto', () => {
   it.each([23, 24, 25])(
     'accepts exactly 24 numeric observations (received %s)',

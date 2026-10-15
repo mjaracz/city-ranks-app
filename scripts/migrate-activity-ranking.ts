@@ -1,5 +1,7 @@
 import 'dotenv/config';
+
 import process from 'node:process';
+
 import { createActivityRankingKnex } from '../apps/activity-ranking-worker/src/infrastructure/activity-ranking-knex';
 import { migrateActivityRanking } from '../apps/activity-ranking-worker/src/infrastructure/activity-ranking-migrations';
 

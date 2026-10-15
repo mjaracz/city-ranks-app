@@ -5,7 +5,8 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { firstValueFrom, TimeoutError, timeout } from 'rxjs';
+import { firstValueFrom, timeout, TimeoutError } from 'rxjs';
+
 import {
   ACTIVITY_RANKING_WORKER_CLIENT,
   ACTIVITY_RANKING_WORKER_HEALTH,

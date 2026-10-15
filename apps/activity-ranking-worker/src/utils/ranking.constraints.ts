@@ -3,6 +3,7 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
+
 import {
   ActivityEvaluation,
   addCalendarDays,
@@ -11,6 +12,7 @@ import {
   DailyCityRanking,
   EvaluationState,
 } from '@libs/models';
+
 import { rankDay } from '../domain/daily-ranking';
 
 @ValidatorConstraint({ name: 'dailyRankingConsistency', async: false })

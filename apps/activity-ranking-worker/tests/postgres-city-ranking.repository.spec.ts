@@ -1,7 +1,10 @@
+import type { Knex } from 'knex';
+
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
-import type { Knex } from 'knex';
+
 import { CityRanking } from '@libs/models';
+
 import {
   forecastFixture,
   rankingFixture,

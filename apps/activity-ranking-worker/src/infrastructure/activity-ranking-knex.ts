@@ -1,8 +1,10 @@
-import knex from 'knex';
 import type { Knex } from 'knex';
+
+import knex from 'knex';
+
 import {
-  getRequiredDatabaseUrl,
   getPositiveInteger,
+  getRequiredDatabaseUrl,
 } from '@libs/config/environment';
 
 export const ACTIVITY_RANKING_KNEX = Symbol('ACTIVITY_RANKING_KNEX');

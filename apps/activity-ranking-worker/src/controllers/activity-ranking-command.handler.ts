@@ -1,16 +1,20 @@
-import { ACTIVITY_RANKING_COMMAND_CONSUMER } from '../infrastructure/activity-ranking-command-consumer';
-import { CityRankingService } from '../services/city-ranking.service';
+import type { DomainCommand } from '@libs/contracts/domain-command';
+import type { DomainCommandConsumer } from '@libs/messaging/jetstream-command-consumer';
+
+import { randomUUID } from 'node:crypto';
+
 import {
   Inject,
   Injectable,
   OnApplicationBootstrap,
   OnModuleDestroy,
 } from '@nestjs/common';
-import { randomUUID } from 'node:crypto';
-import type { DomainCommand } from '@libs/contracts/domain-command';
+
 import { ACTIVITY_RANKING_REFRESH_COMMAND } from '@libs/contracts/message-patterns';
-import type { DomainCommandConsumer } from '@libs/messaging/jetstream-command-consumer';
 import { JetStreamEventStore } from '@libs/messaging/jetstream-event-store';
+
+import { ACTIVITY_RANKING_COMMAND_CONSUMER } from '../infrastructure/activity-ranking-command-consumer';
+import { CityRankingService } from '../services/city-ranking.service';
 
 interface ActivityRankingRefreshPayload {
   city: string;

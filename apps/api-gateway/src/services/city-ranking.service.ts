@@ -1,17 +1,19 @@
+import type { CityRanking } from '@libs/models';
+
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { GraphQLError } from 'graphql';
 import { firstValueFrom, timeout } from 'rxjs';
-import {
-  ACTIVITY_RANKING_WORKER_CLIENT,
-  CITY_RANKING_QUERY,
-} from '@libs/contracts/message-patterns';
+
 import {
   CityQueryError,
   CityQueryResult,
   normalizeCity,
 } from '@libs/contracts/city-query';
-import type { CityRanking } from '@libs/models';
+import {
+  ACTIVITY_RANKING_WORKER_CLIENT,
+  CITY_RANKING_QUERY,
+} from '@libs/contracts/message-patterns';
 
 @Injectable()
 export class CityRankingGatewayService {
