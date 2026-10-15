@@ -1,3 +1,7 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { RankingPolicy } from '../../src/domain/ranking-policy';
+import { RankingPolicyModule } from '../../src/domain/ranking-policy.module';
+import { rankDay } from '../../src/domain/daily-ranking';
 import { validateCityRanking } from '../../src/domain/ranking-validation';
 import {
   Activity,
@@ -8,11 +12,6 @@ import {
   localDate,
 } from '@libs/models';
 import { forecastFixture } from '../../../city-ranking-test.fixtures';
-import {
-  calculateCityRanking,
-  evaluateActivities,
-  rankDay,
-} from '../../src/domain/ranking-policy';
 
 const evaluations = (scores: number[]): ActivityEvaluation[] =>
   Object.values(Activity).map((activity, i) => ({
@@ -25,8 +24,18 @@ const evaluations = (scores: number[]): ActivityEvaluation[] =>
   }));
 
 describe('Daily weather suitability ranking', () => {
+  let moduleRef: TestingModule;
+  let policy: RankingPolicy;
+  beforeAll(async () => {
+    moduleRef = await Test.createTestingModule({
+      imports: [RankingPolicyModule],
+    }).compile();
+    policy = moduleRef.get(RankingPolicy);
+  });
+  afterAll(async () => moduleRef.close());
+
   it('returns seven chronological dates with each activity exactly once, explanatory metadata and finite scores', () => {
-    const ranking = calculateCityRanking(forecastFixture());
+    const ranking = policy.calculate(forecastFixture());
     expect(ranking.days).toHaveLength(7);
     expect(ranking.completeness).toBe(Completeness.COMPLETE);
     expect(ranking.policyVersion).toBe('weather-suitability-v1');
@@ -60,18 +69,16 @@ describe('Daily weather suitability ranking', () => {
   });
   it('ranks independently for each day', () => {
     const forecast = forecastFixture();
-    const original = calculateCityRanking(forecast);
+    const original = policy.calculate(forecast);
     forecast.days[6].precipitationMillimeters = 50;
-    expect(calculateCityRanking(forecast).days[0]).toEqual(original.days[0]);
-    expect(calculateCityRanking(forecast).days[6]).not.toEqual(
-      original.days[6],
-    );
+    expect(policy.calculate(forecast).days[0]).toEqual(original.days[0]);
+    expect(policy.calculate(forecast).days[6]).not.toEqual(original.days[6]);
   });
   it('distinguishes zero suitability, missing marine observations and explicit non-applicability', () => {
     const forecast = forecastFixture();
     let result = rankDay(
       forecast.days[0].date,
-      evaluateActivities(forecast.days[0], 'INSUFFICIENT_DATA'),
+      policy.evaluateActivities(forecast.days[0], 'INSUFFICIENT_DATA'),
     );
     expect(result.completeness).toBe(Completeness.PARTIAL);
     expect(
@@ -86,7 +93,7 @@ describe('Daily weather suitability ranking', () => {
     });
     result = rankDay(
       forecast.days[0].date,
-      evaluateActivities(forecast.days[0], 'NOT_APPLICABLE'),
+      policy.evaluateActivities(forecast.days[0], 'NOT_APPLICABLE'),
     );
     expect(
       result.activities.find((item) => item.activity === Activity.SURFING),
@@ -99,9 +106,9 @@ describe('Daily weather suitability ranking', () => {
   it('favors indoor sightseeing in rain, skiing with cold snow cover, and surfing in moderate waves', () => {
     const day = forecastFixture().days[0];
     const score = (activity: Activity, input = day) =>
-      evaluateActivities(input, 'AVAILABLE').find(
-        (item) => item.activity === activity,
-      )!.score;
+      policy
+        .evaluateActivities(input, 'AVAILABLE')
+        .find((item) => item.activity === activity)!.score;
     expect(
       score(Activity.INDOOR_SIGHTSEEING, {
         ...day,
@@ -123,7 +130,7 @@ describe('Daily weather suitability ranking', () => {
     ).toBe(100);
     expect(score(Activity.SURFING)).toBe(100);
     expect(score(Activity.SURFING, { ...day, waveHeightMaxMeters: 5 })).toBe(0);
-    const thunderstorm = evaluateActivities(
+    const thunderstorm = policy.evaluateActivities(
       { ...day, weatherCode: 95 },
       'AVAILABLE',
     );
@@ -144,7 +151,7 @@ describe('Daily weather suitability ranking', () => {
           ]),
         ) as typeof day,
     );
-    const result = calculateCityRanking(forecast);
+    const result = policy.calculate(forecast);
     expect(result.completeness).toBe(Completeness.UNAVAILABLE);
     expect(result.days.flatMap((day) => day.activities)).toHaveLength(28);
     expect(
@@ -178,7 +185,7 @@ describe('Daily weather suitability ranking', () => {
     expect(addCalendarDays('2026-12-29', 6)).toBe('2027-01-04');
   });
   it('validates JSONB results by values independently of object-key ordering', () => {
-    const ranking = calculateCityRanking(forecastFixture());
+    const ranking = policy.calculate(forecastFixture());
     const reorder = (value: unknown): unknown =>
       Array.isArray(value)
         ? value.map(reorder)
@@ -195,5 +202,90 @@ describe('Daily weather suitability ranking', () => {
     expect(() => validateCityRanking({ ...ranking, days: [] })).toThrow();
     ranking.days[0].activities[0].rank = 4;
     expect(() => validateCityRanking(ranking)).toThrow();
+  });
+});
+
+describe('RankingPolicy injection and call context', () => {
+  it('uses injected activity rules and their current forecast context', async () => {
+    const { ACTIVITY_RANKING_RULES } =
+      await import('../../src/domain/activity-ranking-rule');
+    const forecast = forecastFixture();
+    const contexts: unknown[] = [];
+    const rules = Object.values(Activity).map((activity, index) => ({
+      activity,
+      evaluate: (context: unknown): ActivityEvaluation => {
+        contexts.push(context);
+        return {
+          activity,
+          state: EvaluationState.RANKED,
+          score: 90 - index * 10,
+          rank: null,
+          reasonCodes: ['v1.injected'],
+          explanation: 'Injected rule',
+        };
+      },
+    }));
+    const moduleRef = await Test.createTestingModule({
+      providers: [
+        RankingPolicy,
+        { provide: ACTIVITY_RANKING_RULES, useValue: rules },
+      ],
+    }).compile();
+    try {
+      const policy = moduleRef.get(RankingPolicy);
+      const result = policy.calculate(forecast);
+      expect(result.days[0].activities.map((item) => item.score)).toEqual([
+        90, 80, 70, 60,
+      ]);
+      expect(contexts).toHaveLength(28);
+      expect(contexts[0]).toEqual({
+        day: forecast.days[0],
+        marineStatus: forecast.marineStatus,
+      });
+      expect(contexts[27]).toEqual({
+        day: forecast.days[6],
+        marineStatus: forecast.marineStatus,
+      });
+    } finally {
+      await moduleRef.close();
+    }
+  });
+  it('keeps sequential computations independent and preserves forecast identity and provenance', async () => {
+    const moduleRef = await Test.createTestingModule({
+      imports: [RankingPolicyModule],
+    }).compile();
+    try {
+      const policy = moduleRef.get(RankingPolicy);
+      const forecast = forecastFixture(new Date('2026-10-14T08:00:00Z'));
+      const before = structuredClone(forecast);
+      const computedAt = new Date('2026-10-14T08:01:00Z');
+      const original = policy.calculate(forecast, computedAt);
+      const other = {
+        ...structuredClone(forecast),
+        snapshotId: 'other',
+        marineStatus: 'NOT_APPLICABLE' as const,
+      };
+      const next = policy.calculate(other, computedAt);
+      expect(next.id).not.toBe(original.id);
+      expect(
+        next.days[0].activities.find(
+          (item) => item.activity === Activity.SURFING,
+        )?.state,
+      ).toBe(EvaluationState.NOT_APPLICABLE);
+      expect(policy.calculate(forecast, computedAt)).toEqual(original);
+      expect(forecast).toEqual(before);
+      expect(
+        policy.calculate(forecast, new Date('2026-10-14T08:02:00Z')).id,
+      ).toBe(original.id);
+      expect(original).toMatchObject({
+        forecastSnapshotId: forecast.snapshotId,
+        weatherFetchedAt: forecast.weatherFetchedAt,
+        marineFetchedAt: forecast.marineFetchedAt,
+        freshUntil: forecast.freshUntil,
+        computedAt: computedAt.toISOString(),
+      });
+    } finally {
+      await moduleRef.close();
+    }
   });
 });

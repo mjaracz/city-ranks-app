@@ -1,11 +1,13 @@
-import { calculateCityRanking } from '../../src/domain/ranking-policy';
 import { validateCityRanking } from '../../src/domain/ranking-validation';
-import { forecastFixture } from '../../../city-ranking-test.fixtures';
+import {
+  forecastFixture,
+  rankingFixture,
+} from '../../../city-ranking-test.fixtures';
 
 describe('City ranking field contract', () => {
   it('accepts a plain JSON result without mutating the persisted payload', () => {
     const payload = JSON.parse(
-      JSON.stringify(calculateCityRanking(forecastFixture())),
+      JSON.stringify(rankingFixture(forecastFixture())),
     );
     const original = structuredClone(payload);
 
@@ -14,7 +16,7 @@ describe('City ranking field contract', () => {
   });
 
   it('accepts a missing region represented explicitly as null', () => {
-    const ranking = calculateCityRanking(forecastFixture());
+    const ranking = rankingFixture(forecastFixture());
     ranking.city.region = null;
     expect(() => validateCityRanking(ranking)).not.toThrow();
   });
@@ -68,7 +70,7 @@ describe('City ranking field contract', () => {
   ])(
     'rejects invalid field %s = %p without coercing its type',
     (path, value) => {
-      const ranking = calculateCityRanking(forecastFixture());
+      const ranking = rankingFixture(forecastFixture());
       const keys = path.split('.');
       const target = keys
         .slice(0, -1)

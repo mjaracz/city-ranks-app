@@ -7,9 +7,11 @@ import {
   CITY_RANKING_QUERY,
 } from '@libs/contracts/message-patterns';
 import { CityQueryError } from '@libs/contracts/city-query';
-import { forecastFixture } from '../../../../city-ranking-test.fixtures';
-import { CityRankingGatewayService } from '../../../src/controllers/services/city-ranking.service';
-import { calculateCityRanking } from '../../../../activity-ranking-worker/src/domain/ranking-policy';
+import {
+  forecastFixture,
+  rankingFixture,
+} from '../../../../city-ranking-test.fixtures';
+import { CityRankingGatewayService } from '../../../src/services/city-ranking.service';
 
 describe('CityRankingGatewayService', () => {
   let moduleRef: TestingModule;
@@ -37,7 +39,7 @@ describe('CityRankingGatewayService', () => {
   afterEach(async () => moduleRef.close());
 
   it('sends a normalized city query and returns the worker ranking', async () => {
-    const ranking = calculateCityRanking(forecastFixture());
+    const ranking = rankingFixture(forecastFixture());
     rankings.send.mockReturnValue(of({ status: 'OK', result: ranking }));
 
     await expect(service.getRanking('  Test   Bay ')).resolves.toEqual(ranking);

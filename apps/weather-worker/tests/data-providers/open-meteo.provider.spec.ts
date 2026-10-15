@@ -1,3 +1,5 @@
+import { OpenMeteoConfiguration } from '../../src/data-providers/open-meteo.configuration';
+import { WeatherPolicyModule } from '../../src/domain/weather-policy.module';
 import { OpenMeteoProvider } from '../../src/data-providers/open-meteo.provider';
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -30,7 +32,9 @@ describe('Open-Meteo cache flow', () => {
       .spyOn(globalThis, 'fetch')
       .mockResolvedValue(Response.json(fixture.response));
     moduleRef = await Test.createTestingModule({
+      imports: [WeatherPolicyModule],
       providers: [
+        OpenMeteoConfiguration,
         OpenMeteoProvider,
         OpenMeteoResponseParser,
         { provide: WeatherApiQueryCacheRepository, useValue: cache },

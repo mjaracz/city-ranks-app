@@ -2,10 +2,12 @@ import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CityQueryError } from '@libs/contracts/city-query';
 import { CITY_RANKING_QUERY } from '@libs/contracts/message-patterns';
-import { forecastFixture } from '../../city-ranking-test.fixtures';
+import {
+  forecastFixture,
+  rankingFixture,
+} from '../../city-ranking-test.fixtures';
 import { CityRankingQueryHandler } from '../src/controllers/city-ranking-query.handler';
 import { CityRankingService } from '../src/services/city-ranking.service';
-import { calculateCityRanking } from '../src/domain/ranking-policy';
 
 describe('CityRankingQueryHandler', () => {
   let moduleRef: TestingModule;
@@ -26,7 +28,7 @@ describe('CityRankingQueryHandler', () => {
   afterEach(async () => moduleRef.close());
 
   it('returns the ranking in the worker response envelope', async () => {
-    const ranking = calculateCityRanking(forecastFixture());
+    const ranking = rankingFixture(forecastFixture());
     rankings.getRanking.mockResolvedValue(ranking);
 
     await expect(handler.getRanking({ city: 'Test Bay' })).resolves.toEqual({

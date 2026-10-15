@@ -1,3 +1,5 @@
+import { OpenMeteoConfiguration } from '../../src/data-providers/open-meteo.configuration';
+import { WeatherPolicyModule } from '../../src/domain/weather-policy.module';
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CityQueryError } from '@libs/contracts/city-query';
@@ -23,7 +25,9 @@ describe('OpenMeteoJsonClient', () => {
 
   const makeClient = async () => {
     moduleRef = await Test.createTestingModule({
+      imports: [WeatherPolicyModule],
       providers: [
+        OpenMeteoConfiguration,
         OpenMeteoJsonClient,
         { provide: WeatherApiQueryCacheRepository, useValue: cache },
       ],

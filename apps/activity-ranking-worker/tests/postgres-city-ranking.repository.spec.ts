@@ -2,8 +2,10 @@ import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import type { Knex } from 'knex';
 import { CityRanking } from '@libs/models';
-import { forecastFixture } from '../../city-ranking-test.fixtures';
-import { calculateCityRanking } from '../src/domain/ranking-policy';
+import {
+  forecastFixture,
+  rankingFixture,
+} from '../../city-ranking-test.fixtures';
 import { ACTIVITY_RANKING_KNEX } from '../src/infrastructure/activity-ranking-knex';
 import { PostgresCityRankingRepository } from '../src/postgres-city-ranking.repository';
 
@@ -74,7 +76,7 @@ describe('PostgresCityRankingRepository', () => {
   afterEach(async () => moduleRef.close());
 
   it('returns a stored ranking by its stable result identifier', async () => {
-    const ranking = calculateCityRanking(forecastFixture());
+    const ranking = rankingFixture(forecastFixture());
     resultQuery.first.mockResolvedValue({ payload: ranking });
 
     await expect(repository.findById(ranking.id)).resolves.toEqual(ranking);
@@ -82,7 +84,7 @@ describe('PostgresCityRankingRepository', () => {
   });
 
   it('returns only a matching fresh result for a city and policy version', async () => {
-    const ranking = calculateCityRanking(forecastFixture());
+    const ranking = rankingFixture(forecastFixture());
     pointerQuery.first.mockResolvedValue({ payload: ranking });
 
     await expect(
@@ -111,7 +113,7 @@ describe('PostgresCityRankingRepository', () => {
   });
 
   it('persists the immutable result and city-policy pointer in one transaction', async () => {
-    const ranking = calculateCityRanking(forecastFixture());
+    const ranking = rankingFixture(forecastFixture());
 
     await repository.save('test bay', ranking);
 
@@ -134,7 +136,7 @@ describe('PostgresCityRankingRepository', () => {
 
   it('rejects an invalid ranking before writing any records', async () => {
     const invalid = {
-      ...calculateCityRanking(forecastFixture()),
+      ...rankingFixture(forecastFixture()),
       days: [],
     } as unknown as CityRanking;
 
@@ -146,7 +148,7 @@ describe('PostgresCityRankingRepository', () => {
   it.each(['policyVersion', 'weatherFetchedAt'] as const)(
     'rejects a malformed %s before opening a write transaction',
     async (field) => {
-      const ranking = calculateCityRanking(forecastFixture());
+      const ranking = rankingFixture(forecastFixture());
       Object.assign(ranking, { [field]: 123 });
 
       await expect(repository.save('test bay', ranking)).rejects.toThrow(
@@ -159,7 +161,7 @@ describe('PostgresCityRankingRepository', () => {
   );
 
   it('rejects numeric strings in nested evaluations before writing records', async () => {
-    const ranking = calculateCityRanking(forecastFixture());
+    const ranking = rankingFixture(forecastFixture());
     Object.assign(ranking.days[0].activities[0], { score: '100' });
 
     await expect(repository.save('test bay', ranking)).rejects.toThrow(

@@ -1,3 +1,8 @@
+import { RankingPolicy } from './activity-ranking-worker/src/domain/ranking-policy';
+import { IndoorSightseeingRule } from './activity-ranking-worker/src/domain/rules/indoor-sightseeing.rule';
+import { OutdoorSightseeingRule } from './activity-ranking-worker/src/domain/rules/outdoor-sightseeing.rule';
+import { SkiingRule } from './activity-ranking-worker/src/domain/rules/skiing.rule';
+import { SurfingRule } from './activity-ranking-worker/src/domain/rules/surfing.rule';
 import {
   addCalendarDays,
   CityForecast,
@@ -97,4 +102,18 @@ export function upstreamFixture(
       snow_depth: Array.from({ length: 168 }, () => 0),
     },
   };
+}
+
+export function rankingFixture(
+  forecast = forecastFixture(),
+  computedAt = new Date(),
+) {
+  const outdoor = new OutdoorSightseeingRule();
+  const policy = new RankingPolicy([
+    new SkiingRule(),
+    new SurfingRule(),
+    outdoor,
+    new IndoorSightseeingRule(outdoor),
+  ]);
+  return policy.calculate(forecast, computedAt);
 }

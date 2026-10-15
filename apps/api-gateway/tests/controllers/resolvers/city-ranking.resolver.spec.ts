@@ -1,8 +1,10 @@
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
-import { forecastFixture } from '../../../../city-ranking-test.fixtures';
-import { calculateCityRanking } from '../../../../activity-ranking-worker/src/domain/ranking-policy';
-import { CityRankingGatewayService } from '../../../src/controllers/services/city-ranking.service';
+import {
+  forecastFixture,
+  rankingFixture,
+} from '../../../../city-ranking-test.fixtures';
+import { CityRankingGatewayService } from '../../../src/services/city-ranking.service';
 import { CityRankingResolver } from '../../../src/controllers/resolvers/city-ranking.resolver';
 
 describe('CityRankingResolver', () => {
@@ -26,7 +28,7 @@ describe('CityRankingResolver', () => {
   afterEach(async () => moduleRef.close());
 
   it('resolves a city ranking by delegating the requested city to the gateway service', async () => {
-    const ranking = calculateCityRanking(forecastFixture());
+    const ranking = rankingFixture(forecastFixture());
     rankings.getRanking.mockResolvedValue(ranking);
 
     await expect(resolver.cityRanking('Test Bay')).resolves.toEqual(ranking);
