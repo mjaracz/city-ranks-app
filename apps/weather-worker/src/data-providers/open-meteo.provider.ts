@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { OpenMeteoResponseParser } from '../services/open-meteo-response-parser.service';
+import { OpenMeteoCurrentResponseDto } from '../dto/open-meteo-response.dto';
 import { WeatherApiQueryCacheRepository } from '../weather-api-query-cache.repository';
 import { createOpenMeteoCurrentRequest } from './open-meteo-request';
 import type { CurrentWeather, WeatherCoordinates } from './open-meteo.types';
@@ -10,7 +12,10 @@ export class OpenMeteoProvider {
   private readonly cacheTtlMilliseconds: number;
   private readonly inFlight = new Map<string, Promise<CurrentWeather>>();
 
-  constructor(private readonly cache: WeatherApiQueryCacheRepository) {
+  constructor(
+    private readonly cache: WeatherApiQueryCacheRepository,
+    private readonly parser: OpenMeteoResponseParser,
+  ) {
     const configuredUrl =
       process.env.OPEN_METEO_FORECAST_API_URL?.trim() ||
       'https://api.open-meteo.com/v1/forecast';
@@ -127,7 +132,7 @@ export class OpenMeteoProvider {
     await this.cache.save(
       signature,
       query,
-      this.requireRecord(payload, 'response'),
+      payload as Record<string, unknown>,
       new Date(Date.now() + this.cacheTtlMilliseconds),
     );
     return weather;
@@ -168,20 +173,19 @@ export class OpenMeteoProvider {
     payload: unknown,
     requestedCoordinates: WeatherCoordinates,
   ): CurrentWeather {
-    const response = this.requireRecord(payload, 'response');
-    const current = this.requireRecord(response.current, 'current');
-    const observedAt = this.requireString(current.time, 'current.time');
+    let response: OpenMeteoCurrentResponseDto;
+    try {
+      response = this.parser.parseCurrent(payload);
+    } catch {
+      throw new OpenMeteoApiError('Open-Meteo returned an invalid response');
+    }
+    const current = response.current;
+    const observedAt = current.time;
     const parsedTime = new Date(
       /(?:Z|[+-]\d{2}:?\d{2})$/i.test(observedAt)
         ? observedAt
-        : `${observedAt}Z`,
+        : observedAt + 'Z',
     );
-
-    if (!Number.isFinite(parsedTime.getTime())) {
-      throw new OpenMeteoApiError(
-        'Open-Meteo returned an invalid observation time',
-      );
-    }
 
     return {
       source: {
@@ -192,69 +196,18 @@ export class OpenMeteoProvider {
       },
       requestedCoordinates: { ...requestedCoordinates },
       gridCoordinates: {
-        latitude: this.requireNumber(response.latitude, 'latitude'),
-        longitude: this.requireNumber(response.longitude, 'longitude'),
+        latitude: response.latitude,
+        longitude: response.longitude,
       },
       observedAt: parsedTime.toISOString(),
-      temperatureCelsius: this.requireNumber(
-        current.temperature_2m,
-        'current.temperature_2m',
-      ),
-      relativeHumidityPercent: this.requireNumber(
-        current.relative_humidity_2m,
-        'current.relative_humidity_2m',
-      ),
-      apparentTemperatureCelsius: this.requireNumber(
-        current.apparent_temperature,
-        'current.apparent_temperature',
-      ),
-      precipitationMillimeters: this.requireNumber(
-        current.precipitation,
-        'current.precipitation',
-      ),
-      weatherCode: this.requireNumber(
-        current.weather_code,
-        'current.weather_code',
-      ),
-      windSpeedKilometersPerHour: this.requireNumber(
-        current.wind_speed_10m,
-        'current.wind_speed_10m',
-      ),
-      windDirectionDegrees: this.requireNumber(
-        current.wind_direction_10m,
-        'current.wind_direction_10m',
-      ),
+      temperatureCelsius: current.temperature_2m,
+      relativeHumidityPercent: current.relative_humidity_2m,
+      apparentTemperatureCelsius: current.apparent_temperature,
+      precipitationMillimeters: current.precipitation,
+      weatherCode: current.weather_code,
+      windSpeedKilometersPerHour: current.wind_speed_10m,
+      windDirectionDegrees: current.wind_direction_10m,
     };
-  }
-
-  private requireRecord(
-    value: unknown,
-    field: string,
-  ): Record<string, unknown> {
-    if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-      throw new OpenMeteoApiError(
-        `Open-Meteo returned an invalid ${field} value`,
-      );
-    }
-    return value as Record<string, unknown>;
-  }
-
-  private requireNumber(value: unknown, field: string): number {
-    if (typeof value !== 'number' || !Number.isFinite(value)) {
-      throw new OpenMeteoApiError(
-        `Open-Meteo returned an invalid ${field} value`,
-      );
-    }
-    return value;
-  }
-
-  private requireString(value: unknown, field: string): string {
-    if (typeof value !== 'string' || value.length === 0) {
-      throw new OpenMeteoApiError(
-        `Open-Meteo returned an invalid ${field} value`,
-      );
-    }
-    return value;
   }
 }
 
