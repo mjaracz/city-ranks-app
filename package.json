@@ -25,7 +25,7 @@
     "test:watch": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --watch",
     "test:cov": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --coverage",
     "test:debug": "node --inspect-brk --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand",
-    "test:e2e": "jest --config ./apps/api-gateway/tests/jest-e2e.json",
+    "test:e2e": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --config ./apps/api-gateway/tests/jest-e2e.json",
     "test:integration": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --config ./jest.integration.json --runInBand",
     "test:integration:gateway": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --config ./jest.integration.json --runInBand --runTestsByPath apps/api-gateway/tests/api-gateway.integration-spec.ts",
     "test:integration:weather": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --config ./jest.integration.json --runInBand --runTestsByPath apps/weather-worker/tests/weather-worker.integration-spec.ts",
