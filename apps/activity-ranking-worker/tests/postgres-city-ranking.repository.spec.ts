@@ -143,4 +143,30 @@ describe('PostgresCityRankingRepository', () => {
     );
     expect(transaction).not.toHaveBeenCalled();
   });
+  it.each(['policyVersion', 'weatherFetchedAt'] as const)(
+    'rejects a malformed %s before opening a write transaction',
+    async (field) => {
+      const ranking = calculateCityRanking(forecastFixture());
+      Object.assign(ranking, { [field]: 123 });
+
+      await expect(repository.save('test bay', ranking)).rejects.toThrow(
+        'Invalid complete city ranking',
+      );
+      expect(transaction).not.toHaveBeenCalled();
+      expect(resultInsert.insert).not.toHaveBeenCalled();
+      expect(currentQueryInsert.insert).not.toHaveBeenCalled();
+    },
+  );
+
+  it('rejects numeric strings in nested evaluations before writing records', async () => {
+    const ranking = calculateCityRanking(forecastFixture());
+    Object.assign(ranking.days[0].activities[0], { score: '100' });
+
+    await expect(repository.save('test bay', ranking)).rejects.toThrow(
+      'Invalid complete city ranking',
+    );
+    expect(transaction).not.toHaveBeenCalled();
+    expect(resultInsert.insert).not.toHaveBeenCalled();
+    expect(currentQueryInsert.insert).not.toHaveBeenCalled();
+  });
 });

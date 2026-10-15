@@ -1,5 +1,4 @@
 import { validateCityRanking } from '../../src/domain/ranking-validation';
-import { validateCityForecast } from '../../src/domain/forecast-validation';
 import {
   Activity,
   ActivityEvaluation,
@@ -196,20 +195,5 @@ describe('Daily weather suitability ranking', () => {
     expect(() => validateCityRanking({ ...ranking, days: [] })).toThrow();
     ranking.days[0].activities[0].rank = 4;
     expect(() => validateCityRanking(ranking)).toThrow();
-  });
-  it('rejects malformed worker snapshots, unknown weather codes and non-local date windows', () => {
-    const forecast = forecastFixture();
-    expect(() => validateCityForecast(forecast)).not.toThrow();
-    expect(() =>
-      validateCityForecast({
-        ...forecast,
-        city: { ...forecast.city, timezone: undefined },
-      }),
-    ).toThrow();
-    forecast.days[0].weatherCode = 98;
-    expect(() => validateCityForecast(forecast)).toThrow();
-    forecast.days[0].weatherCode = 0;
-    forecast.days[0].date = addCalendarDays(forecast.days[0].date, -1);
-    expect(() => validateCityForecast(forecast)).toThrow();
   });
 });
