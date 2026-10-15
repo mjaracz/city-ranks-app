@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { createHash } from 'node:crypto';
 import { isObject } from 'class-validator';
-import { getPositiveInteger } from '../../../../libs/config/src/environment';
-import { CityQueryError } from '../../../../libs/contracts/src/city-query';
+import { getPositiveInteger } from '@libs/config/environment';
+import { CityQueryError } from '@libs/contracts/city-query';
 import { WeatherApiQueryCacheRepository } from '../weather-api-query-cache.repository';
 
 export type OpenMeteoEndpoint = 'geocoding' | 'forecast' | 'marine';

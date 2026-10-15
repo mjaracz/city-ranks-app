@@ -9,7 +9,12 @@ export async function startWorker(
 ): Promise<ChildProcess> {
   const child = spawn(
     process.execPath,
-    [join(__dirname, 'worker-process.js'), service],
+    [
+      '-r',
+      join(process.cwd(), 'scripts/load/register-build-paths.cjs'),
+      join(__dirname, 'worker-process.js'),
+      service,
+    ],
     { env: environment, stdio: ['ignore', 'pipe', 'pipe', 'ipc'] },
   );
   const log = createWriteStream(

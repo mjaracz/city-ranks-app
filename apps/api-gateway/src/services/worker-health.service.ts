@@ -11,8 +11,8 @@ import {
   ACTIVITY_RANKING_WORKER_HEALTH,
   WEATHER_WORKER_CLIENT,
   WEATHER_WORKER_HEALTH,
-} from '../../../../libs/contracts/src/message-patterns';
-import { WorkerHealth } from '../../../../libs/contracts/src/worker-health';
+} from '@libs/contracts/message-patterns';
+import { WorkerHealth } from '@libs/contracts/worker-health';
 
 @Injectable()
 export class WorkerHealthService {

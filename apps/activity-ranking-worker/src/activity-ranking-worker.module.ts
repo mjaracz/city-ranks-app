@@ -1,10 +1,10 @@
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { getNatsUrl } from '../../../libs/config/src/environment';
-import { WEATHER_WORKER_CLIENT } from '../../../libs/contracts/src/message-patterns';
+import { getNatsUrl } from '@libs/config/environment';
+import { WEATHER_WORKER_CLIENT } from '@libs/contracts/message-patterns';
 import { CityRankingQueryHandler } from './controllers/city-ranking-query.handler';
 import { CityRankingService } from './services/city-ranking.service';
 import { Module } from '@nestjs/common';
-import { JetStreamEventStore } from '../../../libs/messaging/src/jetstream-event-store';
+import { JetStreamEventStore } from '@libs/messaging/jetstream-event-store';
 import { ActivityRankingCommandHandler } from './controllers/activity-ranking-command.handler';
 import { ActivityRankingDatabaseHealth } from './services/activity-ranking-database-health.service';
 import { ActivityRankingHealthHandler } from './controllers/activity-ranking-health.handler';

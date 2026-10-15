@@ -16,9 +16,16 @@
     "strictNullChecks": false,
     "noImplicitAny": false,
     "strictBindCallApply": false,
+    "types": ["node"],
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
+      "@libs/config": ["libs/config/src"],
+      "@libs/config/*": ["libs/config/src/*"],
+      "@libs/contracts": ["libs/contracts/src"],
+      "@libs/contracts/*": ["libs/contracts/src/*"],
+      "@libs/messaging": ["libs/messaging/src"],
+      "@libs/messaging/*": ["libs/messaging/src/*"],
       "@libs/models": ["libs/models/src"],
       "@libs/models/*": ["libs/models/src/*"]
     },

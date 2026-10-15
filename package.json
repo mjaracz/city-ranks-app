@@ -33,10 +33,10 @@
     "test:repositories": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --config jest.repositories.json --runInBand",
     "typecheck": "tsc -p tsconfig.check.json",
     "test:integration:repositories": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --config ./jest.integration.json --runInBand --runTestsByPath apps/tests/persistence.integration-spec.ts",
-    "db:migrate:activity-ranking": "ts-node scripts/migrate-activity-ranking.ts",
+    "db:migrate:activity-ranking": "ts-node -r tsconfig-paths/register scripts/migrate-activity-ranking.ts",
     "load:up": "docker compose -p city-ranks-load -f compose.load.yaml up -d --wait",
     "load:build": "tsc -p tsconfig.load.json",
-    "load:workers": "node .codex/load-build/scripts/load/worker-load.js"
+    "load:workers": "node -r ./scripts/load/register-build-paths.cjs .codex/load-build/scripts/load/worker-load.js"
   },
   "dependencies": {
     "@apollo/server": "^5.5.1",
@@ -121,6 +121,16 @@
     "roots": [
       "<rootDir>/apps/",
       "<rootDir>/scripts/"
-    ]
+    ],
+    "moduleNameMapper": {
+      "^@libs/config$": "<rootDir>/libs/config/src/index.ts",
+      "^@libs/config/(.*)$": "<rootDir>/libs/config/src/$1",
+      "^@libs/contracts$": "<rootDir>/libs/contracts/src/index.ts",
+      "^@libs/contracts/(.*)$": "<rootDir>/libs/contracts/src/$1",
+      "^@libs/messaging$": "<rootDir>/libs/messaging/src/index.ts",
+      "^@libs/messaging/(.*)$": "<rootDir>/libs/messaging/src/$1",
+      "^@libs/models$": "<rootDir>/libs/models/src/index.ts",
+      "^@libs/models/(.*)$": "<rootDir>/libs/models/src/$1"
+    }
   }
 }

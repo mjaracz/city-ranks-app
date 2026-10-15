@@ -1,4 +1,4 @@
-import { getPositiveInteger } from '../../libs/config/src/environment';
+import { getPositiveInteger } from '@libs/config/environment';
 
 export interface LoadOptions {
   worker: 'both' | 'weather' | 'activity-ranking';

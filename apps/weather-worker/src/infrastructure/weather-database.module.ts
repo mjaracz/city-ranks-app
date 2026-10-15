@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import type { Collection, Db } from 'mongodb';
 import { MongoClient } from 'mongodb';
-import { getWeatherMongoConfiguration } from '../../../../libs/config/src/environment';
+import { getWeatherMongoConfiguration } from '@libs/config/environment';
 import {
   createWeatherMongoClient,
   WEATHER_MONGO_CLIENT,

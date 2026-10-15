@@ -3,9 +3,9 @@ import { createHash } from 'node:crypto';
 import {
   CityQueryError,
   normalizeCity,
-} from '../../../../libs/contracts/src/city-query';
+} from '@libs/contracts/city-query';
 import { addCalendarDays, CityForecast, localDate } from '@libs/models';
-import { JetStreamEventStore } from '../../../../libs/messaging/src/jetstream-event-store';
+import { JetStreamEventStore } from '@libs/messaging/jetstream-event-store';
 import {
   OpenMeteoJsonClient,
   PersistedResponse,

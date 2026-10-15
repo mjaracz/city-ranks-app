@@ -3,9 +3,9 @@ import { MessagePattern } from '@nestjs/microservices';
 import type {
   CityQuery,
   CityQueryResult,
-} from '../../../../libs/contracts/src/city-query';
-import { cityQueryFailure } from '../../../../libs/contracts/src/city-query';
-import { WEATHER_CITY_FORECAST_QUERY } from '../../../../libs/contracts/src/message-patterns';
+} from '@libs/contracts/city-query';
+import { cityQueryFailure } from '@libs/contracts/city-query';
+import { WEATHER_CITY_FORECAST_QUERY } from '@libs/contracts/message-patterns';
 import type { CityForecast } from '@libs/models';
 import { CityForecastService } from '../services/city-forecast.service';
 

@@ -1,9 +1,9 @@
 import { AckPolicy, jetstream, jetstreamManager } from '@nats-io/jetstream';
 import type { ConsumerMessages } from '@nats-io/jetstream';
 import { connect } from '@nats-io/transport-node';
-import type { DomainCommand } from '../../contracts/src/domain-command';
-import { getNatsUrl } from '../../config/src/environment';
-import { DOMAIN_COMMANDS_STREAM } from '../../contracts/src/message-patterns';
+import type { DomainCommand } from '@libs/contracts/domain-command';
+import { getNatsUrl } from '@libs/config/environment';
+import { DOMAIN_COMMANDS_STREAM } from '@libs/contracts/message-patterns';
 import {
   type DomainCommandSubject,
   ensureDomainCommandStream,

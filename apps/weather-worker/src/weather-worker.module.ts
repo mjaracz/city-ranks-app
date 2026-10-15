@@ -3,7 +3,7 @@ import { CityForecastService } from './services/city-forecast.service';
 import { OpenMeteoJsonClient } from './data-providers/open-meteo-json.client';
 import { Module } from '@nestjs/common';
 import { OpenMeteoResponseParser } from './services/open-meteo-response-parser.service';
-import { JetStreamEventStore } from '../../../libs/messaging/src/jetstream-event-store';
+import { JetStreamEventStore } from '@libs/messaging/jetstream-event-store';
 import { OpenMeteoProvider } from './data-providers/open-meteo.provider';
 import { WeatherCommandHandler } from './controllers/weather-command.handler';
 import { WeatherDatabaseHealth } from './services/weather-database-health.service';

@@ -7,8 +7,8 @@ import {
 } from '@nats-io/jetstream';
 import type { JetStreamClient, JetStreamManager } from '@nats-io/jetstream';
 import { connect } from '@nats-io/transport-node';
-import type { DomainEvent } from '../../contracts/src/domain-event';
-import { getNatsUrl } from '../../config/src/environment';
+import type { DomainEvent } from '@libs/contracts/domain-event';
+import { getNatsUrl } from '@libs/config/environment';
 
 export interface JetStreamEventStoreOptions {
   streamName: string;
