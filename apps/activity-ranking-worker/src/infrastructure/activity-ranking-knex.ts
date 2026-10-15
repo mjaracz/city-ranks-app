@@ -3,7 +3,7 @@ import type { Knex } from 'knex';
 import {
   getRequiredDatabaseUrl,
   getPositiveInteger,
-} from '../../../../libs/config/src/environment';
+} from '@libs/config/environment';
 
 export const ACTIVITY_RANKING_KNEX = Symbol('ACTIVITY_RANKING_KNEX');
 

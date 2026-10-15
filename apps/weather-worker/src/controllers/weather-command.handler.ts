@@ -4,10 +4,10 @@ import {
   OnModuleDestroy,
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import type { DomainCommand } from '../../../../libs/contracts/src/domain-command';
-import { WEATHER_FORECAST_REFRESH_COMMAND } from '../../../../libs/contracts/src/message-patterns';
-import { JetStreamCommandConsumer } from '../../../../libs/messaging/src/jetstream-command-consumer';
-import { JetStreamEventStore } from '../../../../libs/messaging/src/jetstream-event-store';
+import type { DomainCommand } from '@libs/contracts/domain-command';
+import { WEATHER_FORECAST_REFRESH_COMMAND } from '@libs/contracts/message-patterns';
+import { JetStreamCommandConsumer } from '@libs/messaging/jetstream-command-consumer';
+import { JetStreamEventStore } from '@libs/messaging/jetstream-event-store';
 import { OpenMeteoProvider } from '../data-providers/open-meteo.provider';
 import type { WeatherCoordinates } from '../data-providers/open-meteo.types';
 

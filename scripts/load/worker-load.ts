@@ -27,7 +27,7 @@ import {
 import {
   WEATHER_CURRENT_QUERY,
   ACTIVITY_RANKINGS_QUERY,
-} from '../../libs/contracts/src/message-patterns';
+} from '@libs/contracts/message-patterns';
 import { parseLoadOptions, loadEnvironment } from './load-options';
 import { measureOperations } from './load-metrics';
 import { createLoadFixtures } from './load-fixtures';

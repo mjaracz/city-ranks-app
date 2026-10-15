@@ -3,12 +3,12 @@ import { randomUUID } from 'node:crypto';
 import type {
   CommandReceipt,
   DomainCommand,
-} from '../../../../libs/contracts/src/domain-command';
+} from '@libs/contracts/domain-command';
 import {
   ACTIVITY_RANKING_REFRESH_COMMAND,
   WEATHER_FORECAST_REFRESH_COMMAND,
-} from '../../../../libs/contracts/src/message-patterns';
-import { JetStreamCommandBus } from '../../../../libs/messaging/src/jetstream-command-bus';
+} from '@libs/contracts/message-patterns';
+import { JetStreamCommandBus } from '@libs/messaging/jetstream-command-bus';
 
 interface WeatherCoordinates {
   latitude: number;

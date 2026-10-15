@@ -2,7 +2,7 @@ import { MongoClient } from 'mongodb';
 import {
   getPositiveInteger,
   getWeatherMongoConfiguration,
-} from '../../../../libs/config/src/environment';
+} from '@libs/config/environment';
 
 export const WEATHER_MONGO_CLIENT = Symbol('WEATHER_MONGO_CLIENT');
 export const WEATHER_MONGO_DATABASE = Symbol('WEATHER_MONGO_DATABASE');

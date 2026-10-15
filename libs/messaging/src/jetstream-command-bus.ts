@@ -7,13 +7,13 @@ import {
 } from '@nats-io/jetstream';
 import type { JetStreamClient, JetStreamManager } from '@nats-io/jetstream';
 import { connect } from '@nats-io/transport-node';
-import type { DomainCommand } from '../../contracts/src/domain-command';
+import type { DomainCommand } from '@libs/contracts/domain-command';
 import {
   ACTIVITY_RANKING_REFRESH_COMMAND,
   DOMAIN_COMMANDS_STREAM,
   WEATHER_FORECAST_REFRESH_COMMAND,
-} from '../../contracts/src/message-patterns';
-import { getNatsUrl } from '../../config/src/environment';
+} from '@libs/contracts/message-patterns';
+import { getNatsUrl } from '@libs/config/environment';
 
 export type DomainCommandSubject =
   | typeof WEATHER_FORECAST_REFRESH_COMMAND

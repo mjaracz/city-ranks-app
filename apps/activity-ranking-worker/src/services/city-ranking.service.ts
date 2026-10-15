@@ -5,12 +5,12 @@ import {
   CityQueryError,
   CityQueryResult,
   normalizeCity,
-} from '../../../../libs/contracts/src/city-query';
+} from '@libs/contracts/city-query';
 import {
   WEATHER_CITY_FORECAST_QUERY,
   WEATHER_WORKER_CLIENT,
-} from '../../../../libs/contracts/src/message-patterns';
-import { JetStreamEventStore } from '../../../../libs/messaging/src/jetstream-event-store';
+} from '@libs/contracts/message-patterns';
+import { JetStreamEventStore } from '@libs/messaging/jetstream-event-store';
 import { CityForecast, CityRanking, localDate } from '@libs/models';
 import { CityRankingRepository } from '../city-ranking.repository';
 import {

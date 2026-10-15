@@ -6,8 +6,8 @@ import { ActivityRankingWorkerModule } from '../../apps/activity-ranking-worker/
 import {
   WEATHER_WORKER_QUEUE,
   ACTIVITY_RANKING_WORKER_QUEUE,
-} from '../../libs/contracts/src/message-patterns';
-import { getNatsUrl } from '../../libs/config/src/environment';
+} from '@libs/contracts/message-patterns';
+import { getNatsUrl } from '@libs/config/environment';
 
 async function main(): Promise<void> {
   const weather = process.argv[2] === 'weather';
