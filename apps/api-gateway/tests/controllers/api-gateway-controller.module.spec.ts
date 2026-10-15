@@ -4,11 +4,13 @@ import type { INestApplication } from '@nestjs/common';
 import { GraphQLError } from 'graphql';
 import request from 'supertest';
 import { ApiGatewayModule } from '../../src/api-gateway.module';
-import { CityRankingGatewayService } from '../../src/controllers/services/city-ranking.service';
+import { CityRankingGatewayService } from '../../src/services/city-ranking.service';
 import { DomainCommandService } from '../../src/services/domain-command.service';
 import { WorkerHealthService } from '../../src/services/worker-health.service';
-import { calculateCityRanking } from '../../../activity-ranking-worker/src/domain/ranking-policy';
-import { forecastFixture } from '../../../city-ranking-test.fixtures';
+import {
+  forecastFixture,
+  rankingFixture,
+} from '../../../city-ranking-test.fixtures';
 import { JetStreamCommandBus } from '@libs/messaging/jetstream-command-bus';
 import {
   ACTIVITY_RANKING_WORKER_CLIENT,
@@ -18,7 +20,7 @@ import {
 describe('ApiGateway controller module', () => {
   let moduleRef: TestingModule;
   let app: INestApplication;
-  const ranking = calculateCityRanking(forecastFixture());
+  const ranking = rankingFixture(forecastFixture());
   const rankings = {
     getRanking: jest.fn<CityRankingGatewayService['getRanking']>(),
   };
@@ -137,10 +139,11 @@ describe('ApiGateway controller module', () => {
     });
   });
 
-  it('keeps the HTTP controller registered with the gateway', async () => {
-    await request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
+  it('exposes the GraphQL entry point', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/graphql')
+      .send({ query: '{ __typename }' })
+      .expect(200);
+    expect(response.body.data).toEqual({ __typename: 'Query' });
   });
 });

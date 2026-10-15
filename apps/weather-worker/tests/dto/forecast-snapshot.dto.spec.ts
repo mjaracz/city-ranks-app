@@ -1,18 +1,21 @@
+import { ForecastSnapshotDto } from '../../src/dto/forecast-snapshot.dto';
+import { WeatherPolicyModule } from '../../src/domain/weather-policy.module';
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CityQueryError } from '@libs/contracts/city-query';
 import { forecastFixture } from '../../../city-ranking-test.fixtures';
-import { OpenMeteoResponseParser } from '../../src/services/open-meteo-response-parser.service';
+import { WeatherInputValidator } from '../../src/utils/weather-input.validator';
 
 describe('Accepted forecast snapshot', () => {
   let moduleRef: TestingModule;
-  let parser: OpenMeteoResponseParser;
+  let parser: WeatherInputValidator;
 
   beforeAll(async () => {
     moduleRef = await Test.createTestingModule({
-      providers: [OpenMeteoResponseParser],
+      imports: [WeatherPolicyModule],
+      providers: [WeatherInputValidator],
     }).compile();
-    parser = moduleRef.get(OpenMeteoResponseParser);
+    parser = moduleRef.get(WeatherInputValidator);
   });
   afterEach(() => jest.useRealTimers());
   afterAll(async () => moduleRef.close());
@@ -23,14 +26,19 @@ describe('Accepted forecast snapshot', () => {
     '2026-12-29T12:00:00Z',
   ])('accepts seven city-local dates across calendar boundary %s', (now) => {
     jest.useFakeTimers().setSystemTime(new Date(now));
-    expect(() => parser.assertSnapshot(forecastFixture())).not.toThrow();
+    expect(() =>
+      parser.transform(ForecastSnapshotDto, forecastFixture()),
+    ).not.toThrow();
   });
 
   it.each(['2000-01-01T00:00:00Z', 'invalid', null, undefined])(
     'rejects an expired or malformed freshness deadline %p',
     (freshUntil) => {
       expect(() =>
-        parser.assertSnapshot({ ...forecastFixture(), freshUntil }),
+        parser.transform(ForecastSnapshotDto, {
+          ...forecastFixture(),
+          freshUntil,
+        }),
       ).toThrow(CityQueryError);
     },
   );
@@ -39,23 +47,33 @@ describe('Accepted forecast snapshot', () => {
     jest.useFakeTimers().setSystemTime(new Date('2026-10-15T10:00:00Z'));
     const forecast = forecastFixture();
     jest.setSystemTime(new Date(forecast.freshUntil));
-    expect(() => parser.assertSnapshot(forecast)).toThrow(CityQueryError);
+    expect(() => parser.transform(ForecastSnapshotDto, forecast)).toThrow(
+      CityQueryError,
+    );
   });
 
   it('rejects future weather timestamps while allowing absent marine observations', () => {
     const forecast = forecastFixture();
     expect(() =>
-      parser.assertSnapshot({ ...forecast, marineFetchedAt: null }),
+      parser.transform(ForecastSnapshotDto, {
+        ...forecast,
+        marineFetchedAt: null,
+      }),
     ).not.toThrow();
     forecast.weatherFetchedAt = new Date(Date.now() + 60_000).toISOString();
-    expect(() => parser.assertSnapshot(forecast)).toThrow(CityQueryError);
+    expect(() => parser.transform(ForecastSnapshotDto, forecast)).toThrow(
+      CityQueryError,
+    );
   });
 
   it.each(['invalid', undefined])(
     'rejects an invalid marine acquisition timestamp %p',
     (marineFetchedAt) => {
       expect(() =>
-        parser.assertSnapshot({ ...forecastFixture(), marineFetchedAt }),
+        parser.transform(ForecastSnapshotDto, {
+          ...forecastFixture(),
+          marineFetchedAt,
+        }),
       ).toThrow(CityQueryError);
     },
   );
@@ -63,12 +81,18 @@ describe('Accepted forecast snapshot', () => {
   it('rejects incomplete, reordered and stale city-local windows', () => {
     const forecast = forecastFixture();
     forecast.days.pop();
-    expect(() => parser.assertSnapshot(forecast)).toThrow(CityQueryError);
+    expect(() => parser.transform(ForecastSnapshotDto, forecast)).toThrow(
+      CityQueryError,
+    );
     const reordered = forecastFixture();
     reordered.days.reverse();
-    expect(() => parser.assertSnapshot(reordered)).toThrow(CityQueryError);
+    expect(() => parser.transform(ForecastSnapshotDto, reordered)).toThrow(
+      CityQueryError,
+    );
     const stale = forecastFixture(new Date('2000-01-01T00:00:00Z'));
     stale.freshUntil = new Date(Date.now() + 60_000).toISOString();
-    expect(() => parser.assertSnapshot(stale)).toThrow(CityQueryError);
+    expect(() => parser.transform(ForecastSnapshotDto, stale)).toThrow(
+      CityQueryError,
+    );
   });
 });

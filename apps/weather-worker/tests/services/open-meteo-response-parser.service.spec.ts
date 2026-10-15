@@ -1,3 +1,4 @@
+import { WeatherPolicyModule } from '../../src/domain/weather-policy.module';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
   forecastFixture,
@@ -13,6 +14,7 @@ describe('OpenMeteoResponseParser', () => {
 
   beforeAll(async () => {
     moduleRef = await Test.createTestingModule({
+      imports: [WeatherPolicyModule],
       providers: [OpenMeteoResponseParser],
     }).compile();
     parser = moduleRef.get(OpenMeteoResponseParser);

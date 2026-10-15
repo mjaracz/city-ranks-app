@@ -1,3 +1,5 @@
+import { RankingFreshnessPolicy } from '../src/domain/ranking-freshness.policy';
+import { RankingPolicy } from '../src/domain/ranking-policy';
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CityQueryError } from '@libs/contracts/city-query';
@@ -7,10 +9,12 @@ import {
 } from '@libs/contracts/message-patterns';
 import { JetStreamEventStore } from '@libs/messaging/jetstream-event-store';
 import { CityForecast } from '@libs/models';
-import { forecastFixture } from '../../city-ranking-test.fixtures';
+import {
+  forecastFixture,
+  rankingFixture,
+} from '../../city-ranking-test.fixtures';
 import { CityRankingRepository } from '../src/city-ranking.repository';
 import { CityRankingService } from '../src/services/city-ranking.service';
-import { calculateCityRanking } from '../src/domain/ranking-policy';
 import { Observable, of, throwError } from 'rxjs';
 
 describe('CityRankingService', () => {
@@ -29,10 +33,15 @@ describe('CityRankingService', () => {
       ) => import('rxjs').Observable<unknown>
     >(),
   };
+  const policy = {
+    version: 'injected-policy-version',
+    calculate: jest.fn<RankingPolicy['calculate']>(),
+  };
   const eventStore = { append: jest.fn<JetStreamEventStore['append']>() };
 
   beforeEach(async () => {
     jest.clearAllMocks();
+    policy.calculate.mockImplementation(rankingFixture);
     repository.findFresh.mockResolvedValue(null);
     repository.findById.mockResolvedValue(null);
     repository.save.mockResolvedValue(undefined);
@@ -43,6 +52,8 @@ describe('CityRankingService', () => {
     moduleRef = await Test.createTestingModule({
       providers: [
         CityRankingService,
+        RankingFreshnessPolicy,
+        { provide: RankingPolicy, useValue: policy },
         { provide: CityRankingRepository, useValue: repository },
         { provide: WEATHER_WORKER_CLIENT, useValue: weather },
         { provide: JetStreamEventStore, useValue: eventStore },
@@ -56,6 +67,15 @@ describe('CityRankingService', () => {
   it('returns a fresh ranking and persists its event and query result', async () => {
     const ranking = await service.getRanking('  Test   Bay ');
 
+    expect(policy.calculate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        city: expect.objectContaining({ name: 'Test Bay' }),
+      }),
+    );
+    expect(repository.findFresh).toHaveBeenCalledWith(
+      'test bay',
+      policy.version,
+    );
     expect(ranking.city.name).toBe('Test Bay');
     expect(ranking.days).toHaveLength(7);
     expect(weather.send).toHaveBeenCalledWith(WEATHER_CITY_FORECAST_QUERY, {
@@ -75,19 +95,20 @@ describe('CityRankingService', () => {
   });
 
   it('serves a fresh same-day ranking without calling workers or writing events', async () => {
-    const cached = calculateCityRanking(forecastFixture());
+    const cached = rankingFixture(forecastFixture());
     repository.findFresh.mockResolvedValue(cached);
 
     await expect(service.getRanking('test bay')).resolves.toEqual(cached);
 
     expect(weather.send).not.toHaveBeenCalled();
+    expect(policy.calculate).not.toHaveBeenCalled();
     expect(repository.save).not.toHaveBeenCalled();
     expect(eventStore.append).not.toHaveBeenCalled();
   });
 
   it('refreshes stale windows and explicitly requested refreshes', async () => {
     const stale = {
-      ...calculateCityRanking(forecastFixture()),
+      ...rankingFixture(forecastFixture()),
       windowStartDate: '2000-01-01',
     };
     repository.findFresh.mockResolvedValue(stale);
@@ -96,9 +117,7 @@ describe('CityRankingService', () => {
     expect(weather.send).toHaveBeenCalledTimes(1);
 
     jest.clearAllMocks();
-    repository.findFresh.mockResolvedValue(
-      calculateCityRanking(forecastFixture()),
-    );
+    repository.findFresh.mockResolvedValue(rankingFixture(forecastFixture()));
     repository.findById.mockResolvedValue(null);
     weather.send.mockReturnValue(
       of({ status: 'OK', result: forecastFixture() }),
@@ -108,7 +127,7 @@ describe('CityRankingService', () => {
   });
 
   it('reuses an identical immutable result without emitting a duplicate event', async () => {
-    const existing = calculateCityRanking(forecastFixture());
+    const existing = rankingFixture(forecastFixture());
     repository.findById.mockResolvedValue(existing);
 
     await expect(service.getRanking('test bay')).resolves.toEqual(existing);
@@ -144,6 +163,20 @@ describe('CityRankingService', () => {
     expect(weather.send).toHaveBeenCalledTimes(1);
   });
 
+  it('does not persist failed policy evaluations and permits a later retry', async () => {
+    policy.calculate.mockImplementationOnce(() => {
+      throw new RangeError('Invalid forecast');
+    });
+    await expect(service.getRanking('Test Bay')).rejects.toThrow(
+      'Invalid forecast',
+    );
+    expect(repository.save).not.toHaveBeenCalled();
+    expect(eventStore.append).not.toHaveBeenCalled();
+    await expect(service.getRanking('Test Bay')).resolves.toMatchObject({
+      city: { name: 'Test Bay' },
+    });
+    expect(weather.send).toHaveBeenCalledTimes(2);
+  });
   it('maps worker failures and invalid city input to domain errors', async () => {
     weather.send.mockReturnValue(
       of({ status: 'ERROR', code: 'CITY_NOT_FOUND', message: 'Unknown city' }),

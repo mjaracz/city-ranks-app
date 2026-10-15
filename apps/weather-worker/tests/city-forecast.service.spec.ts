@@ -1,3 +1,6 @@
+import { OpenMeteoForecastRequestFactory } from '../src/data-providers/open-meteo-forecast-request.factory';
+import { OpenMeteoConfiguration } from '../src/data-providers/open-meteo.configuration';
+import { WeatherPolicyModule } from '../src/domain/weather-policy.module';
 import { jest } from '@jest/globals';
 import { CityQueryError } from '@libs/contracts/city-query';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -58,8 +61,11 @@ describe('City forecast acquisition', () => {
         ),
       );
     moduleRef = await Test.createTestingModule({
+      imports: [WeatherPolicyModule],
       providers: [
+        OpenMeteoConfiguration,
         CityForecastService,
+        OpenMeteoForecastRequestFactory,
         OpenMeteoJsonClient,
         OpenMeteoResponseParser,
         { provide: WeatherApiQueryCacheRepository, useValue: cache },

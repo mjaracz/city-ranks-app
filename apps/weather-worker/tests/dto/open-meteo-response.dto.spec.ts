@@ -1,3 +1,4 @@
+import { WeatherPolicyModule } from '../../src/domain/weather-policy.module';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CityQueryError } from '@libs/contracts/city-query';
 import { upstreamFixture, testCity } from '../../../city-ranking-test.fixtures';
@@ -10,6 +11,7 @@ describe('OpenMeteo response field contracts', () => {
 
   beforeAll(async () => {
     moduleRef = await Test.createTestingModule({
+      imports: [WeatherPolicyModule],
       providers: [OpenMeteoResponseParser],
     }).compile();
     parser = moduleRef.get(OpenMeteoResponseParser);
