@@ -5,12 +5,11 @@ import { of, throwError } from 'rxjs';
 import {
   ACTIVITY_RANKING_WORKER_CLIENT,
   CITY_RANKING_QUERY,
-} from '../../../libs/contracts/src/message-patterns';
-import { CityQueryError } from '../../../libs/contracts/src/city-query';
-import type { CityRanking } from '../../../libs/models/src';
-import { forecastFixture } from '../../city-ranking-test.fixtures';
-import { CityRankingGatewayService } from '../src/services/city-ranking.service';
-import { calculateCityRanking } from '../../activity-ranking-worker/src/domain/ranking-policy';
+} from '@libs/contracts/message-patterns';
+import { CityQueryError } from '@libs/contracts/city-query';
+import { forecastFixture } from '../../../../city-ranking-test.fixtures';
+import { CityRankingGatewayService } from '../../../src/controllers/services/city-ranking.service';
+import { calculateCityRanking } from '../../../../activity-ranking-worker/src/domain/ranking-policy';
 
 describe('CityRankingGatewayService', () => {
   let moduleRef: TestingModule;

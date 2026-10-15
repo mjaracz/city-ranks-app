@@ -10,17 +10,17 @@ import { firstValueFrom, timeout } from 'rxjs';
 import { randomUUID } from 'node:crypto';
 import type { Knex } from 'knex';
 import { ActivityRankingRepository } from '../src/activity-ranking.repository';
-import { ACTIVITY_RANKING_KNEX } from '../src/persistence/activity-ranking-knex';
+import { ACTIVITY_RANKING_KNEX } from '../src/infrastructure/activity-ranking-knex';
 import { ActivityRankingWorkerModule } from '../src/activity-ranking-worker.module';
-import { createActivityRankingRefreshCommand } from '../src/handlers/activity-ranking-command.handler';
+import { createActivityRankingRefreshCommand } from '../src/controllers/activity-ranking-command.handler';
 import {
   ACTIVITY_RANKING_REFRESH_COMMAND,
   ACTIVITY_RANKING_WORKER_HEALTH,
   ACTIVITY_RANKING_WORKER_QUEUE,
   ACTIVITY_RANKINGS_QUERY,
-} from '../../../libs/contracts/src/message-patterns';
-import { getNatsUrl } from '../../../libs/config/src/environment';
-import { JetStreamCommandBus } from '../../../libs/messaging/src/jetstream-command-bus';
+} from '@libs/contracts/message-patterns';
+import { getNatsUrl } from '@libs/config/environment';
+import { JetStreamCommandBus } from '@libs/messaging/jetstream-command-bus';
 import {
   waitForEvent,
   ensureRankingSchema,

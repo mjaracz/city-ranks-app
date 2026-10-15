@@ -9,19 +9,19 @@ import { WeatherApiQueryCacheRepository } from '../src/weather-api-query-cache.r
 import {
   WEATHER_API_CACHE_COLLECTION,
   WeatherApiCacheDocument,
-} from '../src/persistence/weather-mongo.providers';
+} from '../src/infrastructure/weather-mongo.providers';
 import { createOpenMeteoCurrentRequest } from '../src/data-providers/open-meteo-request';
 import { createLoadFixtures } from '../../../scripts/load/load-fixtures';
 import { WeatherWorkerModule } from '../src/weather-worker.module';
-import { createWeatherRefreshCommand } from '../src/handlers/weather-command.handler';
+import { createWeatherRefreshCommand } from '../src/controllers/weather-command.handler';
 import {
   WEATHER_FORECAST_REFRESH_COMMAND,
   WEATHER_WORKER_HEALTH,
   WEATHER_WORKER_QUEUE,
   WEATHER_CURRENT_QUERY,
-} from '../../../libs/contracts/src/message-patterns';
-import { getNatsUrl } from '../../../libs/config/src/environment';
-import { JetStreamCommandBus } from '../../../libs/messaging/src/jetstream-command-bus';
+} from '@libs/contracts/message-patterns';
+import { getNatsUrl } from '@libs/config/environment';
+import { JetStreamCommandBus } from '@libs/messaging/jetstream-command-bus';
 import { waitForEvent } from '../../worker-integration.helpers';
 
 describe('WeatherWorker integration', () => {

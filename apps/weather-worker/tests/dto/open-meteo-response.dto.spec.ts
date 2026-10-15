@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CityQueryError } from '../../../../libs/contracts/src/city-query';
+import { CityQueryError } from '@libs/contracts/city-query';
 import { upstreamFixture, testCity } from '../../../city-ranking-test.fixtures';
 import { createLoadFixtures } from '../../../../scripts/load/load-fixtures';
 import { OpenMeteoResponseParser } from '../../src/services/open-meteo-response-parser.service';

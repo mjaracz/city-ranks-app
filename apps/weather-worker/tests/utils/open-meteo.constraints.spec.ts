@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CityQueryError } from '../../../../libs/contracts/src/city-query';
+import { CityQueryError } from '@libs/contracts/city-query';
 import {
   forecastFixture,
   testCity,

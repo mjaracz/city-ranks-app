@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
-import { CityQueryError } from '../../../../libs/contracts/src/city-query';
+import { CityQueryError } from '@libs/contracts/city-query';
 import {
   CachedWeatherApiResponse,
   WeatherApiQueryCacheRepository,

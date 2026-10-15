@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
-import { CityQueryError } from '../../../../libs/contracts/src/city-query';
+import { CityQueryError } from '@libs/contracts/city-query';
 import { forecastFixture } from '../../../city-ranking-test.fixtures';
 import { OpenMeteoResponseParser } from '../../src/services/open-meteo-response-parser.service';
 

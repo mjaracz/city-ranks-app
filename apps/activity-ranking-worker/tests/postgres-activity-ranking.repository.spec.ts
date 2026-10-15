@@ -1,13 +1,13 @@
 import knex from 'knex';
-import { Test } from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing';
 import { PostgresActivityRankingRepository } from '../src/postgres-activity-ranking.repository';
 import {
   ActivityRankingRepository,
   ActivityRanking,
 } from '../src/activity-ranking.repository';
-import { ActivityRankingPersistenceModule } from '../src/persistence/activity-ranking-persistence.module';
-import { ACTIVITY_RANKING_KNEX } from '../src/persistence/activity-ranking-knex';
-import { up } from '../src/persistence/migrations/001-create-activity-rankings';
+import { ActivityRankingPersistenceModule } from '../src/infrastructure/activity-ranking-persistence.module';
+import { ACTIVITY_RANKING_KNEX } from '../src/infrastructure/activity-ranking-knex';
+import { up } from '../src/infrastructure/migrations/001-create-activity-rankings';
 
 describe('Knex ActivityRanking repository', () => {
   const database = knex({ client: 'pg', compileSqlOnError: false });
@@ -23,9 +23,10 @@ describe('Knex ActivityRanking repository', () => {
     calculatedAt: new Date(),
     weatherUpdatedAt: null,
   };
-  const repository = new PostgresActivityRankingRepository(database);
+  let moduleRef: TestingModule;
+  let repository: ActivityRankingRepository;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     const client = database.client as unknown as {
       acquireConnection: () => Promise<object>;
       releaseConnection: () => Promise<void>;
@@ -60,12 +61,19 @@ describe('Knex ActivityRanking repository', () => {
       },
     });
     client.releaseConnection = async () => undefined;
+    moduleRef = await Test.createTestingModule({
+      imports: [ActivityRankingPersistenceModule],
+    })
+      .overrideProvider(ACTIVITY_RANKING_KNEX)
+      .useValue(database)
+      .compile();
+    repository = moduleRef.get(ActivityRankingRepository);
   });
   beforeEach(() => {
     queries.length = 0;
     failInsert = false;
   });
-  afterAll(async () => database.destroy());
+  afterAll(async () => moduleRef.close());
 
   it('binds malicious SQL input as data for writes and reads', async () => {
     await repository.saveRankings([ranking]);
@@ -130,6 +138,36 @@ describe('Knex ActivityRanking repository', () => {
     expect(queries).toHaveLength(0);
   });
 
+  it.each<[string, Record<string, unknown>]>([
+    ['city', { city: 12 }],
+    ['forecast date', { forecastDate: '2026-02-30' }],
+    ['activity', { activity: 'cycling' }],
+    ['numeric string score', { score: '80' }],
+    ['nested factors', { factors: { snow: {} } }],
+    ['nonfinite factors', { factors: { snow: Infinity } }],
+    ['calculated timestamp', { calculatedAt: new Date('invalid') }],
+    ['weather timestamp', { weatherUpdatedAt: '2026-10-14T00:00:00Z' }],
+  ])(
+    'rejects invalid %s before opening a transaction',
+    async (_label, fields) => {
+      await expect(
+        repository.saveRankings([{ ...ranking, ...fields } as ActivityRanking]),
+      ).rejects.toBeInstanceOf(RangeError);
+      expect(queries).toHaveLength(0);
+    },
+  );
+
+  it.each([
+    ['2026-10-14', '2026-10-14'],
+    ['2026-10-15', '2026-10-14'],
+    ['2026-10-01', '2026-11-02'],
+  ])('rejects an invalid period %s to %s before SQL', async (from, until) => {
+    await expect(
+      repository.findByCityAndPeriod('Warsaw', from, until),
+    ).rejects.toBeInstanceOf(RangeError);
+    expect(queries).toHaveLength(0);
+  });
+
   it('builds constraints in a versioned migration', async () => {
     await up(database);
     expect(
@@ -140,16 +178,8 @@ describe('Knex ActivityRanking repository', () => {
     expect(queries.some((query) => query.sql.includes('check'))).toBe(true);
   });
 
-  it('resolves the domain port through a replaceable Knex token', async () => {
-    const module = await Test.createTestingModule({
-      imports: [ActivityRankingPersistenceModule],
-    })
-      .overrideProvider(ACTIVITY_RANKING_KNEX)
-      .useValue(database)
-      .compile();
-    expect(module.get(ActivityRankingRepository)).toBeInstanceOf(
-      PostgresActivityRankingRepository,
-    );
-    await module.close();
+  it('resolves the domain port through a replaceable Knex token', () => {
+    expect(repository).toBeInstanceOf(PostgresActivityRankingRepository);
+    expect(moduleRef.get(ActivityRankingRepository)).toBe(repository);
   });
 });

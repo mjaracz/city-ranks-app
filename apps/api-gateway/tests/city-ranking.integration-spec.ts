@@ -2,7 +2,7 @@ import type { Collection } from 'mongodb';
 import {
   WEATHER_API_CACHE_COLLECTION,
   WeatherApiCacheDocument,
-} from '../../weather-worker/src/persistence/weather-mongo.providers';
+} from '../../weather-worker/src/infrastructure/weather-mongo.providers';
 import { jest } from '@jest/globals';
 import type { INestApplication, INestMicroservice } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
@@ -13,14 +13,14 @@ import type { Knex } from 'knex';
 import { ApiGatewayModule } from '../src/api-gateway.module';
 import { WeatherWorkerModule } from '../../weather-worker/src/weather-worker.module';
 import { ActivityRankingWorkerModule } from '../../activity-ranking-worker/src/activity-ranking-worker.module';
-import { ACTIVITY_RANKING_KNEX } from '../../activity-ranking-worker/src/persistence/activity-ranking-knex';
+import { ACTIVITY_RANKING_KNEX } from '../../activity-ranking-worker/src/infrastructure/activity-ranking-knex';
 import { CityRankingRepository } from '../../activity-ranking-worker/src/city-ranking.repository';
-import { getNatsUrl } from '../../../libs/config/src/environment';
+import { getNatsUrl } from '@libs/config/environment';
 import {
   ACTIVITY_RANKING_WORKER_QUEUE,
   WEATHER_WORKER_QUEUE,
-} from '../../../libs/contracts/src/message-patterns';
-import { CityRanking } from '../../../libs/models/src';
+} from '@libs/contracts/message-patterns';
+import { CityRanking } from '@libs/models';
 import { upstreamFixture } from '../../city-ranking-test.fixtures';
 import {
   ensureRankingSchema,

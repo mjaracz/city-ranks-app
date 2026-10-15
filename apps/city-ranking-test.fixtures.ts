@@ -4,7 +4,7 @@ import {
   CityLocation,
   DailyWeatherForecast,
   localDate,
-} from '../libs/models/src';
+} from '@libs/models';
 
 export const testCity: CityLocation = {
   id: 'open-meteo:999999',

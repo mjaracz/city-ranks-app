@@ -11,8 +11,8 @@ import { ActivityRankingWorkerModule } from '../../activity-ranking-worker/src/a
 import {
   ACTIVITY_RANKING_WORKER_QUEUE,
   WEATHER_WORKER_QUEUE,
-} from '../../../libs/contracts/src/message-patterns';
-import { getNatsUrl } from '../../../libs/config/src/environment';
+} from '@libs/contracts/message-patterns';
+import { getNatsUrl } from '@libs/config/environment';
 import {
   waitForEvent,
   ensureRankingSchema,
