@@ -128,20 +128,20 @@ export class OpenMeteoJsonClient {
 
   private endpoint(key: string, fallback: string): URL {
     const url = new URL(process.env[key]?.trim() || fallback);
-    if (
+    const isInvalidEndpointUrl =
       url.protocol !== 'https:' ||
       url.username ||
       url.password ||
       url.search ||
-      url.hash
-    )
+      url.hash;
+    if (isInvalidEndpointUrl)
       throw new Error(
         `${key} must be an HTTPS endpoint without credentials or query parameters`,
       );
-    if (
+    const isCustomerEndpointMissingApiKey =
       url.hostname.startsWith('customer-') &&
-      !process.env.OPEN_METEO_API_KEY?.trim()
-    )
+      !process.env.OPEN_METEO_API_KEY?.trim();
+    if (isCustomerEndpointMissingApiKey)
       throw new Error(`OPEN_METEO_API_KEY is required for ${key}`);
     return url;
   }
@@ -162,12 +162,12 @@ export function numberOrNull(
   maximum = Infinity,
 ): number | null {
   if (value === null) return null;
-  if (
+  const isInvalidMeasurement =
     typeof value !== 'number' ||
     !Number.isFinite(value) ||
     value < minimum ||
-    value > maximum
-  )
+    value > maximum;
+  if (isInvalidMeasurement)
     throw new CityQueryError(
       'UPSTREAM_UNAVAILABLE',
       'Open-Meteo returned an invalid measurement',

@@ -43,11 +43,11 @@ export class JetStreamCommandConsumer {
           const existing = await manager.consumers
             .info(DOMAIN_COMMANDS_STREAM, this.options.durableName)
             .catch(() => undefined);
-          if (
+          const hasIncompatibleExistingConsumer =
             !existing ||
             existing.config.filter_subject !== this.options.subject ||
-            existing.config.ack_policy !== AckPolicy.Explicit
-          ) {
+            existing.config.ack_policy !== AckPolicy.Explicit;
+          if (hasIncompatibleExistingConsumer) {
             throw error;
           }
         });

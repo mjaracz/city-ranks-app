@@ -11,36 +11,33 @@ export function validateCityRanking(ranking: CityRanking): void {
   const invalid = () => {
     throw new RangeError('Invalid complete city ranking');
   };
-  if (
+  const hasInvalidRankingMetadata =
     !ranking ||
     !/^[a-f0-9]{64}$/.test(ranking.id) ||
     !ranking.city?.id ||
     !ranking.policyVersion ||
     !ranking.forecastSnapshotId ||
     !isCalendarDate(ranking.windowStartDate) ||
-    ranking.windowEndDate !== addCalendarDays(ranking.windowStartDate, 6)
-  )
-    invalid();
-  if (
+    ranking.windowEndDate !== addCalendarDays(ranking.windowStartDate, 6);
+  if (hasInvalidRankingMetadata) invalid();
+  const hasInvalidRankingTimestamps =
     ![ranking.weatherFetchedAt, ranking.freshUntil, ranking.computedAt].every(
       (value) =>
         typeof value === 'string' && Number.isFinite(Date.parse(value)),
     ) ||
     (ranking.marineFetchedAt !== null &&
-      !Number.isFinite(Date.parse(ranking.marineFetchedAt)))
-  )
-    invalid();
+      !Number.isFinite(Date.parse(ranking.marineFetchedAt)));
+  if (hasInvalidRankingTimestamps) invalid();
   if (!Array.isArray(ranking.days) || ranking.days.length !== 7) invalid();
   let ranked = 0;
   ranking.days.forEach((day, index) => {
-    if (
+    const hasInvalidDailyRankingDay =
       !day ||
       day.date !== addCalendarDays(ranking.windowStartDate, index) ||
-      !Array.isArray(day.activities)
-    )
-      invalid();
+      !Array.isArray(day.activities);
+    if (hasInvalidDailyRankingDay) invalid();
     for (const item of day.activities) {
-      if (
+      const hasInvalidActivityExplanation =
         !item ||
         typeof item.explanation !== 'string' ||
         !item.explanation.trim() ||
@@ -48,12 +45,11 @@ export function validateCityRanking(ranking: CityRanking): void {
         !item.reasonCodes.length ||
         !item.reasonCodes.every(
           (code) => typeof code === 'string' && code.trim(),
-        )
-      )
-        invalid();
+        );
+      if (hasInvalidActivityExplanation) invalid();
     }
     const expected = rankDay(day.date, day.activities);
-    if (
+    const hasInconsistentDailyRanking =
       expected.completeness !== day.completeness ||
       expected.activities.some((item, i) => {
         const actual = day.activities[i];
@@ -63,9 +59,8 @@ export function validateCityRanking(ranking: CityRanking): void {
           item.score !== actual.score ||
           item.rank !== actual.rank
         );
-      })
-    )
-      invalid();
+      });
+    if (hasInconsistentDailyRanking) invalid();
     ranked += day.activities.filter(
       (item) => item.state === EvaluationState.RANKED,
     ).length;

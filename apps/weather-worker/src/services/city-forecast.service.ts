@@ -90,11 +90,10 @@ export class CityForecastService {
         (payload) => parseMarine(payload, dates, city.timezone),
       );
     } catch (error) {
-      if (
+      const isNotAnUpstreamAvailabilityError =
         !(error instanceof CityQueryError) ||
-        error.code !== 'UPSTREAM_UNAVAILABLE'
-      )
-        throw error;
+        error.code !== 'UPSTREAM_UNAVAILABLE';
+      if (isNotAnUpstreamAvailabilityError) throw error;
     }
     const hasMarine =
       marine?.value.days.some(
@@ -164,10 +163,10 @@ function requiredString(value: unknown): string {
 
 export function parseCity(payload: unknown): CityLocation {
   const response = record(payload);
-  if (
+  const hasNoCityMatches =
     response.results === undefined ||
-    (Array.isArray(response.results) && response.results.length === 0)
-  )
+    (Array.isArray(response.results) && response.results.length === 0);
+  if (hasNoCityMatches)
     throw new CityQueryError(
       'CITY_NOT_FOUND',
       'No matching city was found; try adding a country or region',
@@ -181,12 +180,12 @@ export function parseCity(payload: unknown): CityLocation {
   const city = record(response.results[0]);
   const latitude = numberOrNull(city.latitude, -90, 90);
   const longitude = numberOrNull(city.longitude, -180, 180);
-  if (
+  const hasInvalidCityCoordinatesOrIdentity =
     latitude === null ||
     longitude === null ||
     !Number.isSafeInteger(city.id) ||
-    Number(city.id) <= 0
-  )
+    Number(city.id) <= 0;
+  if (hasInvalidCityCoordinatesOrIdentity)
     throw new CityQueryError(
       'UPSTREAM_UNAVAILABLE',
       'Invalid geocoding coordinates or identity',
@@ -230,13 +229,13 @@ function timeSeries(
       'Unexpected forecast timezone',
     );
   const daily = record(response.daily);
-  if (
+  const hasInvalidDailyForecastDates =
     !Array.isArray(daily.time) ||
     daily.time.length === 0 ||
     daily.time.length > 16 ||
     !daily.time.every(isCalendarDate) ||
-    new Set(daily.time).size !== daily.time.length
-  )
+    new Set(daily.time).size !== daily.time.length;
+  if (hasInvalidDailyForecastDates)
     throw new CityQueryError(
       'UPSTREAM_UNAVAILABLE',
       'Invalid daily forecast dates',
@@ -273,7 +272,7 @@ export function parseWeather(
     ]),
   );
   const hourly = record(response.hourly);
-  if (
+  const hasInvalidHourlySnowObservations =
     !Array.isArray(hourly.time) ||
     !Array.isArray(hourly.snow_depth) ||
     hourly.time.length !== hourly.snow_depth.length ||
@@ -284,8 +283,8 @@ export function parseWeather(
         typeof value === 'string' &&
         /^\d{4}-\d{2}-\d{2}T(?:[01]\d|2[0-3]):00$/.test(value) &&
         isCalendarDate(value.slice(0, 10)),
-    )
-  )
+    );
+  if (hasInvalidHourlySnowObservations)
     throw new CityQueryError(
       'UPSTREAM_UNAVAILABLE',
       'Invalid hourly snow observations',
@@ -301,19 +300,18 @@ export function parseWeather(
         index < 0 ? null : columns[key][index],
       ]),
     );
-    if (
+    const hasInvalidTemperatureRange =
       values.temperatureMinCelsius !== null &&
       values.temperatureMaxCelsius !== null &&
-      values.temperatureMinCelsius > values.temperatureMaxCelsius
-    )
+      values.temperatureMinCelsius > values.temperatureMaxCelsius;
+    if (hasInvalidTemperatureRange)
       throw new CityQueryError(
         'UPSTREAM_UNAVAILABLE',
         'Minimum temperature exceeds maximum',
       );
-    if (
-      values.weatherCode !== null &&
-      !WMO_WEATHER_CODES.has(values.weatherCode)
-    )
+    const hasInvalidWeatherCode =
+      values.weatherCode !== null && !WMO_WEATHER_CODES.has(values.weatherCode);
+    if (hasInvalidWeatherCode)
       throw new CityQueryError(
         'UPSTREAM_UNAVAILABLE',
         'Invalid WMO weather code',

@@ -22,11 +22,11 @@ export class OpenMeteoProvider {
       throw new Error('OPEN_METEO_FORECAST_API_URL must be a valid URL');
     }
 
-    if (
+    const isInvalidForecastApiUrl =
       parsedUrl.protocol !== 'https:' ||
       parsedUrl.username ||
-      parsedUrl.password
-    ) {
+      parsedUrl.password;
+    if (isInvalidForecastApiUrl) {
       throw new Error(
         'OPEN_METEO_FORECAST_API_URL must be an HTTPS URL without credentials',
       );
@@ -148,18 +148,18 @@ export class OpenMeteoProvider {
     if (typeof coordinates !== 'object' || coordinates === null) {
       throw new RangeError('coordinates must be an object');
     }
-    if (
+    const isLatitudeOutOfRange =
       !Number.isFinite(coordinates.latitude) ||
       coordinates.latitude < -90 ||
-      coordinates.latitude > 90
-    ) {
+      coordinates.latitude > 90;
+    if (isLatitudeOutOfRange) {
       throw new RangeError('latitude must be a number between -90 and 90');
     }
-    if (
+    const isLongitudeOutOfRange =
       !Number.isFinite(coordinates.longitude) ||
       coordinates.longitude < -180 ||
-      coordinates.longitude > 180
-    ) {
+      coordinates.longitude > 180;
+    if (isLongitudeOutOfRange) {
       throw new RangeError('longitude must be a number between -180 and 180');
     }
   }

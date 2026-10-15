@@ -107,16 +107,15 @@ export function evaluateActivities(
       )
     : missing(Activity.INDOOR_SIGHTSEEING);
   let skiing: ActivityEvaluation;
-  if (
-    !available(
-      day.temperatureMinCelsius,
-      day.temperatureMaxCelsius,
-      day.snowDepthMaxMeters,
-      day.snowfallCentimeters,
-      day.windSpeedMaxKilometersPerHour,
-      day.weatherCode,
-    )
-  ) {
+  const hasInsufficientSkiingData = !available(
+    day.temperatureMinCelsius,
+    day.temperatureMaxCelsius,
+    day.snowDepthMaxMeters,
+    day.snowfallCentimeters,
+    day.windSpeedMaxKilometersPerHour,
+    day.weatherCode,
+  );
+  if (hasInsufficientSkiingData) {
     skiing = missing(Activity.SKIING);
   } else {
     // BQ-05: City-grid snow depth is a proxy; this does not establish a ski facility.
@@ -140,6 +139,14 @@ export function evaluateActivities(
       'Snow cover, cold temperatures and moderate wind determine skiing weather suitability at the city grid; resorts and slope conditions are not assessed.',
     );
   }
+  const isSurfingUnavailable =
+    marineStatus !== 'AVAILABLE' ||
+    !available(
+      day.waveHeightMaxMeters,
+      day.wavePeriodMaxSeconds,
+      day.windSpeedMaxKilometersPerHour,
+      day.weatherCode,
+    );
   let surfing: ActivityEvaluation;
   if (marineStatus === 'NOT_APPLICABLE') {
     surfing = unavailable(
@@ -148,15 +155,7 @@ export function evaluateActivities(
       'marine-grid-outside-city',
       'The available marine grid is more than 50 km from the city, outside this policy evaluation radius.',
     );
-  } else if (
-    marineStatus !== 'AVAILABLE' ||
-    !available(
-      day.waveHeightMaxMeters,
-      day.wavePeriodMaxSeconds,
-      day.windSpeedMaxKilometersPerHour,
-      day.weatherCode,
-    )
-  ) {
+  } else if (isSurfingUnavailable) {
     surfing = missing(Activity.SURFING);
   } else {
     // BQ-06: Daily wave maxima are a heuristic, with a provisional target of 1.5 m.
@@ -183,33 +182,33 @@ export function rankDay(
   date: string,
   evaluations: ActivityEvaluation[],
 ): DailyCityRanking {
-  if (
+  const hasInvalidActivityEvaluations =
     evaluations.length !== 4 ||
     new Set(evaluations.map((item) => item.activity)).size !== 4 ||
-    evaluations.some((item) => !activities.includes(item.activity))
-  ) {
+    evaluations.some((item) => !activities.includes(item.activity));
+  if (hasInvalidActivityEvaluations) {
     throw new RangeError(
       'Each day must contain the four supported activities exactly once',
     );
   }
   const items = evaluations.map((item) => {
     if (item.state === EvaluationState.RANKED) {
-      if (
+      const hasInvalidRankedScore =
         !Number.isFinite(item.score) ||
         item.score === null ||
         item.score < 0 ||
-        item.score > 100
-      )
+        item.score > 100;
+      if (hasInvalidRankedScore)
         throw new RangeError(
           'Ranked scores must be finite numbers between 0 and 100',
         );
       return { ...item, score: round(item.score), rank: null };
     }
-    if (
+    const hasInvalidUnavailableEvaluation =
       item.score !== null ||
       item.rank !== null ||
-      !Object.values(EvaluationState).includes(item.state)
-    )
+      !Object.values(EvaluationState).includes(item.state);
+    if (hasInvalidUnavailableEvaluation)
       throw new RangeError(
         'Unavailable evaluations must have null score and rank',
       );

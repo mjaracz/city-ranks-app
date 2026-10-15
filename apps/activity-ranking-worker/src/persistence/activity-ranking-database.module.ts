@@ -19,11 +19,11 @@ class ActivityRankingDatabaseLifecycle
 
   async onModuleInit(): Promise<void> {
     try {
-      if (
+      const hasMissingRankingTables =
         !(await this.database.schema.hasTable('activity_rankings')) ||
         !(await this.database.schema.hasTable('city_ranking_results')) ||
-        !(await this.database.schema.hasTable('city_ranking_queries'))
-      ) {
+        !(await this.database.schema.hasTable('city_ranking_queries'));
+      if (hasMissingRankingTables) {
         throw new Error(
           'Activity ranking schema is missing; run pnpm db:migrate:activity-ranking',
         );
