@@ -4,11 +4,7 @@ import {
   CityQueryError,
   normalizeCity,
 } from '../../../../libs/contracts/src/city-query';
-import {
-  addCalendarDays,
-  CityForecast,
-  localDate,
-} from '../../../../libs/models/src';
+import { addCalendarDays, CityForecast, localDate } from '@libs/models';
 import { JetStreamEventStore } from '../../../../libs/messaging/src/jetstream-event-store';
 import {
   OpenMeteoJsonClient,

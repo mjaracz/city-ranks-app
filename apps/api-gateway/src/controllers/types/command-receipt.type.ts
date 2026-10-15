@@ -1,7 +1,8 @@
 import { Field, ObjectType } from '@nestjs/graphql';
+import type { CommandReceipt } from '../../../../../libs/contracts/src/domain-command';
 
 @ObjectType()
-export class CommandReceiptType {
+export class CommandReceiptType implements CommandReceipt {
   @Field(() => String)
   commandId!: string;
 

@@ -10,7 +10,7 @@ import {
   Completeness,
   DailyCityRanking,
   EvaluationState,
-} from '../../../../libs/models/src';
+} from '@libs/models';
 import { rankDay } from '../domain/ranking-policy';
 
 @ValidatorConstraint({ name: 'dailyRankingConsistency', async: false })

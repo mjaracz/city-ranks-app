@@ -11,19 +11,19 @@ import { randomUUID } from 'node:crypto';
 import { join, resolve } from 'node:path';
 import { cpus, totalmem, platform } from 'node:os';
 import { firstValueFrom, timeout } from 'rxjs';
-import { ActivityRankingPersistenceModule } from '../../apps/activity-ranking-worker/src/persistence/activity-ranking-persistence.module';
+import { ActivityRankingPersistenceModule } from '../../apps/activity-ranking-worker/src/infrastructure/activity-ranking-persistence.module';
 import { ActivityRankingRepository } from '../../apps/activity-ranking-worker/src/activity-ranking.repository';
 import {
   ACTIVITY_RANKING_KNEX,
   createActivityRankingKnex,
-} from '../../apps/activity-ranking-worker/src/persistence/activity-ranking-knex';
-import { migrateActivityRanking } from '../../apps/activity-ranking-worker/src/persistence/activity-ranking-migrations';
-import { WeatherPersistenceModule } from '../../apps/weather-worker/src/persistence/weather-persistence.module';
+} from '../../apps/activity-ranking-worker/src/infrastructure/activity-ranking-knex';
+import { migrateActivityRanking } from '../../apps/activity-ranking-worker/src/infrastructure/activity-ranking-migrations';
+import { WeatherPersistenceModule } from '../../apps/weather-worker/src/infrastructure/weather-persistence.module';
 import { WeatherApiQueryCacheRepository } from '../../apps/weather-worker/src/weather-api-query-cache.repository';
 import {
   WEATHER_API_CACHE_COLLECTION,
   WeatherApiCacheDocument,
-} from '../../apps/weather-worker/src/persistence/weather-mongo.providers';
+} from '../../apps/weather-worker/src/infrastructure/weather-mongo.providers';
 import {
   WEATHER_CURRENT_QUERY,
   ACTIVITY_RANKINGS_QUERY,

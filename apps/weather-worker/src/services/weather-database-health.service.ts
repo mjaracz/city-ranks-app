@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { Db } from 'mongodb';
-import { WEATHER_MONGO_DATABASE } from '../persistence/weather-mongo.providers';
+import { WEATHER_MONGO_DATABASE } from '../infrastructure/weather-mongo.providers';
 
 @Injectable()
 export class WeatherDatabaseHealth {

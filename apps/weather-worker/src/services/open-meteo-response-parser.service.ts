@@ -2,11 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ClassConstructor, plainToInstance } from 'class-transformer';
 import { isObject, validateSync } from 'class-validator';
 import { CityQueryError } from '../../../../libs/contracts/src/city-query';
-import {
-  CityForecast,
-  CityLocation,
-  DailyWeatherForecast,
-} from '../../../../libs/models/src';
+import { CityForecast, CityLocation, DailyWeatherForecast } from '@libs/models';
 import { ForecastSnapshotDto } from '../dto/forecast-snapshot.dto';
 import {
   OpenMeteoCurrentResponseDto,

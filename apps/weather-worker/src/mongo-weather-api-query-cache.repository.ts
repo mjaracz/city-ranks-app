@@ -8,7 +8,7 @@ import {
 import {
   WEATHER_API_CACHE_COLLECTION,
   WeatherApiCacheDocument,
-} from './persistence/weather-mongo.providers';
+} from './infrastructure/weather-mongo.providers';
 
 function validateSignature(signature: string): void {
   if (typeof signature !== 'string' || !/^[a-f0-9]{64}$/.test(signature)) {

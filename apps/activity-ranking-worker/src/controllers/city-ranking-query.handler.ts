@@ -6,7 +6,7 @@ import type {
 } from '../../../../libs/contracts/src/city-query';
 import { cityQueryFailure } from '../../../../libs/contracts/src/city-query';
 import { CITY_RANKING_QUERY } from '../../../../libs/contracts/src/message-patterns';
-import type { CityRanking } from '../../../../libs/models/src';
+import type { CityRanking } from '@libs/models';
 import { CityRankingService } from '../services/city-ranking.service';
 
 @Controller()

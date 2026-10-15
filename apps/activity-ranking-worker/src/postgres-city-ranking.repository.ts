@@ -1,8 +1,8 @@
 import { validateCityRanking } from './domain/ranking-validation';
 import { Inject, Injectable } from '@nestjs/common';
 import type { Knex } from 'knex';
-import type { CityRanking } from '../../../libs/models/src';
-import { ACTIVITY_RANKING_KNEX } from './persistence/activity-ranking-knex';
+import type { CityRanking } from '@libs/models';
+import { ACTIVITY_RANKING_KNEX } from './infrastructure/activity-ranking-knex';
 import { CityRankingRepository } from './city-ranking.repository';
 
 @Injectable()

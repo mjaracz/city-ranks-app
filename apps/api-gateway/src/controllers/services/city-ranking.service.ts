@@ -5,13 +5,13 @@ import { firstValueFrom, timeout } from 'rxjs';
 import {
   ACTIVITY_RANKING_WORKER_CLIENT,
   CITY_RANKING_QUERY,
-} from '../../../../libs/contracts/src/message-patterns';
+} from '../../../../../libs/contracts/src/message-patterns';
 import {
   CityQueryError,
   CityQueryResult,
   normalizeCity,
-} from '../../../../libs/contracts/src/city-query';
-import type { CityRanking } from '../../../../libs/models/src';
+} from '../../../../../libs/contracts/src/city-query';
+import type { CityRanking } from '@libs/models';
 
 @Injectable()
 export class CityRankingGatewayService {

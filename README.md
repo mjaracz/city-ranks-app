@@ -56,7 +56,7 @@ Ambiguous names use the first Open-Meteo match; the returned country, region, co
 
 ## Architecture and persistence
 
-ApiGateway is the only HTTP application. GraphQL queries call the activity-ranking worker over NATS, and that worker requests forecasts from the weather worker over NATS. Domain workers expose message handlers only. Each owns its database and receives its repository through a port; there is no cross-service database access.
+ApiGateway is the only HTTP application. GraphQL queries call the activity-ranking worker over NATS, and that worker requests forecasts from the weather worker over NATS. Domain workers expose message handlers only, organized under `controllers`. GraphQL resolvers, schema types, configuration and error mapping live in `apps/api-gateway/src/controllers`; application services stay in `services`. Worker database adapters and migrations live in `infrastructure`, decorated payloads in `dto`, and validation helpers and custom constraints in `utils`. Each owns its database and receives its repository through a port; there is no cross-service database access.
 
 The weather worker persists validated geocoding responses, daily land forecasts, hourly snow depth and marine forecasts in MongoDB. Defaults are seven days for geocoding and one hour for forecasts, configurable with `GEOCODING_CACHE_TTL_MS` and `CITY_FORECAST_CACHE_TTL_MS`. Cache keys include the explicit local date window and exclude API credentials. The existing current-weather provider retains its separate 15-minute default. MongoDB TTL indexes remove expired entries; fresh reads also enforce the deadline directly.
 

@@ -1,12 +1,14 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import type { DomainCommand } from '../../../../libs/contracts/src/domain-command';
+import type {
+  CommandReceipt,
+  DomainCommand,
+} from '../../../../libs/contracts/src/domain-command';
 import {
   ACTIVITY_RANKING_REFRESH_COMMAND,
   WEATHER_FORECAST_REFRESH_COMMAND,
 } from '../../../../libs/contracts/src/message-patterns';
 import { JetStreamCommandBus } from '../../../../libs/messaging/src/jetstream-command-bus';
-import { CommandReceiptType } from '../command-receipt.type';
 
 interface WeatherCoordinates {
   latitude: number;
@@ -21,7 +23,7 @@ export class DomainCommandService {
     city: string,
     latitude?: number,
     longitude?: number,
-  ): Promise<CommandReceiptType> {
+  ): Promise<CommandReceipt> {
     if ((latitude === undefined) !== (longitude === undefined)) {
       throw new BadRequestException(
         'Latitude and longitude must be provided together',
@@ -53,7 +55,7 @@ export class DomainCommandService {
     );
   }
 
-  requestActivityRanking(city: string): Promise<CommandReceiptType> {
+  requestActivityRanking(city: string): Promise<CommandReceipt> {
     return this.publish(
       'activity-ranking',
       ACTIVITY_RANKING_REFRESH_COMMAND,
@@ -70,7 +72,7 @@ export class DomainCommandService {
     commandType: string,
     city: string,
     coordinates?: WeatherCoordinates,
-  ): Promise<CommandReceiptType> {
+  ): Promise<CommandReceipt> {
     const normalizedCity = city.trim();
     if (!normalizedCity || normalizedCity.length > 120) {
       throw new BadRequestException('City must contain 1 to 120 characters');

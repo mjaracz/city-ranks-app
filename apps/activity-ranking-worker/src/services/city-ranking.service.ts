@@ -11,11 +11,7 @@ import {
   WEATHER_WORKER_CLIENT,
 } from '../../../../libs/contracts/src/message-patterns';
 import { JetStreamEventStore } from '../../../../libs/messaging/src/jetstream-event-store';
-import {
-  CityForecast,
-  CityRanking,
-  localDate,
-} from '../../../../libs/models/src';
+import { CityForecast, CityRanking, localDate } from '@libs/models';
 import { CityRankingRepository } from '../city-ranking.repository';
 import {
   calculateCityRanking,
