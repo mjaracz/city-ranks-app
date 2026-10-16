@@ -10,7 +10,6 @@ import {
   OnModuleDestroy,
 } from '@nestjs/common';
 
-import { ACTIVITY_RANKING_REFRESH_COMMAND } from '@libs/contracts/message-patterns';
 import { JetStreamEventStore } from '@libs/messaging/jetstream-event-store';
 
 import { ACTIVITY_RANKING_COMMAND_CONSUMER } from '../infrastructure/activity-ranking-command-consumer';
