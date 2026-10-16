@@ -12,7 +12,6 @@ import {
   OnModuleDestroy,
 } from '@nestjs/common';
 
-import { WEATHER_FORECAST_REFRESH_COMMAND } from '@libs/contracts/message-patterns';
 import { JetStreamEventStore } from '@libs/messaging/jetstream-event-store';
 
 import { OpenMeteoProvider } from '../data-providers/open-meteo.provider';
