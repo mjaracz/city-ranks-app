@@ -1,6 +1,6 @@
 # SOLID class review
 
-Reviewed 116 current source classes across apps, libs and scripts, plus two retired Hello World classes. Test doubles are excluded. The inventory records responsibility and dependency boundaries; it does not claim formal verification of every SOLID property.
+This inventory covers source classes across apps, libs and scripts, plus two retired Hello World classes. Test doubles are excluded. It records responsibility and dependency boundaries; it does not claim formal verification of every SOLID property.
 
 ## Implemented separation
 
@@ -80,7 +80,6 @@ Reviewed 116 current source classes across apps, libs and scripts, plus two reti
 | WorkerHealthType | [apps/api-gateway/src/controllers/types/worker-health.type.ts:3](../../apps/api-gateway/src/controllers/types/worker-health.type.ts) | GraphQL output schema | Schema metadata only |
 | DomainCommandFactory | [apps/api-gateway/src/domain/domain-command.factory.ts:24](../../apps/api-gateway/src/domain/domain-command.factory.ts) | Construct validated commands and correlated receipts | Extracted or composed through DI |
 | CommandCityDto | [apps/api-gateway/src/dto/domain-command.dto.ts:14](../../apps/api-gateway/src/dto/domain-command.dto.ts) | Declarative input contract | DTO decorators only; no I/O |
-| CommandCoordinatesDto | [apps/api-gateway/src/dto/domain-command.dto.ts:22](../../apps/api-gateway/src/dto/domain-command.dto.ts) | Declarative input contract | DTO decorators only; no I/O |
 | CityRankingGatewayService | [apps/api-gateway/src/services/city-ranking.service.ts:16](../../apps/api-gateway/src/services/city-ranking.service.ts) | Ranking RPC and GraphQL error mapping | Retained cohesive responsibility |
 | DomainCommandService | [apps/api-gateway/src/services/domain-command.service.ts:9](../../apps/api-gateway/src/services/domain-command.service.ts) | Publication orchestration; delegates validation and command construction to factory | Extracted or composed through DI |
 | WorkerHealthService | [apps/api-gateway/src/services/worker-health.service.ts:17](../../apps/api-gateway/src/services/worker-health.service.ts) | Worker health RPCs and transport timeout mapping | Retained cohesive responsibility |

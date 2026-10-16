@@ -31,8 +31,6 @@ describe('ApiGateway controller module', () => {
     getWorkersHealth: jest.fn<WorkerHealthService['getWorkersHealth']>(),
   };
   const commands = {
-    requestWeatherRefresh:
-      jest.fn<DomainCommandService['requestWeatherRefresh']>(),
     requestActivityRanking:
       jest.fn<DomainCommandService['requestActivityRanking']>(),
   };
@@ -78,7 +76,7 @@ describe('ApiGateway controller module', () => {
     expect(rankings.getRanking).toHaveBeenCalledWith('Test Bay');
   });
 
-  it('preserves worker health and both command mutations', async () => {
+  it('preserves worker health and the activity ranking mutation', async () => {
     health.getWorkersHealth.mockResolvedValue([
       {
         service: 'weather-worker',
@@ -88,11 +86,6 @@ describe('ApiGateway controller module', () => {
         commandConsumer: 'available',
       },
     ]);
-    commands.requestWeatherRefresh.mockResolvedValue({
-      commandId: 'weather-command',
-      domain: 'weather',
-      accepted: true,
-    });
     commands.requestActivityRanking.mockResolvedValue({
       commandId: 'ranking-command',
       domain: 'activity-ranking',
@@ -110,21 +103,45 @@ describe('ApiGateway controller module', () => {
       .post('/graphql')
       .send({
         query:
-          'mutation { requestWeatherRefresh(city: "Porto", latitude: 41.1, longitude: -8.6) { commandId accepted } requestActivityRanking(city: "Porto") { commandId accepted } }',
+          'mutation { requestActivityRanking(city: "Porto") { commandId accepted } }',
       })
       .expect(200);
     expect(response.body.errors).toBeUndefined();
     expect(response.body.data).toEqual({
-      requestWeatherRefresh: { commandId: 'weather-command', accepted: true },
       requestActivityRanking: { commandId: 'ranking-command', accepted: true },
     });
-    expect(commands.requestWeatherRefresh).toHaveBeenCalledWith(
-      'Porto',
-      41.1,
-      -8.6,
-    );
     expect(commands.requestActivityRanking).toHaveBeenCalledWith('Porto');
   });
+
+  it('exposes only the activity ranking mutation in the public schema', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/graphql')
+      .send({ query: '{ __schema { mutationType { fields { name } } } }' })
+      .expect(200);
+
+    expect(response.body.errors).toBeUndefined();
+    expect(response.body.data.__schema.mutationType.fields).toEqual([
+      { name: 'requestActivityRanking' },
+    ]);
+  });
+
+  it.each(['city: "Porto"', 'city: "Porto", latitude: 41.1, longitude: -8.6'])(
+    'rejects the removed weather mutation with %s',
+    async (arguments_) => {
+      const response = await request(app.getHttpServer())
+        .post('/graphql')
+        .send({
+          query: `mutation { requestWeatherRefresh(${arguments_}) { commandId accepted } }`,
+        })
+        .expect(400);
+
+      expect(response.body.data).toBeUndefined();
+      expect(response.body.errors[0]).toMatchObject({
+        extensions: { code: 'GRAPHQL_VALIDATION_FAILED' },
+      });
+      expect(commands.requestActivityRanking).not.toHaveBeenCalled();
+    },
+  );
 
   it('preserves GraphQL domain error codes', async () => {
     rankings.getRanking.mockRejectedValue(

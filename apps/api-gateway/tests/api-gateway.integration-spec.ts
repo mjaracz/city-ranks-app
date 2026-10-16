@@ -61,7 +61,7 @@ describe('ApiGateway integration', () => {
     await weatherWorker?.close();
   });
 
-  it('reports workers and dispatches both domain commands through GraphQL', async () => {
+  it('reports workers and dispatches the ranking command through GraphQL', async () => {
     const healthResponse = await request(api.getHttpServer())
       .post('/graphql')
       .send({
@@ -81,18 +81,6 @@ describe('ApiGateway integration', () => {
       ]),
     );
 
-    const weatherResponse = await request(api.getHttpServer())
-      .post('/graphql')
-      .send({
-        query:
-          'mutation($city: String!) { requestWeatherRefresh(city: $city) { commandId domain accepted } }',
-        variables: { city: 'Reykjavik' },
-      })
-      .expect(200);
-    expect(weatherResponse.body.errors).toBeUndefined();
-    const weatherReceipt = weatherResponse.body.data.requestWeatherRefresh;
-    expect(weatherReceipt).toMatchObject({ domain: 'weather', accepted: true });
-
     const rankingResponse = await request(api.getHttpServer())
       .post('/graphql')
       .send({
@@ -108,19 +96,11 @@ describe('ApiGateway integration', () => {
       accepted: true,
     });
 
-    const [weatherEvent, rankingEvent] = await Promise.all([
-      waitForEvent(
-        'WEATHER_EVENTS',
-        'weather.events.forecast-refresh-requested.v1',
-        `${weatherReceipt.commandId}:forecast-refresh-requested`,
-      ),
-      waitForEvent(
-        'ACTIVITY_RANKING_EVENTS',
-        'activity-ranking.events.activity-ranking-refresh-requested.v1',
-        `${rankingReceipt.commandId}:activity-ranking-refresh-requested`,
-      ),
-    ]);
-    expect(weatherEvent.payload).toEqual({ city: 'Reykjavik' });
+    const rankingEvent = await waitForEvent(
+      'ACTIVITY_RANKING_EVENTS',
+      'activity-ranking.events.activity-ranking-refresh-requested.v1',
+      `${rankingReceipt.commandId}:activity-ranking-refresh-requested`,
+    );
     expect(rankingEvent.payload).toEqual({ city: 'Reykjavik' });
   });
 });
