@@ -34,7 +34,7 @@ The unresolved questions include calibration across different activities, skiing
 - `fe09b55`: the city-to-forecast-to-ranking business flow, daily heuristics, missing-data states and immutable results.
 - `197f63d` and `e0ce6a6`: runtime DTO validation and its tests. TypeScript interfaces alone do not validate upstream JSON.
 - `ea7ae95` and `558808e`: explicit business-policy owners and behavioral tests.
-- Current local follow-up: remove the misleading `requestWeatherRefresh` GraphQL mutation and its unused gateway plumbing. Internal NATS weather commands remain separate from the public city-ranking use case. This follow-up is carried on the dedicated feature branch for the refactor.
+- `5dfc593`: removed the misleading `requestWeatherRefresh` GraphQL mutation and its unused gateway plumbing. The change is already present in the fetched `develop` branch; internal NATS weather commands remain separate from the public city-ranking use case.
 
 ## AI assistance and verification
 
