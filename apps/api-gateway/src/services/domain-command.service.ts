@@ -15,14 +15,6 @@ export class DomainCommandService {
     private readonly commands: DomainCommandFactory,
   ) {}
 
-  async requestWeatherRefresh(
-    city: string,
-    latitude?: number,
-    longitude?: number,
-  ): Promise<CommandReceipt> {
-    return this.publish(this.commands.weather(city, latitude, longitude));
-  }
-
   async requestActivityRanking(city: string): Promise<CommandReceipt> {
     return this.publish(this.commands.ranking(city));
   }

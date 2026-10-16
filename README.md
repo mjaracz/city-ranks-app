@@ -4,6 +4,8 @@ This backend resolves a city or town and returns seven daily rankings of skiing,
 
 The framework-independent `CityRanking` interface and its nested models live in [`libs/models`](libs/models/src/city-ranking.ts). The initial scoring policy is `weather-suitability-v1`. Business questions, formulas and working assumptions are documented in [city ranking assumptions](docs/city-ranking-assumptions.md); matching implementation locations carry `BQ-01` through `BQ-10` markers. The provisional thresholds need business calibration.
 
+The [decision trail](docs/decision-trail.md) connects architecture and scope choices to commits, business-rule locations and the checks used during AI-assisted work.
+
 ## Run locally
 
 Use Node.js 20.19+ in the 20.x line or 22.12+.
@@ -66,11 +68,11 @@ The ranking worker stores a full seven-day result, including all 28 evaluations 
 
 Before opening a write transaction, the ranking worker validates result DTOs with class-transformer and class-validator. Custom constraints preserve competition ranks, daily and overall completeness, and the consecutive seven-day window. Historical results are checked against their stored date window.
 
-JetStream retains full `forecast-snapshot-accepted` and `city-ranking-computed` payloads. Durable `DOMAIN_COMMANDS` consumers use explicit acknowledgements and bounded retries. Ranking refresh commands now recompute from the weather worker's cached forecast. Existing coordinate-based weather refresh commands fetch current conditions; city-only weather refresh commands retain the scaffold request event. The existing numeric activity repository/query remain available for their repository and load-test use cases.
+JetStream retains full `forecast-snapshot-accepted` and `city-ranking-computed` payloads. Durable `DOMAIN_COMMANDS` consumers use explicit acknowledgements and bounded retries. Ranking refresh commands recompute from the weather worker's cached forecast. Legacy weather commands remain internal NATS operations: coordinate-based commands fetch current conditions, and city-only commands emit the scaffold request event. The existing numeric activity repository/query remain available for their repository and load-test use cases.
 
 Worker replicas share their domain's database, queue group and durable consumer. Concurrent misses are coalesced within a worker process. Full automatic event replay, permanent inbox/outbox handling, distributed refresh coordination, scheduled refresh and history retention remain operational follow-ups; the current adapters do not establish those guarantees.
 
-See [repository design](docs/repositories.md) and [repeatable worker load tests](docs/load-testing.md).
+See [repository design](docs/repositories.md), [repeatable worker load tests](docs/load-testing.md), and the concise [decision trail](docs/decision-trail.md).
 
 ## Other GraphQL operations
 
@@ -92,19 +94,9 @@ mutation {
     accepted
   }
 }
-
-mutation {
-  requestWeatherRefresh(
-    city: "Reykjavik"
-    latitude: 64.1466
-    longitude: -21.9426
-  ) {
-    commandId
-    domain
-    accepted
-  }
-}
 ```
+
+The public API exposes `cityRanking`, `workersHealth` and `requestActivityRanking`. City forecasts refresh on demand when their persisted data expires; the ranking mutation recomputes using the weather worker's current cache.
 
 ## Verification
 
