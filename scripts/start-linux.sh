@@ -7,4 +7,4 @@ if [ "$(uname -s)" != "Linux" ]; then
 fi
 
 repository_root="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
-exec node "$repository_root/scripts/local-environment.mjs" start
+exec node "$repository_root/scripts/local-environment.mjs" start production

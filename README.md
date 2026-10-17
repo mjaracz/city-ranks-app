@@ -2,7 +2,7 @@
 
 This GraphQL backend ranks skiing, surfing, outdoor sightseeing and indoor sightseeing for seven dates in a city's local timezone. It uses persisted Open-Meteo forecasts. Each date ranks its four activities independently. ApiGateway is the only HTTP service; the weather and ranking workers communicate over NATS and own their data stores.
 
-## Run locally
+## Run the production build locally
 
 Prerequisites: Node.js 20.19+ or 22.12+, pnpm, and Docker Compose v2 with Docker running. From the repository root, run the startup script for your operating system:
 
@@ -12,7 +12,7 @@ Prerequisites: Node.js 20.19+ or 22.12+, pnpm, and Docker Compose v2 with Docker
 | macOS              | `sh ./scripts/start-macos.sh`                                                     |
 | Windows PowerShell | `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-windows.ps1` |
 
-The script installs locked dependencies, starts NATS JetStream, MongoDB and PostgreSQL, applies migrations, then starts the services. Open [http://localhost:3000/graphql](http://localhost:3000/graphql) after startup. Stop the services with `node scripts/local-environment.mjs stop`.
+Each script installs locked dependencies, builds the compiled services, starts NATS JetStream, MongoDB and PostgreSQL, applies migrations, then runs the workers and API gateway from `dist/` with `NODE_ENV=production`. On Windows, each service runs in its own minimized terminal window. Logs and process IDs are stored under `.codex/logs` and `.codex/run`. The local production launcher enables GraphiQL for the API gateway, so [http://localhost:3000/graphql](http://localhost:3000/graphql) opens the browser IDE; other production deployments can enable it with `GRAPHQL_IDE_ENABLED=true`. Stop the services with `node scripts/local-environment.mjs stop`.
 
 ## Main assumptions
 

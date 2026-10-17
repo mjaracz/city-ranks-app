@@ -1,21 +1,53 @@
 import { spawn, spawnSync } from 'node:child_process';
-import { copyFileSync, closeSync, existsSync, mkdirSync, openSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  closeSync,
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  openSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 
-const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const repositoryRoot = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '..',
+);
 const logsDirectory = path.join(repositoryRoot, '.codex', 'logs');
 const runtimeDirectory = path.join(repositoryRoot, '.codex', 'run');
 const setupLogPath = path.join(logsDirectory, 'local-environment.log');
 const isWindows = process.platform === 'win32';
 const pnpmCommand = 'pnpm';
-const composeProjectName = process.env.CITY_RANKS_COMPOSE_PROJECT_NAME ?? 'city-ranks-local';
-const composeArguments = ['compose', '-p', composeProjectName, '-f', 'compose.yaml'];
+const composeProjectName =
+  process.env.CITY_RANKS_COMPOSE_PROJECT_NAME ?? 'city-ranks-local';
+const composeArguments = [
+  'compose',
+  '-p',
+  composeProjectName,
+  '-f',
+  'compose.yaml',
+];
 const services = [
-  { name: 'weather-worker', script: 'start:dev:weather-worker' },
-  { name: 'activity-ranking-worker', script: 'start:dev:activity-ranking-worker' },
-  { name: 'api-gateway', script: 'start:dev:api-gateway' },
+  {
+    name: 'weather-worker',
+    developmentScript: 'start:dev:weather-worker',
+    productionEntrypoint: 'dist/apps/weather-worker/main.js',
+  },
+  {
+    name: 'activity-ranking-worker',
+    developmentScript: 'start:dev:activity-ranking-worker',
+    productionEntrypoint: 'dist/apps/activity-ranking-worker/main.js',
+  },
+  {
+    name: 'api-gateway',
+    developmentScript: 'start:dev:api-gateway',
+    productionEntrypoint: 'dist/apps/api-gateway/main.js',
+    productionEnvironment: { GRAPHQL_IDE_ENABLED: 'true' },
+  },
 ];
 
 function ensureDirectories() {
@@ -51,19 +83,27 @@ function runForeground(command, args, label) {
   });
   logStep(label, result);
   if (result.error || result.status !== 0) {
-    throw new Error(`${label} failed. See ${path.relative(repositoryRoot, setupLogPath)} for details.`);
+    throw new Error(
+      `${label} failed. See ${path.relative(repositoryRoot, setupLogPath)} for details.`,
+    );
   }
 }
 
 function ensurePrerequisites() {
   if (!/^[a-z0-9][a-z0-9_-]{0,62}$/.test(composeProjectName)) {
-    throw new Error('CITY_RANKS_COMPOSE_PROJECT_NAME must start with a lowercase letter or number and contain only lowercase letters, numbers, hyphens or underscores.');
+    throw new Error(
+      'CITY_RANKS_COMPOSE_PROJECT_NAME must start with a lowercase letter or number and contain only lowercase letters, numbers, hyphens or underscores.',
+    );
   }
 
   const [major, minor] = process.versions.node.split('.').map(Number);
-  const supportedNode = (major === 20 && minor >= 19) || (major >= 22 && (major > 22 || minor >= 12));
+  const supportedNode =
+    (major === 20 && minor >= 19) ||
+    (major >= 22 && (major > 22 || minor >= 12));
   if (!supportedNode) {
-    throw new Error(`Node.js ${process.versions.node} is unsupported. Install Node.js 20.19+ or 22.12+.`);
+    throw new Error(
+      `Node.js ${process.versions.node} is unsupported. Install Node.js 20.19+ or 22.12+.`,
+    );
   }
 
   runForeground(pnpmCommand, ['--version'], 'Check pnpm');
@@ -75,15 +115,21 @@ function ensureEnvironmentFile() {
   const environmentPath = path.join(repositoryRoot, '.env');
   if (!existsSync(environmentPath)) {
     copyFileSync(examplePath, environmentPath);
-    console.log('Created .env from .env.example. Review its local development settings if needed.');
+    console.log(
+      'Created .env from .env.example. Review its local development settings if needed.',
+    );
     return;
   }
   console.log('Using the existing .env file.');
 }
 
 function getApiGatewayPort() {
-  if (process.env.API_GATEWAY_PORT !== undefined) return process.env.API_GATEWAY_PORT;
-  const environmentFile = readFileSync(path.join(repositoryRoot, '.env'), 'utf8');
+  if (process.env.API_GATEWAY_PORT !== undefined)
+    return process.env.API_GATEWAY_PORT;
+  const environmentFile = readFileSync(
+    path.join(repositoryRoot, '.env'),
+    'utf8',
+  );
   return environmentFile.match(/^API_GATEWAY_PORT=(\d+)$/m)?.[1] ?? '3000';
 }
 
@@ -97,7 +143,8 @@ function readServicePid(name) {
 
   try {
     const { pid } = JSON.parse(readFileSync(pidPath, 'utf8'));
-    if (!Number.isInteger(pid) || pid < 1) throw new Error('Invalid process ID');
+    if (!Number.isInteger(pid) || pid < 1)
+      throw new Error('Invalid process ID');
     process.kill(pid, 0);
     return pid;
   } catch (error) {
@@ -114,7 +161,7 @@ function sleep(milliseconds) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
-async function startService(service) {
+async function startService(service, mode) {
   const existingPid = readServicePid(service.name);
   if (existingPid) {
     console.log(`${service.name} is already running (PID ${existingPid}).`);
@@ -123,15 +170,33 @@ async function startService(service) {
 
   const logPath = path.join(logsDirectory, `${service.name}.log`);
   const logDescriptor = openSync(logPath, 'a');
-  writeFileSync(logDescriptor, `\n[${new Date().toISOString()}] Starting pnpm run ${service.script}\n`);
+  const production = mode === 'production';
+  const command = production ? process.execPath : pnpmCommand;
+  const args = production
+    ? [path.join(repositoryRoot, service.productionEntrypoint)]
+    : ['run', service.developmentScript];
+  const serviceEnvironment = production
+    ? {
+        ...process.env,
+        ...service.productionEnvironment,
+        NODE_ENV: 'production',
+      }
+    : process.env;
+  const commandDescription = production
+    ? `${command} ${args[0]}`
+    : `pnpm ${args.join(' ')}`;
+  writeFileSync(
+    logDescriptor,
+    `\n[${new Date().toISOString()}] Starting ${commandDescription}\n`,
+  );
 
   let spawnError;
   let exitResult;
-  const invocation = getCommandInvocation(pnpmCommand, ['run', service.script]);
+  const invocation = getCommandInvocation(command, args);
   const child = spawn(invocation.command, invocation.args, {
     cwd: repositoryRoot,
     detached: true,
-    env: process.env,
+    env: serviceEnvironment,
     stdio: ['ignore', logDescriptor, logDescriptor],
     windowsHide: true,
   });
@@ -155,7 +220,15 @@ async function startService(service) {
 
   writeFileSync(
     servicePidPath(service.name),
-    JSON.stringify({ pid: child.pid, startedAt: new Date().toISOString(), script: service.script }, null, 2),
+    JSON.stringify(
+      {
+        pid: child.pid,
+        startedAt: new Date().toISOString(),
+        command: production ? 'production' : service.developmentScript,
+      },
+      null,
+      2,
+    ),
   );
   child.unref();
   await sleep(1000);
@@ -167,24 +240,156 @@ async function startService(service) {
     );
   }
 
-  console.log(`${service.name} started as PID ${child.pid}; log: ${path.relative(repositoryRoot, logPath)}`);
+  console.log(
+    `${service.name} started as PID ${child.pid}; log: ${path.relative(repositoryRoot, logPath)}`,
+  );
 }
 
-async function startEnvironment() {
+function startMinimizedWindowsService(service) {
+  const standardOutputPath = path.join(logsDirectory, `${service.name}.log`);
+  const standardErrorPath = path.join(
+    logsDirectory,
+    `${service.name}.error.log`,
+  );
+  const launcherLogPath = path.join(
+    logsDirectory,
+    `${service.name}.launcher.log`,
+  );
+  const processIdPath = path.join(
+    runtimeDirectory,
+    `${service.name}.launch-pid`,
+  );
+  const entrypoint = path.join(repositoryRoot, service.productionEntrypoint);
+  writeFileSync(
+    standardOutputPath,
+    `\n[${new Date().toISOString()}] Starting production service\n`,
+    { flag: 'a' },
+  );
+  writeFileSync(
+    standardErrorPath,
+    `\n[${new Date().toISOString()}] Starting production service\n`,
+    { flag: 'a' },
+  );
+  writeFileSync(
+    launcherLogPath,
+    `\n[${new Date().toISOString()}] Launching minimized production service\n`,
+    { flag: 'a' },
+  );
+  rmSync(processIdPath, { force: true });
+
+  const powershellCommand = [
+    "$ErrorActionPreference = 'Stop'",
+    "$entrypoint = '\"' + $env:CITY_RANKS_SERVICE_ENTRYPOINT + '\"'",
+    '$process = Start-Process -FilePath $env:CITY_RANKS_NODE_EXECUTABLE -ArgumentList $entrypoint -WorkingDirectory $env:CITY_RANKS_REPOSITORY_ROOT -WindowStyle Minimized -RedirectStandardOutput $env:CITY_RANKS_SERVICE_STDOUT -RedirectStandardError $env:CITY_RANKS_SERVICE_STDERR -PassThru',
+    '[System.IO.File]::WriteAllText($env:CITY_RANKS_SERVICE_PID_FILE, [string]$process.Id)',
+  ].join('; ');
+  const powershellScript = `${powershellCommand} 2>> $env:CITY_RANKS_SERVICE_LAUNCHER_LOG`;
+  const result = spawnSync(
+    'powershell.exe',
+    ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', powershellScript],
+    {
+      cwd: repositoryRoot,
+      stdio: 'ignore',
+      env: {
+        ...process.env,
+        NODE_ENV: 'production',
+        ...service.productionEnvironment,
+        CITY_RANKS_NODE_EXECUTABLE: process.execPath,
+        CITY_RANKS_SERVICE_ENTRYPOINT: entrypoint,
+        CITY_RANKS_REPOSITORY_ROOT: repositoryRoot,
+        CITY_RANKS_SERVICE_STDOUT: standardOutputPath,
+        CITY_RANKS_SERVICE_STDERR: standardErrorPath,
+        CITY_RANKS_SERVICE_LAUNCHER_LOG: launcherLogPath,
+        CITY_RANKS_SERVICE_PID_FILE: processIdPath,
+      },
+      windowsHide: true,
+    },
+  );
+  logStep(`Start minimized ${service.name}`, result);
+  if (result.error || result.status !== 0) {
+    throw new Error(
+      `Could not start ${service.name} in a minimized terminal window. See ${path.relative(repositoryRoot, launcherLogPath)}.`,
+    );
+  }
+  if (!existsSync(processIdPath)) {
+    throw new Error(
+      `Could not read the ${service.name} process ID. See ${path.relative(repositoryRoot, launcherLogPath)}.`,
+    );
+  }
+
+  const pid = Number.parseInt(readFileSync(processIdPath, 'utf8').trim(), 10);
+  rmSync(processIdPath, { force: true });
+  if (!Number.isInteger(pid) || pid < 1) {
+    throw new Error(
+      `Could not read the ${service.name} process ID. See ${path.relative(repositoryRoot, launcherLogPath)}.`,
+    );
+  }
+  writeFileSync(
+    servicePidPath(service.name),
+    JSON.stringify(
+      { pid, startedAt: new Date().toISOString(), command: 'production' },
+      null,
+      2,
+    ),
+  );
+  console.log(
+    `${service.name} started as PID ${pid} in a minimized terminal window; logs: ${path.relative(repositoryRoot, logsDirectory)}`,
+  );
+  return pid;
+}
+
+async function startEnvironment(mode = 'development') {
+  if (!['development', 'production'].includes(mode)) {
+    throw new Error(
+      `Unknown startup mode "${mode}". Use "development" or "production".`,
+    );
+  }
+
   ensureDirectories();
   ensurePrerequisites();
   ensureEnvironmentFile();
-  runForeground(pnpmCommand, ['install', '--frozen-lockfile'], 'Install project dependencies');
-  runForeground('docker', [...composeArguments, 'up', '--detach', '--wait'], 'Start Docker Compose services');
-  runForeground(pnpmCommand, ['run', 'db:migrate:activity-ranking'], 'Apply activity ranking database migrations');
+  runForeground(
+    pnpmCommand,
+    ['install', '--frozen-lockfile'],
+    'Install project dependencies',
+  );
+  if (mode === 'production') {
+    runForeground(pnpmCommand, ['run', 'build'], 'Build production services');
+  }
+  runForeground(
+    'docker',
+    [...composeArguments, 'up', '--detach', '--wait'],
+    'Start Docker Compose services',
+  );
+  runForeground(
+    pnpmCommand,
+    ['run', 'db:migrate:activity-ranking'],
+    'Apply activity ranking database migrations',
+  );
 
   for (const service of services) {
-    await startService(service);
+    if (mode === 'production' && isWindows) {
+      const pid = startMinimizedWindowsService(service);
+      await sleep(1000);
+      if (!readServicePid(service.name)) {
+        throw new Error(
+          `${service.name} exited during startup (PID ${pid}). See ${path.relative(repositoryRoot, path.join(logsDirectory, `${service.name}.error.log`))}.`,
+        );
+      }
+    } else {
+      await startService(service, mode);
+    }
   }
 
-  console.log('Application processes launched. Confirm successful startup in the service logs before sending requests.');
-  console.log(`GraphQL endpoint: http://localhost:${getApiGatewayPort()}/graphql.`);
-  console.log(`Logs: ${path.relative(repositoryRoot, logsDirectory)}; process IDs: ${path.relative(repositoryRoot, runtimeDirectory)}`);
+  console.log(
+    `Application processes launched in ${mode} mode. Confirm successful startup in the service logs before sending requests.`,
+  );
+  console.log(
+    `GraphQL endpoint: http://localhost:${getApiGatewayPort()}/graphql.`,
+  );
+  console.log(
+    `Logs: ${path.relative(repositoryRoot, logsDirectory)}; process IDs: ${path.relative(repositoryRoot, runtimeDirectory)}`,
+  );
 }
 
 function isProcessGroupRunning(pid) {
@@ -204,14 +409,22 @@ async function stopService(name) {
   }
 
   if (isWindows) {
-    runForeground('taskkill', ['/PID', String(pid), '/T', '/F'], `Stop ${name}`);
+    runForeground(
+      'taskkill',
+      ['/PID', String(pid), '/T', '/F'],
+      `Stop ${name}`,
+    );
   } else {
     try {
       process.kill(-pid, 'SIGTERM');
     } catch (error) {
       if (error?.code !== 'ESRCH') throw error;
     }
-    for (let attempt = 0; attempt < 20 && isProcessGroupRunning(pid); attempt += 1) {
+    for (
+      let attempt = 0;
+      attempt < 20 && isProcessGroupRunning(pid);
+      attempt += 1
+    ) {
       await sleep(100);
     }
     if (isProcessGroupRunning(pid)) process.kill(-pid, 'SIGKILL');
@@ -233,7 +446,11 @@ async function stopEnvironment() {
   }
 
   try {
-    runForeground('docker', [...composeArguments, 'down'], 'Stop Docker Compose services');
+    runForeground(
+      'docker',
+      [...composeArguments, 'down'],
+      'Stop Docker Compose services',
+    );
   } catch (error) {
     errors.push(error);
   }
@@ -246,7 +463,7 @@ async function stopEnvironment() {
 async function main() {
   const action = process.argv[2] ?? 'start';
   if (action === 'start') {
-    await startEnvironment();
+    await startEnvironment(process.argv[3] ?? 'development');
   } else if (action === 'stop') {
     await stopEnvironment();
   } else {

@@ -24,7 +24,7 @@ import { WorkerHealthService } from './services/worker-health.service';
       driver: ApolloDriver,
       autoSchemaFile: true,
       sortSchema: true,
-      graphiql: !isProduction(),
+      graphiql: !isProduction() || process.env.GRAPHQL_IDE_ENABLED === 'true',
     }),
     ClientsModule.register([
       {
