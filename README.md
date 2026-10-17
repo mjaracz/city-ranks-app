@@ -27,6 +27,7 @@ The GraphQL API exposes `cityRanking`, `workersHealth` and `requestActivityRanki
 ## Further reading
 
 - [Project overview](docs/project-overview.md)
+- [Solution architecture and functional flow](docs/solution-architecture.md)
 - [Ranking assumptions and open business questions](docs/city-ranking-assumptions.md)
 - [Architecture and decision trail](docs/decision-trail.md)
 - [Repository design](docs/repositories.md)
